@@ -7,10 +7,10 @@ extra rules when playing with 2 players
 add neigh exseption
 */
 
-deck = require('C:\\Users\\antho\\Documents\\GitHub\\unstable-unicorns\\data.json');
+deck = require('./data.json');
 
-function foo() {
-    document.getElementById("text").innerHTML = "help";
+function foo(){
+    console.log(1)
 }
 
 class Card {
@@ -104,41 +104,42 @@ function getRandomInt(max) { // merge with the drawFromDeck function
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-let numOfPlayers = 4;
-players = []
-for (let index = 0; index < numOfPlayers; index++) {
-    players.push(new Player("p"+index))
-}
-let b = new Board(players);
-b.setup()
-let win = false
-let startingPlayer = getRandomInt(numOfPlayers)-1
-let p = players[startingPlayer]
-while (win == false) {
-    console.log("--beginning of turn phase--")
-    let action = -1;
-    p[startingPlayer].action(action)
-
-    console.log("--draw phase--")
-    p.addCards(b.drawFromDeck())
-
-    console.log("--action phase--")
-    action = -1;
-    p[startingPlayer].action(action)
-
-    console.log("--end of turn phase--")
-    if (p.winCondition){
-        win = true
-        break
+function main(numOfPlayers) {
+    players = []
+    for (let index = 0; index < numOfPlayers; index++) {
+        players.push(new Player("p"+index))
     }
-    if (p.checkHandNum()){
-        let discard = -1
-        players.discard(discard)
+    let b = new Board(players);
+    b.setup()
+    let win = false
+    let startingPlayer = getRandomInt(numOfPlayers)-1
+    let p = players[startingPlayer]
+    while (win == false) {
+        console.log("--beginning of turn phase--")
+        let action = -1;
+        p[startingPlayer].action(action)
+
+        console.log("--draw phase--")
+        p.addCards(b.drawFromDeck())
+
+        console.log("--action phase--")
+        action = -1;
+        p[startingPlayer].action(action)
+
+        console.log("--end of turn phase--")
+        if (p.winCondition){
+            win = true
+            break
+        }
+        if (p.checkHandNum()){
+            let discard = -1
+            players.discard(discard)
+        }
+        if (startingPlayer++ > numOfPlayers++){
+            startingPlayer == 0
+        } else {
+            startingPlayer ++
+        }
+        p = players[startingPlayer]
     }
-    if (startingPlayer++ > numOfPlayers++){
-        startingPlayer == 0
-    } else {
-        startingPlayer ++
-    }
-    p = players[startingPlayer]
 }
