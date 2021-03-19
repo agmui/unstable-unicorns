@@ -46,24 +46,24 @@ class Player {
     }
     addCards(cards) { // takes card object
         this.hand = this.hand.concat(cards)
-        console.log(this.name+"added" + cards + "to hand")
+        console.log(this.name+" added " + cards + " to hand")
     }
     discard(card){ // takes in index
         delete this.hand[card];
-        console.log(this.name+"discared" + card)
+        console.log(this.name+" discared " + card)
     }
-    play(card, player=false) {
+    play(card, player=false) { // could force a player to discard a card
         this.discard(card);
         if (player){
             this.stable.push(card);
         } else {
             player.play(card);
         }
-        console.log(this.name+"played" + card)
+        console.log(this.name+" played " + card)
     }
     destroy(card) { // removes card from stable
         delete this.stable[card];
-        console.log(this.name + "got" + card + "removed")
+        console.log(this.name + " got " + card + " removed")
     }
     checkHandNum(){
         return this.hand.length>7;
@@ -104,27 +104,29 @@ function getRandomInt(max) { // merge with the drawFromDeck function
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-function main(numOfPlayers) {
-    players = []
-    for (let index = 0; index < numOfPlayers; index++) {
-        players.push(new Player("p"+index))
+function main(numOfPlayers, test) {
+    let players = [] // fix, numOfPlayers is a dict
+    for (var i in numOfPlayers) {
+        players.push(new Player(numOfPlayers[i]))
     }
     let b = new Board(players);
     b.setup()
     let win = false
-    let startingPlayer = getRandomInt(numOfPlayers)-1
-    let p = players[startingPlayer]
+    let startingPlayer = getRandomInt(players.length)+1
+    let p = players[startingPlayer];
     while (win == false) {
-        console.log("--beginning of turn phase--")
-        let action = -1;
-        p[startingPlayer].action(action)
+        console.log("--beginning of turn phase--") // may affect other players
+        let action_ = -1;
+        console.log(p)
+        p.action(action_)
+        console.log(test)
 
         console.log("--draw phase--")
         p.addCards(b.drawFromDeck())
 
         console.log("--action phase--")
-        action = -1;
-        p[startingPlayer].action(action)
+        action_ = -1;
+        p.action(action_)
 
         console.log("--end of turn phase--")
         if (p.winCondition){
@@ -143,3 +145,7 @@ function main(numOfPlayers) {
         p = players[startingPlayer]
     }
 }
+// ts
+//main({"helpa3dv3":"host", "heeelapei":"p"}, true)
+
+module.exports = {Player, Board, main}

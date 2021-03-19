@@ -2,21 +2,24 @@
 <html>
   <head>
     <title>Unstable Unicorns</title>
-    <style rel="stylesheet" href="client.css"></style>
+    <link rel="stylesheet" href="client.css">
   </head>
   <body>
     <p id="text">Chat :</p>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
-      <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button>Enter</button>
+      <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button id="b">Enter</id=button>
     </form>
     <button onclick="draw()">Draw</button>
     <button onclick="discard()">Discard</button>
     <button onclick="play()">Play</button>
     <button onclick="destroy()">Destroy</button>
+    <p id="players">Who: </p>
+
+    <button id="ready" onclick="ready()">ready?</button>
+    <p id="score board">PLAYERS: </p>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="/server/PlayerClass.js"></script>
     <script src="client.js"></script>
   </body>
 </html>
