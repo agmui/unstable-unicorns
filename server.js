@@ -5,8 +5,8 @@ const io = require('socket.io')(http);
 const path = require('path');
 const PlayerClass = require('./server/PlayerClass');
 let playerList = {};
-let test = false
-let start_game = false
+let action = -1;
+let card = 0;
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname+'/client/index.html');
@@ -19,6 +19,7 @@ app.get('/client.js', (req, res) => {
 app.get('/client.css', (req, res) => {
   res.sendFile(process.cwd()+'/client/client.css');
 });
+
 
 io.on('connection', (socket) => {
   console.log('user '+socket.id+' joined');
@@ -46,30 +47,45 @@ io.on('connection', (socket) => {
   socket.on('ready', function(name){// make it so when everyone clicks ready then start
     if (name == 'host'){ // make the host the first person who joins and can be switchable
       io.emit('num of players', playerList)
-      start_game = true
+      game = new PlayerClass.Board(playerList);
+      game.setup();
+      io.emit('turn start', game.getWhosTurn());
     }
   });
-  socket.on('draw', function(name) {
-    console.log(name + " drew a card");
-    test = true
+  socket.on('draw', function(name) { 
+    act(0, name, socket)
   });
   socket.on('discard', function(name) {
-    console.log(name + " discarded a card");
+    act(1, name, socket)
   });
   socket.on('play', function(name) {
-    console.log(name + " played a card");
+    act(2, name, socket)
   });
   socket.on('destroy', function(name) {
-    console.log(name + " destroyed a card");
+    act(3, name, socket)
   });
-  socket.on('next', function(name) {
-    if (start_game) {
-      console.log('--game start--')
-      PlayerClass.main(playerList, test)
-      test = false
-    }
+  socket.on('pass', function(name) {
+    act(4, name, socket);
+  });
+  socket.on('undo', function(name) {
+    game.undo();
   });
 });
+function act(i, name, socket){
+  if (name == game.getTurn()){
+    game.action(i)
+  }
+  io.emit('phase', game.getPhase())
+  let x = socket.on('end', function(pressed){return pressed})
+  console.log(x)
+  if(x == true){
+    if (game.getPhase()==1 ){ 
+      console.log('switched turns')
+      io.emit('turn start', game.getWhosTurn());
+    }
+    console.log(1111)
+  }
+}
 
 
 http.listen(8080, () => {
