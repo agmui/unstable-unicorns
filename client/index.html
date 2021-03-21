@@ -19,8 +19,15 @@
     <p id="cards">Cards:</p>
 
     <p id="score board">PLAYERS: </p>
-    <button id="undo" onclick="undo()">UNDO</button>
-    <button id="end turn" onclick="endTurn()">End Turn</button>
+    <action id="btn">
+      <button id="actionBtn" onclick="draw()">Draw</button>
+      <button id="actionBtn" onclick="discard()">Discard</button>
+      <button id="actionBtn" onclick="play()">Play</button>
+      <button id="actionBtn" onclick="destroy()">Destroy</button>
+      <button id="actionBtn" onclick="pass()">Pass</button>
+      <button id="actionBtn" onclick="undo()">UNDO</button>
+      <button id="end turn" onclick="endTurn()">End Turn</button>
+    </action>
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
   </body>

@@ -94,6 +94,15 @@ class Board {
         } )
     }
     action(action, card = -1, toWho = false){
+        console.log('act:',action)
+        if (this.phase==5){
+            if (action == 5){
+                this.phase = 1
+                return
+            } else {
+                return
+            }
+        }
         switch(action){
             case 0://draw
                 this.players[this.turn].addCards(game.drawFromDeck(1))
@@ -112,32 +121,32 @@ class Board {
         }
         this.log.push([action, card, toWho]);
         this.phase++
-        if (this.phase>4){
-            this.phase = 1;
-        }
     }
     // looks at the most recent action in log and undoes it
-    /*undo(){
-        console.log("previos action was: "+this.log[-1])
-        let action = this.log[-1][0]
-        let card =
-        let who =
+    undo(){
+        let action = this.log[this.log.length-1][0]
+        let card = this.log[this.log.length-1][1]
+        let toWho = this.log[this.log.length-1][2]
+        console.log("previos action was: "+action)
         switch(action){
             case 0://draw
                 this.players[this.turn].UaddCards(card)
                 break
             case 1://discard
+                this.players[this.turn].Udiscard(card)
                 break
             case 2://play
+                this.players[this.turn].Uplay(card, toWho)
                 break
             case 3://destroy
+                this.players[this.turn].Udestroy(card)
                 break
             case 4://pass
                 break
         }
         this.log.pop()
         this.phase--;
-    }*/
+    }
     getWhosTurn(){ //NOTE not a accesser method
         //rotates to next player's turn
         this.turn++

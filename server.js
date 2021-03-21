@@ -53,37 +53,36 @@ io.on('connection', (socket) => {
     }
   });
   socket.on('draw', function(name) { 
-    act(0, name, socket)
+    act(0, name)
   });
   socket.on('discard', function(name) {
-    act(1, name, socket)
+    act(1, name)
   });
   socket.on('play', function(name) {
-    act(2, name, socket)
+    act(2, name)
   });
   socket.on('destroy', function(name) {
-    act(3, name, socket)
+    act(3, name)
   });
   socket.on('pass', function(name) {
-    act(4, name, socket);
+    act(4, name);
   });
   socket.on('undo', function(name) {
     game.undo();
   });
+  socket.on('end', function(name) {
+    act(5, name);
+  });
 });
-function act(i, name, socket){
+function act(i, name){
+  console.log(game.getTurn(), name)
   if (name == game.getTurn()){
     game.action(i)
   }
-  io.emit('phase', game.getPhase())
-  let x = socket.on('end', function(pressed){return pressed})
-  console.log(x)
-  if(x == true){
-    if (game.getPhase()==1 ){ 
-      console.log('switched turns')
-      io.emit('turn start', game.getWhosTurn());
-    }
-    console.log(1111)
+  io.emit('phase', game.getPhase(), game.getTurn())
+  if (game.getPhase()==1 ){ 
+    console.log('switched turns')
+    io.emit('turn start', game.getWhosTurn());
   }
 }
 

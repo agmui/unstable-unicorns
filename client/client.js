@@ -47,21 +47,15 @@ socket.on("num of players", function(playerList){
 socket.on("turn start", function(name){
   console.log(name+ "'s turn")  
   if (username == name){
-    // update gui to display whos turn
-    addBtn();
-    //console.log('phase: '+phase) fix idk
+    elem = document.getElementById('btn');
+    elem.style.display = "block";
   } else {
-    // update gui to display whos turn
-    for (let i = 0; i < 5; i++){
-      elem = document.getElementById('actionBtn');
-      if (typeof elem !== 'undefined' && elem !== null){
-        elem.remove();
-      }
-    }
+    elem = document.getElementById('btn');
+    elem.style.display = "none";
   }
 })
 
-socket.on("phase", function(phase){
+socket.on("phase", function(phase, name){
   let text;
   switch(phase){
     case 1:
@@ -75,6 +69,12 @@ socket.on("phase", function(phase){
       break
     case 4:
       text = "End of Turn Phase"
+      break
+    case 5:
+      text = "Press End Turn to continue"
+      if (name == username){
+        document.getElementById('end turn').style.display = "block";
+      }
       break
   }
   console.log('phase: '+text)
@@ -114,38 +114,7 @@ function undo(){ // try to make it so they cant undo when no moves have been don
   console.log(username+" undo action")
 }
 function endTurn(){
-  socket.emit('end', true);
+  socket.emit('end', username);
   console.log(username+" ends turn")
-}
-
-function addBtn(){
-  btn = document.createElement("BUTTON")
-  btn.innerHTML = 'Draw'
-  btn.id = 'actionBtn'
-  btn.onclick = function(){draw()}
-  document.body.appendChild(btn)
-
-  btn = document.createElement("BUTTON")
-  btn.innerHTML = 'Discard'
-  btn.id = 'actionBtn'
-  btn.onclick = function(){discard()}
-  document.body.appendChild(btn)
- 
-  btn = document.createElement("BUTTON")
-  btn.innerHTML = 'Play'
-  btn.id = 'actionBtn'
-  btn.onclick = function(){play()}
-  document.body.appendChild(btn)
-
-  btn = document.createElement("BUTTON")
-  btn.innerHTML = 'Destroy'
-  btn.id = 'actionBtn'
-  btn.onclick = function(){destroy()}
-  document.body.appendChild(btn)
-  
-  btn = document.createElement("BUTTON")
-  btn.innerHTML = 'Pass'
-  btn.id = 'actionBtn'
-  btn.onclick = function(){pass()}
-  document.body.appendChild(btn)
+  document.getElementById('end turn').style.display = "none";
 }
