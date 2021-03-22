@@ -656,14 +656,6 @@
         "deck": "Base"
     },
     {
-        "name": "Rules Reference Card",
-        "img": "Rules_Reference_Card.png",
-        "text": "8",
-        "type": "Base",
-        "quantity": "8",
-        "deck": "Control, Chaos"
-    },
-    {
         "name": "Baby Elficorn",
         "img": "Baby_Elficorn.png",
         "text": "If this card would be sacrificed, destroyed, or returned to your hand, return it to the Nursery instead.",

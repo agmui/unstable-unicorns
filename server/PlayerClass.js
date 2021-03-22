@@ -8,6 +8,7 @@ add neigh exseption
 */
 
 deck = require('./data.json');
+//pic = require('./card_images')
 
 class Card {
     constructor(name, text, type) {
@@ -40,9 +41,23 @@ class Player {
         }
         console.log(this.name+" played " + card)
     }
+    // could destroy card from another player's stable
     destroy(card) { // removes card from stable
         delete this.stable[card];
         console.log(this.name + " got " + card + " removed")
+    }
+    //returnToHand function? and a deck to stable function and choose on card from deck to hand
+    UaddCards(card){
+        this.discard(card)
+    }
+    Udiscard(card){
+        this.addCards(card)
+    }
+    Uplay(card, toWho){
+        toWho.destroy(card)
+    }
+    Udestroy(card){
+        this.play(card)
     }
     checkHandNum(){
         return this.hand.length>7;
@@ -85,87 +100,91 @@ class Board {
             this.deck[x] --
             final.push(new Card(deck[x].name, deck[x].text, deck[x].date))
         }
-        //this.updateGui(change)
         return final
     }
     setup(){
+        //this.players[0].addCards(this.drawFromDeck(1))
+        //this.players[1].addCards(this.drawFromDeck(1))
         this.players.forEach(p => {
-            p.addCards(this.drawFromDeck(5)) ;
-        } )
+            p.addCards(this.drawFromDeck(1))
+        })
+        /*this.players.forEach(p => {
+            p.move(p, this.drawFromDeck(5), deck, hand);
+        })*/
     }
-    action(action, card = -1, toWho = false){
-        console.log('act:',action)
-        if (this.phase==5){
-            if (action == 5){
-                this.phase = 1
-                return
-            } else {
-                return
-            }
-        }
-        switch(action){
-            case 0://draw
-                this.players[this.turn].addCards(game.drawFromDeck(1))
-                break
-            case 1://discard
-                this.players[this.turn].discard(card)
-                break
-            case 2://play
-                this.players[this.turn].play(card, toWho)
-                break
-            case 3://destroy
-                this.players[this.turn].destroy(card)
-                break
-            case 4://pass
-                break
-        }
-        this.log.push([action, card, toWho]);
-        this.phase++
+    move(name, card, from, to){ // card, and to could be a list so make multiple input same function
+        console.log('class.js: '+name + " moved " + card + " from " + from + " to " +to)
+
+        this.log.push([name, card, from, to]);
+        //this.updateGui(change)
     }
     // looks at the most recent action in log and undoes it
-    undo(){
+    undo(){//note acount if reseing action or entier phase
         let action = this.log[this.log.length-1][0]
         let card = this.log[this.log.length-1][1]
         let toWho = this.log[this.log.length-1][2]
-        console.log("previos action was: "+action)
-        switch(action){
-            case 0://draw
-                this.players[this.turn].UaddCards(card)
-                break
-            case 1://discard
-                this.players[this.turn].Udiscard(card)
-                break
-            case 2://play
-                this.players[this.turn].Uplay(card, toWho)
-                break
-            case 3://destroy
-                this.players[this.turn].Udestroy(card)
-                break
-            case 4://pass
-                break
-        }
+        console.log("previos action was: "+action, toWho)
         this.log.pop()
         this.phase--;
+        //this.updateGui(change)
     }
-    getWhosTurn(){ //NOTE not a accesser method
+    rotateTurn(){
         //rotates to next player's turn
         this.turn++
+        if (this.phase!=5){// probs can del
+            console.log("error: not end phase")
+            return
+        }
+        this.phase = 1
         if (this.turn>this.players.length-1){
             this.turn=0
         }
         return this.players[this.turn].getName();
     }
-    getTurn(){
-        return this.players[this.turn].getName();
+    rotatePhase(){
+        this.phase++
+        return this.phase;
     }
     getPhase(){
         return this.phase;
     }
-    getPlayersHand(){
-        return this.players[this.turn].getHand();
+    getTurn(){
+        return this.players[this.turn].getName();
     }
-    getPlayersStable(){
-        return this.players[this.turn].getStable();
+    //ask for visabliaty when getting state of domains
+    getState(name, other=false){ // could be improved to find the only change and send that
+        let userHand;
+        let userStable;
+        let OpponateHand = [];
+        let OpponateStable = [];
+        if (other) {
+            other = this.getDeckOrDiscard(other)//other can provide spsfication on what is visiable
+        }
+        for(let element of this.players) {
+            if(element.getName() == name){
+                userHand=element.getHand();
+                userStable=element.getStable();
+            } else {
+                OpponateHand.push([element.getName(), element.getHand()])
+                OpponateStable.push([element.getName(), element.getStable()])
+            }
+        };
+        let send = {
+            "PlayerHand" : userHand,
+            "PlayerStable" : userStable,
+            "OpponatesHand" : OpponateHand,
+            "OpponatesStable" : OpponateStable,
+            "DeckandDiscard" : other
+        }
+        return send
+    }
+    getDeckOrDiscard(){
+
+    }
+    testSendPic(name){
+        let pic = this.players[0].getHand()[0]['img']
+        let picpath = __dirname+'/card_img/'+pic
+        return picpath
     }
 }
 

@@ -1,12 +1,10 @@
-// try to make sure multiple players dont take the same username
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
 const PlayerClass = require('./server/PlayerClass');
 let playerList = {};
-let action = -1;
-let card = 0;
+var fs = require('fs');
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname+'/client/index.html');
@@ -49,42 +47,61 @@ io.on('connection', (socket) => {
       io.emit('num of players', playerList)
       game = new PlayerClass.Board(playerList);
       game.setup();
-      io.emit('turn start', game.getWhosTurn());
+      io.emit('turn start', game.getTurn());
+      io.emit('board update',game.getState(name));
     }
   });
-  socket.on('draw', function(name) { 
-    act(0, name)
+  socket.on('undo', function (username){ 
+    console.log(username,'undid a move')
+    io.emit('board update',game.getState());
   });
-  socket.on('discard', function(name) {
-    act(1, name)
+  socket.on('pass', function (username){ 
+    console.log(username, 'passed')
   });
-  socket.on('play', function(name) {
-    act(2, name)
+  socket.on('endPhase', function (username){ 
+    console.log('end phase')
+    io.emit('phase', game.rotatePhase(), game.getTurn())
   });
-  socket.on('destroy', function(name) {
-    act(3, name)
+  socket.on('endTurn', function (username){ 
+    if (game.getPhase()==5 ){ 
+      console.log('switched turns')
+      io.emit('turn start', game.rotateTurn());
+    }
+    io.emit('phase', game.getPhase(), game.getTurn())//idk maybe not need if statment
+	io.emit('board update',game.getState(username));
   });
-  socket.on('pass', function(name) {
-    act(4, name);
+  //----------- sending pic over
+  /*let readStream = fs.createReadStream(path.resolve(__dirname,'./server/card_images/Americorn.png'),{	
+	  encoding: 'binary'
+  }), chunks = [];
+
+  readStream.on('readable', function(){
+	  console.log('Image loading');
+  })
+  readStream.on('data', function(chunk){
+	  console.log('===yay===')
+	  chunk.push(chunk);
+	  	io.emit('img-chunk', chunk)
+  })
+  readStream.on('end', function(){
+	  console.log('Image loaded')
+  })*/
+  fs.readFile(__dirname + '/server/card_images/Americorn.png', function(err, buf){
+    // it's possible to embed binary data
+    // within arbitrarily-complex objects
+	socket.emit('image', { image: true, buffer: buf.toString('base64') });
+    console.log('image file is initialized');
   });
-  socket.on('undo', function(name) {
-    game.undo();
-  });
-  socket.on('end', function(name) {
-    act(5, name);
-  });
+  //-----------
+  //move functions
+	socket.on('move', function(username, card, from, to) { 
+		if (username == game.getTurn()){// may need to change getTurn for interupt cases or cut in line case
+			console.log("server.js: recived move function", username, card, from, to)
+			game.move(username, card, from, to)
+			io.emit('board update',game.getState(username));
+		}
+	});
 });
-function act(i, name){
-  console.log(game.getTurn(), name)
-  if (name == game.getTurn()){
-    game.action(i)
-  }
-  io.emit('phase', game.getPhase(), game.getTurn())
-  if (game.getPhase()==1 ){ 
-    console.log('switched turns')
-    io.emit('turn start', game.getWhosTurn());
-  }
-}
 
 
 http.listen(8080, () => {

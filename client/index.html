@@ -11,23 +11,29 @@
       <input id="input" autocomplete="off" /><button>Send</button>
       <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button id="b">Enter</button>
     </form>
-    <p id="players">Who: </p>
-
     <button id="ready" onclick="ready()">ready?</button>
     <p id="whosTurn">Turn</p>
     <p id="phaseUI"></p>
     <p id="cards">Cards:</p>
+    <player id="Player">
+      <hand id="PlayerHand">Hand:
 
+      </hand>
+      <stable id="PlayerStable">Stable:
+
+      </stable>
+    </player>
     <p id="score board">PLAYERS: </p>
     <action id="btn">
-      <button id="actionBtn" onclick="draw()">Draw</button>
-      <button id="actionBtn" onclick="discard()">Discard</button>
-      <button id="actionBtn" onclick="play()">Play</button>
-      <button id="actionBtn" onclick="destroy()">Destroy</button>
-      <button id="actionBtn" onclick="pass()">Pass</button>
-      <button id="actionBtn" onclick="undo()">UNDO</button>
-      <button id="end turn" onclick="endTurn()">End Turn</button>
+      <button id="move" onclick="move()">Move</button>
+      <button id="pass" onclick="pass()">Pass</button>
+      <button id="undo" onclick="undo()">UNDO</button>
+      <button id="endPhase" onclick="endPhase()">End Phase</button>
     </action>
+    <button id="end turn" onclick="endTurn()">End Turn</button>
+
+    <img id="canvas" src="" />
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
   </body>

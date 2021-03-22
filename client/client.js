@@ -34,9 +34,6 @@ socket.on("num of players", function(playerList){
   document.getElementById("ready").remove();
   document.getElementById('phaseUI').innerHTML = "Beginning Of Turn Phase";
   for (var element in playerList) {
-    let btn = document.createElement("BUTTON")
-    btn.innerHTML = playerList[element]; 
-    document.getElementById('players').appendChild(btn)
     var item = document.createElement('li');
     item.textContent = playerList[element];
     document.getElementById("score board").appendChild(item);
@@ -44,8 +41,9 @@ socket.on("num of players", function(playerList){
   }
 });
 
+//shows all action btn
 socket.on("turn start", function(name){
-  console.log(name+ "'s turn")  
+  document.getElementById('whosTurn').innerHTML = 'Turn: '+ name
   if (username == name){
     elem = document.getElementById('btn');
     elem.style.display = "block";
@@ -73,6 +71,7 @@ socket.on("phase", function(phase, name){
     case 5:
       text = "Press End Turn to continue"
       if (name == username){
+        document.getElementById('endPhase').style.display = "none";
         document.getElementById('end turn').style.display = "block";
       }
       break
@@ -80,41 +79,87 @@ socket.on("phase", function(phase, name){
   console.log('phase: '+text)
   document.getElementById('phaseUI').innerHTML = text;
 });
+socket.on('board update', function(updates){
+	let cards = document.createElement('li');
+	cards.textContent = updates["PlayerHand"];
+	document.getElementById("PlayerHand").appendChild(cards)
+	cards = document.createElement('li');
+	cards.textContent = updates["PlayerStable"];
+	document.getElementById("PlayerStable").appendChild(cards)
+	let opponate;//fix make better
+	let hand;
+	let stable;
+	for(let i of updates["OpponatesHand"]){
+		opponate = document.createElement(('opponate'+i[0]));
+		opponate.id = i[0]
+		opponate.innerHTML = i[0]+":"
+		document.getElementById("Player").append(opponate)
+		hand = document.createElement('hand');
+		hand.innerHTML = 'Hand:'
+		stable = document.createElement('stable');//help
+		stable.innerHTML - 'Stable:'
+		document.getElementById(i[0]).append(hand)
+		document.getElementById(i[0]).append(stable)
+		cards = document.createElement('li');
+		cards.textContent = i[1];
+		document.getElementById(i[0]).append(cards)
+	}
+	for(let i of updates["OpponatesStable"]){
+		cards = document.createElement('li');
+		cards.textContent = i[1];
+		document.getElementById(i[0]).append(cards)
+	}
+});
+//----img
+/*let imgChunks = [];
+socket.on('img-chunk', function(chunk){
+	console.log('===yay===')
+	var img = document.getElementById('img-stream2')
+	imgChunks.push(chunk);
+	img.setAttribute('src', 'data:img/jpeg;base64,'+window.btoa(imgChunks));
+});*/
 
 
+socket.on("image", function(info) {
+	if (info.image) {
+		console.log('==yay==')
+		let img = document.getElementById('canvas')
+	  img.src = 'data:image/jpeg;base64,' + info.buffer;
+	}
+});
+//------
+//=============================================================================
 function ready() {
   socket.emit('ready', username)
 }
-function draw(){
-  //socket.emit('chat message', username.value+": draw");
-  socket.emit('draw', username);
-  console.log(username+' draw')
-}
-function discard(){
-  //socket.emit('chat message', username.value+": discard");
-  socket.emit('discard', username);
-  console.log(username+' discareded')
-}
-function play(){
-  //socket.emit('chat message', username.value+": play");
-  socket.emit('play', username);
-  console.log(username+' play')
-}
-function destroy(){
-  //socket.emit('chat message', username.value+": destroy");
-  socket.emit('destroy', username);
-  console.log(username+' destroyed')
-}
-function pass(){
-  socket.emit('pass', username);
-  console.log(username+' passed')
-}
+//have the undo button be able to undo phases if nessisary
 function undo(){ // try to make it so they cant undo when no moves have been done
   socket.emit('undo', username);
   console.log(username+" undo action")
 }
+function pass(){
+  socket.emit('pass', username);
+  console.log(username+" passed phase")
+}
+function endPhase(){
+  socket.emit('endPhase', username);
+  console.log(username+" ends phase")
+}
 function endTurn(){
-  socket.emit('end', username);
+  socket.emit('endTurn', username);
   console.log(username+" ends turn")
+  document.getElementById('endPhase').style.display = "block";
   document.getElementById('end turn').style.display = "none";
 }
+// in gui have a way to look at any other domain like discard, hand, deck, etc
+
+//make pop up gui when choosing spesifucly who or amound or what goes to
+//also spesify to which players or how many players stuff cuz it could be all players or just one
+//make it so it cant movve to the same place (exseption like in deck move to top of deck)
+//move functions
+function move(card, from, to) {//to could just be 1, multiple, or all
+  socket.emit('move', username, card, from, to);
+  console.log(username+' moved '+ card + 'from ' + from + ' to ' + to)
+}
+
+//make some sourt of intuerupt or cut in line when reqiring other player's actions
