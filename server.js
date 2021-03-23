@@ -48,12 +48,14 @@ io.on('connection', (socket) => {
       game = new PlayerClass.Board(playerList);
       game.setup();
       io.emit('turn start', game.getTurn());
-      io.emit('board update',game.getState(name));
+      //io.emit('board update', update(name));
+      boardUpdate()
     }
   });
   socket.on('undo', function (username){ 
     console.log(username,'undid a move')
-    io.emit('board update',game.getState());
+    //io.emit('board update',game.getState());
+    boardUpdate()
   });
   socket.on('pass', function (username){ 
     console.log(username, 'passed')
@@ -68,39 +70,39 @@ io.on('connection', (socket) => {
       io.emit('turn start', game.rotateTurn());
     }
     io.emit('phase', game.getPhase(), game.getTurn())//idk maybe not need if statment
-	io.emit('board update',game.getState(username));
+    boardUpdate()
   });
-  //----------- sending pic over
-  /*let readStream = fs.createReadStream(path.resolve(__dirname,'./server/card_images/Americorn.png'),{	
-	  encoding: 'binary'
-  }), chunks = [];
-
-  readStream.on('readable', function(){
-	  console.log('Image loading');
-  })
-  readStream.on('data', function(chunk){
-	  console.log('===yay===')
-	  chunk.push(chunk);
-	  	io.emit('img-chunk', chunk)
-  })
-  readStream.on('end', function(){
-	  console.log('Image loaded')
-  })*/
-  fs.readFile(__dirname + '/server/card_images/Americorn.png', function(err, buf){
-    // it's possible to embed binary data
-    // within arbitrarily-complex objects
-	socket.emit('image', { image: true, buffer: buf.toString('base64') });
-    console.log('image file is initialized');
-  });
-  //-----------
   //move functions
 	socket.on('move', function(username, card, from, to) { 
 		if (username == game.getTurn()){// may need to change getTurn for interupt cases or cut in line case
 			console.log("server.js: recived move function", username, card, from, to)
 			game.move(username, card, from, to)
-			io.emit('board update',game.getState(username));
+			//io.emit('board update',game.getState(username));
+      boardUpdate()
 		}
 	});
+  //sending pic over
+  function sendPic(picDir, where, forWho){
+    if(picDir){
+      for(let i of picDir){
+        fs.readFile(__dirname + '/server/card_images/'+i, function(err, buf){
+          io.emit('image', { image: true, buffer: buf.toString('base64') }, where, forWho);
+        });
+      }
+    }
+  }
+  // sends pics of the updated board
+  function boardUpdate(){// try to make it so it just sends the only pic that has been updated
+    for ( let i in playerList){ 
+      let pics = game.getState(playerList[i])
+      sendPic(pics.PlayerHand, "PlayerHand", playerList[i])
+      sendPic(pics.PlayerStable, "PlayerStable", playerList[i])
+      for(let j = 0; j < pics.OpponateList.length; j++){
+        sendPic(pics.OpponateHand[j], pics.OpponateList[j]+"Hand", playerList[i])
+        sendPic(pics.OpponateStable[j], pics.OpponateList[j]+"Stable", playerList[i])
+      }
+    }
+  }
 });
 
 

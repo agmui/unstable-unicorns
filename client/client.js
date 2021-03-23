@@ -20,6 +20,7 @@ form.addEventListener('submit', function(e) {
     document.getElementById("username").remove();
     usernameInputValue.remove();
     document.getElementById("b").remove();
+    document.getElementById("displayName").innerHTML = "Player: "+username
   }
 });
 
@@ -33,11 +34,33 @@ socket.on('chat message', function(msg) {
 socket.on("num of players", function(playerList){
   document.getElementById("ready").remove();
   document.getElementById('phaseUI').innerHTML = "Beginning Of Turn Phase";
+	let item, opponate, hand, stable, name, img;// fix
   for (var element in playerList) {
-    var item = document.createElement('li');
-    item.textContent = playerList[element];
-    document.getElementById("score board").appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
+    name = playerList[element]
+    if (username != name){
+      // displaying player names gui
+      item = document.createElement('li');
+      item.textContent = name; 
+      document.getElementById("score board").appendChild(item);
+      window.scrollTo(0, document.body.scrollHeight);
+      // creating opponate gui
+      opponate = document.createElement(('opponate'+name));
+      opponate.id = name;
+      opponate.innerHTML = name+"'s cards: ";
+      document.getElementById("board").append(opponate)
+      hand = document.createElement('hand');
+      hand.innerHTML = 'Hand:'
+      img = document.createElement("IMG")
+      img.id = name+"Hand"
+      hand.append(img)
+      document.getElementById(name).append(hand)
+      stable = document.createElement('stable');
+      stable.innerHTML = 'Stable:'
+      img = document.createElement("IMG")
+      img.id = name+"Stable"
+      stable.append(img)
+      document.getElementById(name).append(stable)
+    }
   }
 });
 
@@ -79,55 +102,19 @@ socket.on("phase", function(phase, name){
   console.log('phase: '+text)
   document.getElementById('phaseUI').innerHTML = text;
 });
-socket.on('board update', function(updates){
-	let cards = document.createElement('li');
-	cards.textContent = updates["PlayerHand"];
-	document.getElementById("PlayerHand").appendChild(cards)
-	cards = document.createElement('li');
-	cards.textContent = updates["PlayerStable"];
-	document.getElementById("PlayerStable").appendChild(cards)
-	let opponate;//fix make better
-	let hand;
-	let stable;
-	for(let i of updates["OpponatesHand"]){
-		opponate = document.createElement(('opponate'+i[0]));
-		opponate.id = i[0]
-		opponate.innerHTML = i[0]+":"
-		document.getElementById("Player").append(opponate)
-		hand = document.createElement('hand');
-		hand.innerHTML = 'Hand:'
-		stable = document.createElement('stable');//help
-		stable.innerHTML - 'Stable:'
-		document.getElementById(i[0]).append(hand)
-		document.getElementById(i[0]).append(stable)
-		cards = document.createElement('li');
-		cards.textContent = i[1];
-		document.getElementById(i[0]).append(cards)
-	}
-	for(let i of updates["OpponatesStable"]){
-		cards = document.createElement('li');
-		cards.textContent = i[1];
-		document.getElementById(i[0]).append(cards)
-	}
-});
-//----img
-/*let imgChunks = [];
-socket.on('img-chunk', function(chunk){
-	console.log('===yay===')
-	var img = document.getElementById('img-stream2')
-	imgChunks.push(chunk);
-	img.setAttribute('src', 'data:img/jpeg;base64,'+window.btoa(imgChunks));
-});*/
 
-
-socket.on("image", function(info) {
-	if (info.image) {
-		console.log('==yay==')
-		let img = document.getElementById('canvas')
-	  img.src = 'data:image/jpeg;base64,' + info.buffer;
-	}
+// reciving imgs
+socket.on("image", function(info, where, forWho) {
+  if (forWho == username){
+    if (info.image) {
+      let img = document.getElementById(where)
+      img.src = 'data:image/jpeg;base64,' + info.buffer;
+      img.setAttribute("width", 150)
+      img.setAttribute("height", 200)
+      img.onclick = function(){console.log("test")}
+    }
+  }
 });
-//------
 //=============================================================================
 function ready() {
   socket.emit('ready', username)
@@ -151,6 +138,7 @@ function endTurn(){
   document.getElementById('endPhase').style.display = "block";
   document.getElementById('end turn').style.display = "none";
 }
+
 // in gui have a way to look at any other domain like discard, hand, deck, etc
 
 //make pop up gui when choosing spesifucly who or amound or what goes to

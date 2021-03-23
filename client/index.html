@@ -5,24 +5,25 @@
     <link rel="stylesheet" href="client.css">
   </head>
   <body>
-    <p id="text">Chat :</p>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-      <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button id="b">Enter</button>
-    </form>
+    <p id="displayName"></p>
     <button id="ready" onclick="ready()">ready?</button>
     <p id="whosTurn">Turn</p>
     <p id="phaseUI"></p>
     <p id="cards">Cards:</p>
-    <player id="Player">
-      <hand id="PlayerHand">Hand:
+    <board id="board">
+      <player id="Player">
+        <hand id="Hand">Hand:
 
-      </hand>
-      <stable id="PlayerStable">Stable:
+        <img id="PlayerHand" src="" />
 
-      </stable>
-    </player>
+        </hand>
+        <stable id="Stable">Stable:
+
+        <img id="PlayerStable" src="" />
+
+        </stable>
+      </player>
+    </board>
     <p id="score board">PLAYERS: </p>
     <action id="btn">
       <button id="move" onclick="move()">Move</button>
@@ -32,8 +33,13 @@
     </action>
     <button id="end turn" onclick="endTurn()">End Turn</button>
 
-    <img id="canvas" src="" />
 
+    <p id="text">Chat :</p>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+      <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button id="b">Enter</button>
+    </form>
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
   </body>

@@ -306,7 +306,7 @@
     {
         "name": "Magical Flying Unicorn",
         "img": "Magical_Flying_Unicorn.png",
-        "text": "(First Print): When this card enters your Stable, you may choose a Magic card from the discard pile and add it to your hand. If this card is sacrificed or destroyed, return it to your hand.(Second Print): When this card enters your Stable, you may choose a Magic card from the discard pile and add it to your hand. If this card would be sacrificed or destroyed, return it to your hand instead.",
+        "text": "(First Print): When this referencecard enters your Stable, you may choose a Magic card from the discard pile and add it to your hand. If this card is sacrificed or destroyed, return it to your hand.(Second Print): When this card enters your Stable, you may choose a Magic card from the discard pile and add it to your hand. If this card would be sacrificed or destroyed, return it to your hand instead.",
         "type": "Magical Unicorn",
         "quantity": "1",
         "deck": "Base"
@@ -1726,14 +1726,6 @@
         "type": "Instant",
         "quantity": "14",
         "deck": "Base"
-    },
-    {
-        "name": "Rules Reference Card",
-        "img": "Rules_Reference_Card.png",
-        "text": "8",
-        "type": "Base",
-        "quantity": "8",
-        "deck": "Control, Chaos"
     },
     {
         "name": "Nightmare Unicorn",

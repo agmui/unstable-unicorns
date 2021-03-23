@@ -7,14 +7,16 @@ extra rules when playing with 2 players
 add neigh exseption
 */
 
+const e = require('express');
+
 deck = require('./data.json');
-//pic = require('./card_images')
 
 class Card {
-    constructor(name, text, type) {
+    constructor(name, text, type, img) {
        this.name = name;
        this.text = text;
        this.type = type; 
+       this.img = img;
     }
 }
 
@@ -72,7 +74,7 @@ class Player {
         return this.hand;
     }
     getStable(){
-        return this.hand;
+        return this.stable;
     }
 }
 
@@ -98,7 +100,7 @@ class Board {
                 var x = getRandomInt(deck.length);
             } while(this.deck[x]==0);
             this.deck[x] --
-            final.push(new Card(deck[x].name, deck[x].text, deck[x].date))
+            final.push(new Card(deck[x].name, deck[x].text, deck[x].date, deck[x].img))
         }
         return final
     }
@@ -153,38 +155,50 @@ class Board {
     }
     //ask for visabliaty when getting state of domains
     getState(name, other=false){ // could be improved to find the only change and send that
-        let userHand;
-        let userStable;
+        let userHand = [];//fix
+        let userStable = [];
+        let list = [];
         let OpponateHand = [];
         let OpponateStable = [];
+        let test = []
         if (other) {
             other = this.getDeckOrDiscard(other)//other can provide spsfication on what is visiable
         }
         for(let element of this.players) {
             if(element.getName() == name){
-                userHand=element.getHand();
-                userStable=element.getStable();
+                for (let i of element.getHand()){
+                    userHand.push(i.img)
+                }
+                for (let i of element.getStable()){
+                    userStable.push(i.img)
+                }
             } else {
-                OpponateHand.push([element.getName(), element.getHand()])
-                OpponateStable.push([element.getName(), element.getStable()])
+                list.push(element.getName())
+                test = []
+                for (let i of element.getHand()){
+                    test.push(i.img)
+                }
+                OpponateHand.push(test)
+                test = []
+                for (let i of element.getStable()){
+                    test.push(i.img)
+                }
+                OpponateStable.push(test)
+
             }
         };
         let send = {
-            "PlayerHand" : userHand,
-            "PlayerStable" : userStable,
-            "OpponatesHand" : OpponateHand,
-            "OpponatesStable" : OpponateStable,
-            "DeckandDiscard" : other
+            PlayerHand : userHand,
+            PlayerStable : userStable,
+            OpponateList : list,
+            OpponateHand : OpponateHand,
+            OpponateStable : OpponateStable,
+            DeckandDiscard : other
         }
         return send
     }
     getDeckOrDiscard(){
 
-    }
-    testSendPic(name){
-        let pic = this.players[0].getHand()[0]['img']
-        let picpath = __dirname+'/card_img/'+pic
-        return picpath
     }
 }
 
@@ -199,28 +213,5 @@ if (require.main === module){
     let list = {'longString1':'host','longString2':'p1','longString3':'p2'};
     let game = new Board(list);
     game.setup();
-    // have the game return what everyone's hands look like after every action so gui can update
-    // note just running the actions automadicly updates the gui so no need to run the update gui function
-    console.log(game.getWhosTurn())
-
-    let action = -1;
-    let card = 0;
-    //-----beginning of turn phase---
-    action = 1; // could be 0-3
-    card = 0;
-    game.action(action, card);
-    // have the game return what everyone's hands look like after every action so gui can update
-    //-----draw phase---
-    action = 0;
-    game.action(action);
-    //-----action phase---
-    action = 2;// could be 0-3
-    card = 0;
-    game.action(action, card);
-    //-----end of turn phase---
-    action = 1; // could be 0-3
-    card = 0;
-    game.action(action, card);
-    console.log(game.getWhosTurn()); // roatates to next person
-    //repeat
+    console.log(game.getState("host"))
 }
