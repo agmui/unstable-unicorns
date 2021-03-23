@@ -10,20 +10,20 @@
     <p id="whosTurn">Turn</p>
     <p id="phaseUI"></p>
     <p id="cards">Cards:</p>
-    <board id="board">
-      <player id="Player">
-        <hand id="Hand">Hand:
+    <div id="board">
+      <div id="Player">
+        <div id="Hand">Hand:
 
-        <img id="PlayerHand" src="" />
+          <img data-modal-target="#modal" id="PlayerHand" src="" />
 
-        </hand>
-        <stable id="Stable">Stable:
+        </div>
+        <div id="Stable">Stable:
 
-        <img id="PlayerStable" src="" />
+          <img data-modal-target="#modal" id="PlayerStable" src="" />
 
-        </stable>
-      </player>
-    </board>
+        </div>
+      </div>
+    </div>
     <p id="score board">PLAYERS: </p>
     <action id="btn">
       <button id="move" onclick="move()">Move</button>
@@ -33,6 +33,17 @@
     </action>
     <button id="end turn" onclick="endTurn()">End Turn</button>
 
+    <button data-modal-target="#modal">Open Modal</button>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <div class="title">Example Modal</div>
+            <button data-close-button class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum recusandae fugit cupiditate dignissimos, repudiandae praesentium ad eum odio laboriosam iure aspernatur nobis necessitatibus esse placeat, sapiente quod magni, itaque alias.
+        </div>
+    </div>
+    <div id="overlay"></div>
 
     <p id="text">Chat :</p>
     <ul id="messages"></ul>
@@ -40,6 +51,8 @@
       <input id="input" autocomplete="off" /><button>Send</button>
       <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button id="b">Enter</button>
     </form>
+
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
   </body>

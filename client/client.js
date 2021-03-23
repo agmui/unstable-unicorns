@@ -44,19 +44,21 @@ socket.on("num of players", function(playerList){
       document.getElementById("score board").appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
       // creating opponate gui
-      opponate = document.createElement(('opponate'+name));
+      opponate = document.createElement(('div'));
       opponate.id = name;
       opponate.innerHTML = name+"'s cards: ";
       document.getElementById("board").append(opponate)
-      hand = document.createElement('hand');
+      hand = document.createElement('div');
       hand.innerHTML = 'Hand:'
       img = document.createElement("IMG")
+      img.setAttribute("data-modal-target", '#modal')
       img.id = name+"Hand"
       hand.append(img)
       document.getElementById(name).append(hand)
-      stable = document.createElement('stable');
+      stable = document.createElement('div');
       stable.innerHTML = 'Stable:'
       img = document.createElement("IMG")
+      img.setAttribute("data-modal-target", '#modal')
       img.id = name+"Stable"
       stable.append(img)
       document.getElementById(name).append(stable)
@@ -108,14 +110,14 @@ socket.on("image", function(info, where, forWho) {
   if (forWho == username){
     if (info.image) {
       let img = document.getElementById(where)
+      //img.setAttribute("data-modal-target", '#modal')
       img.src = 'data:image/jpeg;base64,' + info.buffer;
       img.setAttribute("width", 150)
       img.setAttribute("height", 200)
-      img.onclick = function(){console.log("test")}
     }
   }
 });
-//=============================================================================
+//================================Btns=============================================
 function ready() {
   socket.emit('ready', username)
 }
@@ -151,3 +153,42 @@ function move(card, from, to) {//to could just be 1, multiple, or all
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
+
+//=======================popup==========================================
+const openModalButtons = document.querySelectorAll('[data-modal-target')
+console.log(openModalButtons)
+const closeModalButtons = document.querySelectorAll('[data-close-button')
+const overlay = document.getElementById('overlay')
+
+openModalButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const modal = document.querySelector(button.dataset.modalTarget)
+        openModal(modal)
+    })
+})
+
+overlay.addEventListener('click', () => { //closes popup when clicking outside of popup
+    const modals = document.querySelectorAll('.modal.active')
+    modals.forEach( modal => {
+        closeModal(modal)
+    })
+})
+
+closeModalButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const modal = button.closest('.modal')
+        closeModal(modal)
+    })
+})
+
+function openModal(modal) {
+    if (modal == null) return
+    modal.classList.add('active')
+    overlay.classList.add('active')
+}
+
+function closeModal(modal) {
+    if (modal == null) return
+    modal.classList.remove('active')
+    overlay.classList.remove('active')
+}
