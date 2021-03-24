@@ -1,59 +1,52 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Unstable Unicorns</title>
-    <link rel="stylesheet" href="client.css">
-  </head>
-  <body>
-    <p id="displayName"></p>
-    <button id="ready" onclick="ready()">ready?</button>
-    <p id="whosTurn">Turn</p>
-    <p id="phaseUI"></p>
-    <p id="cards">Cards:</p>
-    <div id="board">
-      <div id="Player">
-        <div id="Hand">Hand:
-
-          <img data-modal-target="#modal" id="PlayerHand" src="" />
-
+    <head>
+        <title>Unstable Unicorns</title>
+        <link rel="stylesheet" href="client.css">
+    </head>
+    <body>
+        <p id="displayName"></p>
+        <button id="ready" onclick="ready()">ready?</button>
+        <p id="whosTurn">Turn</p>
+        <p id="phaseUI"></p>
+        <p id="cards">Cards:</p>
+        <div id="board">
+            <div id="Player">
+                <div id="Hand">Hand:
+                    <img data-modal-target="#modal" id="PlayerHand" src="" />
+                </div>
+                <div id="Stable">Stable:
+                    <img data-modal-target="#modal" id="PlayerStable" src="" />
+                </div>
+            </div>
         </div>
-        <div id="Stable">Stable:
-
-          <img data-modal-target="#modal" id="PlayerStable" src="" />
-
+        <p id="score board">Players: </p>
+        <action id="btn">
+            <button id="move" onclick="move()">Move</button>
+            <button id="pass" onclick="pass()">Pass</button>
+            <button id="undo" onclick="undo()">UNDO</button>
+            <button id="endPhase" onclick="endPhase()">End Phase</button>
+        </action>
+        <button id="end turn" onclick="endTurn()">End Turn</button>
+        <button data-modal-target="#modal">Open Modal</button>
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="title">Example Modal</div>
+                <button data-close-button class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum recusandae fugit cupiditate dignissimos, repudiandae praesentium ad eum odio laboriosam iure aspernatur nobis necessitatibus esse placeat, sapiente quod magni, itaque alias.
+            </div>
         </div>
-      </div>
-    </div>
-    <p id="score board">PLAYERS: </p>
-    <action id="btn">
-      <button id="move" onclick="move()">Move</button>
-      <button id="pass" onclick="pass()">Pass</button>
-      <button id="undo" onclick="undo()">UNDO</button>
-      <button id="endPhase" onclick="endPhase()">End Phase</button>
-    </action>
-    <button id="end turn" onclick="endTurn()">End Turn</button>
-
-    <button data-modal-target="#modal">Open Modal</button>
-    <div class="modal" id="modal">
-        <div class="modal-header">
-            <div class="title">Example Modal</div>
-            <button data-close-button class="close-button">&times;</button>
-        </div>
-        <div class="modal-body">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum recusandae fugit cupiditate dignissimos, repudiandae praesentium ad eum odio laboriosam iure aspernatur nobis necessitatibus esse placeat, sapiente quod magni, itaque alias.
-        </div>
-    </div>
-    <div id="overlay"></div>
-
-    <p id="text">Chat :</p>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-      <p id="username">Enter Username:</p><input id="username_input" autocomplete="off" /><button id="b">Enter</button>
-    </form>
-
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
-  </body>
+        <div id="overlay"></div>
+        <p id="text">Chat: </p>
+        <ul id="messages"></ul>
+        <form id="form" action="">
+            <input id="input" autocomplete="off" /><button>Send</button>
+            <p id="username">Enter Username:</p>
+            <input id="username_input" autocomplete="off" /><button id="b">Enter</button>
+        </form>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="client.js"></script>
+    </body>
 </html>
