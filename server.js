@@ -40,6 +40,8 @@ io.on('connection', (socket) => {
             io.emit('chat message', name + " joined the game")
             playerList[socket.id] = name;
             console.log('playerList: ', playerList)
+        } else {
+            io.emit("That username is taken!");
         }
     });
     socket.on('ready', function(name) { // make it so when everyone clicks ready then start
