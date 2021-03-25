@@ -10,15 +10,11 @@
         <p id="whosTurn">Turn</p>
         <p id="phaseUI"></p>
         <p id="cards">Cards:</p>
-        <div id="board">
-            <div id="Player">
-                <div id="Hand">Hand:
-                    <img data-modal-target="#modal" id="PlayerHand" src="" />
-                </div>
-                <div id="Stable">Stable:
-                    <img data-modal-target="#modal" id="PlayerStable" src="" />
-                </div>
-            </div>
+        <div  id="board" data-modal-target="modal">
+          <div id="Player">
+            <div id="PlayerHand">Hand:</div>
+            <div id="PlayerStable">Stable:</div>
+          </div>
         </div>
         <p id="score board">Players: </p>
         <action id="btn">
@@ -31,11 +27,26 @@
         <button data-modal-target="#modal">Open Modal</button>
         <div class="modal" id="modal">
             <div class="modal-header">
-                <div class="title">Example Modal</div>
+                <div class="title">Move Card</div>
                 <button data-close-button class="close-button">&times;</button>
             </div>
             <div class="modal-body">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum recusandae fugit cupiditate dignissimos, repudiandae praesentium ad eum odio laboriosam iure aspernatur nobis necessitatibus esse placeat, sapiente quod magni, itaque alias.
+              from:
+              <div id="from">
+                  <button id="deck" onclick="recivedClick(this.id, 1)">deck</button>
+                  <button id="discard" onclick="recivedClick(this.id, 1)">discard</button>
+                  <button id="Hand" onclick="recivedClick(this.id, 1)">Hand</button>
+                  <button id="Stable" onclick="recivedClick(this.id, 1)">Stable</button>
+              </div>
+              to:
+              <div id="to">
+                  <button id="deck" onclick="recivedClick(this.id, 2)">deck</button>
+                  <button id="discard" onclick="recivedClick(this.id, 2)">discard</button>
+                  <button id="Hand" onclick="recivedClick(this.id, 2)">Hand</button>
+                  <button id="Stable" onclick="recivedClick(this.id, 2)">Stable</button>
+              </div>
+              <p id="confirm"></p>
+              <button onclick="move()">Confirm</button>
             </div>
         </div>
         <div id="overlay"></div>

@@ -34,7 +34,7 @@ socket.on('chat message', function(msg) {
 socket.on("num of players", function(playerList){
   document.getElementById("ready").remove();
   document.getElementById('phaseUI').innerHTML = "Beginning Of Turn Phase";
-	let item, opponate, hand, stable, name, img;// fix
+	let item, opponate, hand, stable, name;// fix
   for (var element in playerList) {
     name = playerList[element]
     if (username != name){
@@ -44,24 +44,21 @@ socket.on("num of players", function(playerList){
       document.getElementById("score board").appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
       // creating opponate gui
-      opponate = document.createElement(('div'));
+      opponate = document.createElement('div');
       opponate.id = name;
       opponate.innerHTML = name+"'s cards: ";
       document.getElementById("board").append(opponate)
+
+
       hand = document.createElement('div');
+      hand.id = name+'Hand'
       hand.innerHTML = 'Hand:'
-      img = document.createElement("IMG")
-      img.setAttribute("data-modal-target", '#modal')
-      img.id = name+"Hand"
-      hand.append(img)
-      document.getElementById(name).append(hand)
+      opponate.append(hand)
+
       stable = document.createElement('div');
+      stable.id = name+'Stable'
       stable.innerHTML = 'Stable:'
-      img = document.createElement("IMG")
-      img.setAttribute("data-modal-target", '#modal')
-      img.id = name+"Stable"
-      stable.append(img)
-      document.getElementById(name).append(stable)
+      opponate.append(stable)
     }
   }
 });
@@ -106,14 +103,16 @@ socket.on("phase", function(phase, name){
 });
 
 // reciving imgs
-socket.on("image", function(info, where, forWho) {
+socket.on("image", function(info, where, forWho, cardName) {
   if (forWho == username){
     if (info.image) {
-      let img = document.getElementById(where)
-      //img.setAttribute("data-modal-target", '#modal')
+      let img = document.createElement("IMG")
       img.src = 'data:image/jpeg;base64,' + info.buffer;
+      img.id = cardName
+      img.onclick = recivedClick(img.id, 3)
       img.setAttribute("width", 150)
       img.setAttribute("height", 200)
+      document.getElementById(where).appendChild(img)
     }
   }
 });
@@ -141,20 +140,38 @@ function endTurn(){
   document.getElementById('end turn').style.display = "none";
 }
 
+//=======================popup==========================================
 // in gui have a way to look at any other domain like discard, hand, deck, etc
 
 //make pop up gui when choosing spesifucly who or amound or what goes to
 //also spesify to which players or how many players stuff cuz it could be all players or just one
 //make it so it cant movve to the same place (exseption like in deck move to top of deck)
 //move functions
-function move(card, from, to) {//to could just be 1, multiple, or all
+let from, to, card
+function recivedClick(btnId, where) {
+  switch (where){
+    case 1:
+      from = btnId
+      document.getElementById('confirm').innerHTML += 'from: '+ from + ' '
+      break
+    case 2:
+      to = btnId
+      document.getElementById('confirm').innerHTML += 'to: '+ to + ' '
+      break
+    case 3:
+      card = btnId // card is not returned correctly
+      document.getElementById('confirm').innerHTML += 'card: '+ card + ' '
+      break
+  }
+}
+function move() {//to could just be 1, multiple, or all
   socket.emit('move', username, card, from, to);
   console.log(username+' moved '+ card + 'from ' + from + ' to ' + to)
+  document.getElementById('confirm').innerHTML = ''
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
 
-//=======================popup==========================================
 const openModalButtons = document.querySelectorAll('[data-modal-target')
 console.log(openModalButtons)
 const closeModalButtons = document.querySelectorAll('[data-close-button')
