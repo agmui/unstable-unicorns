@@ -61,13 +61,13 @@ socket.on("num of players", function(playerList){
 
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = "recivedClick(this.id, 1)" // unable to add onclick events to any button
+      opponate.onclick = function(){recivedClick(this.id, 1)} // unable to add onclick events to any button
       opponate.innerHTML = name+"'s hand"
       document.getElementById('from').append(opponate)
 
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = "recivedClick(this.id, 2)"
+      opponate.onclick = function(){recivedClick(this.id, 2)}
       opponate.innerHTML = name+"'s stable"
       document.getElementById('to').append(opponate)
     }
@@ -119,13 +119,12 @@ socket.on("image", function(info, where, forWho, cardName) {
   if (forWho == username){
     if (info.image) {
       let img = document.createElement("IMG")
-      img.onclick = "recivedClick(img.id, 3)"
-      img.addEventListener("click", recivedClick(img.id, 3))
-      //img.src = 'data:image/jpeg;base64,' + info.buffer;
-      //img.id = cardName
-      //img.setAttribute("data-modal-target", "#modal")
-      //img.setAttribute("width", 150)
-      //img.setAttribute("height", 200)
+      img.onclick = function(){recivedClick(img.id, 3)}
+      img.src = 'data:image/jpeg;base64,' + info.buffer;
+      img.id = cardName
+      img.setAttribute("data-modal-target", "#modal")
+      img.setAttribute("width", 150)
+      img.setAttribute("height", 200)
       document.getElementById(where).appendChild(img)
     }
   }

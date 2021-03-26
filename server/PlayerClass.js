@@ -26,6 +26,20 @@ class Player {
         this.hand = [];
         this.stable = [];
     }
+    addCard(card, where) { // card should be a list
+        if (where == "hand"){
+            this.hand.concat(card) ;
+        } else if (where == "stable") {
+            this.stable.concat(card)
+        }
+    }
+    removeCard(card, where) {
+        if (where == "hand"){
+            this.hand.filter(n => !card.includes(n))
+        } else if (where == "stable"){
+            this.stable.filter(n => !card.includes(n))
+        }
+    }
     addCards(cards) { // takes card object in list form
         this.hand = this.hand.concat(cards)
         console.log(this.name+" added " + cards.length + " card(s) to hand")
@@ -60,7 +74,7 @@ class Player {
     }
     Udestroy(card){
         this.play(card)
-    }
+    }//*/
     checkHandNum(){
         return this.hand.length>7;
     }
@@ -116,9 +130,12 @@ class Board {
     }
     move(name, card, from, to){ // card, and to could be a list so make multiple input same function
         console.log('class.js: '+name + " moved " + card + " from " + from + " to " +to)
+        /*for (let i of this.players){
+            if (i.getName() == ){
 
+            }
+        }*/
         this.log.push([name, card, from, to]);
-        //this.updateGui(change)
     }
     // looks at the most recent action in log and undoes it
     undo(){//note acount if reseing action or entier phase
