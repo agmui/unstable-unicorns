@@ -49,7 +49,6 @@ socket.on("num of players", function(playerList){
       opponate.innerHTML = name+"'s cards: ";
       document.getElementById("board").append(opponate)
 
-
       hand = document.createElement('div');
       hand.id = name+'Hand'
       hand.innerHTML = 'Hand:'
@@ -59,11 +58,24 @@ socket.on("num of players", function(playerList){
       stable.id = name+'Stable'
       stable.innerHTML = 'Stable:'
       opponate.append(stable)
+
+      opponate = document.createElement("button")
+      opponate.id = name
+      opponate.onclick = "recivedClick(this.id, 1)" // unable to add onclick events to any button
+      opponate.innerHTML = name+"'s hand"
+      document.getElementById('from').append(opponate)
+
+      opponate = document.createElement("button")
+      opponate.id = name
+      opponate.onclick = "recivedClick(this.id, 2)"
+      opponate.innerHTML = name+"'s stable"
+      document.getElementById('to').append(opponate)
     }
   }
 });
 
 //shows all action btn
+//remove the move btn
 socket.on("turn start", function(name){
   document.getElementById('whosTurn').innerHTML = 'Turn: '+ name
   if (username == name){
@@ -107,14 +119,17 @@ socket.on("image", function(info, where, forWho, cardName) {
   if (forWho == username){
     if (info.image) {
       let img = document.createElement("IMG")
-      img.src = 'data:image/jpeg;base64,' + info.buffer;
-      img.id = cardName
-      img.onclick = recivedClick(img.id, 3)
-      img.setAttribute("width", 150)
-      img.setAttribute("height", 200)
+      img.onclick = "recivedClick(img.id, 3)"
+      img.addEventListener("click", recivedClick(img.id, 3))
+      //img.src = 'data:image/jpeg;base64,' + info.buffer;
+      //img.id = cardName
+      //img.setAttribute("data-modal-target", "#modal")
+      //img.setAttribute("width", 150)
+      //img.setAttribute("height", 200)
       document.getElementById(where).appendChild(img)
     }
   }
+  updatePopup()
 });
 //================================Btns=============================================
 function ready() {
@@ -159,7 +174,9 @@ function recivedClick(btnId, where) {
       document.getElementById('confirm').innerHTML += 'to: '+ to + ' '
       break
     case 3:
-      card = btnId // card is not returned correctly
+      document.getElementById('confirm').innerHTML = ''
+      card = btnId
+      console.log(card)
       document.getElementById('confirm').innerHTML += 'card: '+ card + ' '
       break
   }
@@ -171,32 +188,34 @@ function move() {//to could just be 1, multiple, or all
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
+function updatePopup() {
+  const openModalButtons = document.querySelectorAll('[data-modal-target')
+  const closeModalButtons = document.querySelectorAll('[data-close-button')
+  const overlay = document.getElementById('overlay')
 
-const openModalButtons = document.querySelectorAll('[data-modal-target')
-console.log(openModalButtons)
-const closeModalButtons = document.querySelectorAll('[data-close-button')
-const overlay = document.getElementById('overlay')
+  openModalButtons.forEach(button => {
+      button.addEventListener('click', () => {
+          const modal = document.querySelector(button.dataset.modalTarget)
+          openModal(modal)
+      })
+  })
 
-openModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const modal = document.querySelector(button.dataset.modalTarget)
-        openModal(modal)
-    })
-})
+  overlay.addEventListener('click', () => { //closes popup when clicking outside of popup
+      const modals = document.querySelectorAll('.modal.active')
+      modals.forEach( modal => {
+          closeModal(modal)
+      })
+  })
 
-overlay.addEventListener('click', () => { //closes popup when clicking outside of popup
-    const modals = document.querySelectorAll('.modal.active')
-    modals.forEach( modal => {
-        closeModal(modal)
-    })
-})
+  closeModalButtons.forEach(button => {
+      button.addEventListener('click', () => {
+          const modal = button.closest('.modal')
+          closeModal(modal)
+      })
+  }) 
+}
 
-closeModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const modal = button.closest('.modal')
-        closeModal(modal)
-    })
-})
+
 
 function openModal(modal) {
     if (modal == null) return

@@ -20,6 +20,7 @@ body {
     display: none;
 }
 
+/*===========================modal======================*/
 *, *::after, *::before {
     box-sizing : border-box;
 }

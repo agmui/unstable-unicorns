@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
                     io.emit('image', {
                         image: true,
                         buffer: buf.toString('base64')
-                    }, where, forWho, i-'.png');
+                    }, where, forWho, i);
                 });
             }
         }
