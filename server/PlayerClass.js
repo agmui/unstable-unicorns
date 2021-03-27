@@ -15,7 +15,7 @@ class Card {
     constructor(name, text, type, img) {
        this.name = name;
        this.text = text;
-       this.type = type; 
+       this.type = type;
        this.img = img;
     }
 }
@@ -72,7 +72,7 @@ class Board {
         this.turn = getRandomInt(this.players.length)
         this.phase = 1;
     }
-    //returns a list of card objects 
+    //returns a list of card objects
     drawFromDeck(num=1){ // fix if deck run out of cards
         let final = []
         for (let index = 0; index < num; index++) {
@@ -86,7 +86,7 @@ class Board {
     }
     setup(){
         this.players.forEach(p => {
-            this.move(p, this.drawFromDeck(1), "deck", [p,"Hand"]);
+            this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"]);
         })
     }
     //parm card should be a list
@@ -105,8 +105,10 @@ class Board {
             this.discard = this.discard.filter(n => !card.includes(n))
        }
     }
-    move(name, card, from, to){ // params card is a list
-        console.log('class.js: '+name + " moved " + card + " from " + from+ " to " +to,to[0].name, to[1])
+    //name, from, and to are all Strings exsept for when player is passed
+    //when player is passed it is a list with [name, Hand/Stable]
+    move(name, card, from, to){ // params card is a list with card objects
+        console.log('class.js: '+name + " moved " + card[0]+ " from " + from+ " to " +to,to[0].name, to[1])
         let index
         switch (from) {
             case "deck":
@@ -125,7 +127,7 @@ class Board {
                 }
                 break
             default://if opponate is returned
-                index = this.players.findIndex((player) => player==from[0])
+                index = this.players.findIndex((player) => player.getName()==from[0])
                 this.players[index].removeCard(card, from[1])
         }
         switch (to) {
@@ -145,11 +147,15 @@ class Board {
                 }
                 break
             default://if opponate is returned
-                index = this.players.findIndex((player) => player==to[0])
+                index = this.players.findIndex((player) => player.getName()==to[0])
                 this.players[index].addCard(card, to[1])
         }
         this.log.push([name, card, from, to]);
     }
+    /*// inputs card string returns card object
+    findCard(card, location){
+        this.getDeckOrDiscard()
+    }*/
     // looks at the most recent action in log and undoes it
     undo(){//note acount if reseing action or entier phase
         let action = this.log[this.log.length-1][0]
@@ -197,21 +203,21 @@ class Board {
         for(let element of this.players) {
             if(element.getName() == name){
                 for (let i of element.getHand()){
-                    userHand.push(i.img)
+                    userHand.push(i)
                 }
                 for (let i of element.getStable()){
-                    userStable.push(i.img)
+                    userStable.push(i)
                 }
             } else {
                 list.push(element.getName())
                 test = []
                 for (let i of element.getHand()){
-                    test.push(i.img)
+                    test.push(i)
                 }
                 OpponateHand.push(test)
                 test = []
                 for (let i of element.getStable()){
-                    test.push(i.img)
+                    test.push(i)
                 }
                 OpponateStable.push(test)
 
@@ -233,7 +239,6 @@ class Board {
         for (let i of this.discard){
             console.log(i.name)
         }
-        console.log("===")
         return this.discard
     }
 }
@@ -248,7 +253,13 @@ if (require.main === module){
     let list = {'longString1':'host','longString2':'p1','longString3':'p2'};
     let game = new Board(list);
     game.setup();
+    console.log("==setup over==");
     console.log(game.getState("host"))
-    game.move("host", game.players[0].getHand(), "Hand", "Stable")
+    game.move("host", [game.players[0].getHand()[0]], "Hand", "Stable")
     console.log(game.getState("host"))
+    game.move("host", [game.players[0].getStable()[0]], "Stable", "Hand")
+    console.log(game.getState("host"))
+    game.move("host", [game.players[0].getHand()[0]], "Hand", [game.players[1].getName(),"Hand"])
+    console.log(game.getState("host"))
+    console.log(game.players[0])
 }

@@ -6,6 +6,7 @@ var form = document.getElementById('form');
 var input = document.getElementById('input');
 var usernameInputValue = document.getElementById('username_input')
 var username = '';
+let allCards = {};
 
 form.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -40,7 +41,7 @@ socket.on("num of players", function(playerList){
     if (username != name){
       // displaying player names gui
       item = document.createElement('li');
-      item.textContent = name; 
+      item.textContent = name;
       document.getElementById("score board").appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
       // creating opponate gui
@@ -125,14 +126,15 @@ socket.on("phase", function(phase, name){
   document.getElementById('phaseUI').innerHTML = text;
 });
 
-// reciving imgs
-socket.on("image", function(info, where, forWho, cardName) {
+// =====================reciving imgs=================
+socket.on("image", function(info, where, forWho, cardObject) {
   if (forWho == username){
     if (info.image) {
       let img = document.createElement("IMG")
       img.onclick = function(){recivedClick(img.id, 3)} // could prefill from pt of the move function
       img.src = 'data:image/jpeg;base64,' + info.buffer;
-      img.id = cardName
+      allCards[cardObject.name]=cardObject;
+      img.id = cardObject.name
       img.setAttribute("data-modal-target", "#modal")
       img.setAttribute("width", 150)
       img.setAttribute("height", 200)
@@ -185,15 +187,14 @@ function recivedClick(btnId, where) {
       break
     case 3:
       document.getElementById('confirm').innerHTML = ''
-      card = btnId
-      console.log(card)
+      card = [allCards[btnId]]// needs to send card in a list with the card object inside
       document.getElementById('confirm').innerHTML += 'card: '+ card + ' '
       break
   }
 }
-function move() {//to could just be 1, multiple, or all
+function move() {// card should be a object
   socket.emit('move', username, card, from, to);
-  console.log(username+' moved '+ card + 'from ' + from + ' to ' + to)
+  console.log(username+' moved '+ card[0].name + ' from ' + from + ' to ' + to)
   document.getElementById('confirm').innerHTML = ''
 }
 
@@ -222,7 +223,7 @@ function updatePopup() {
           const modal = button.closest('.modal')
           closeModal(modal)
       })
-  }) 
+  })
 }
 
 
