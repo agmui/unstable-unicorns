@@ -59,15 +59,26 @@ socket.on("num of players", function(playerList){
       stable.innerHTML = 'Stable:'
       opponate.append(stable)
 
+      //creating opponate gui in popup
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){recivedClick(this.id, 1)} // unable to add onclick events to any button
+      opponate.onclick = function(){recivedClick([this.id,"Hand"], 1)}
       opponate.innerHTML = name+"'s hand"
+      document.getElementById('from').append(opponate)
+      opponate = document.createElement("button")
+      opponate.id = name
+      opponate.onclick = function(){recivedClick([this.id,"Stable"], 1)}
+      opponate.innerHTML = name+"'s stable"
       document.getElementById('from').append(opponate)
 
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){recivedClick(this.id, 2)}
+      opponate.onclick = function(){recivedClick([this.id,"Hand"], 2)}
+      opponate.innerHTML = name+"'s hand"
+      document.getElementById('to').append(opponate)
+      opponate = document.createElement("button")
+      opponate.id = name
+      opponate.onclick = function(){recivedClick([this.id,"Stable"], 2)}
       opponate.innerHTML = name+"'s stable"
       document.getElementById('to').append(opponate)
     }
@@ -119,7 +130,7 @@ socket.on("image", function(info, where, forWho, cardName) {
   if (forWho == username){
     if (info.image) {
       let img = document.createElement("IMG")
-      img.onclick = function(){recivedClick(img.id, 3)}
+      img.onclick = function(){recivedClick(img.id, 3)} // could prefill from pt of the move function
       img.src = 'data:image/jpeg;base64,' + info.buffer;
       img.id = cardName
       img.setAttribute("data-modal-target", "#modal")

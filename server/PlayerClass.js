@@ -27,54 +27,19 @@ class Player {
         this.stable = [];
     }
     addCard(card, where) { // card should be a list
-        if (where == "hand"){
-            this.hand.concat(card) ;
-        } else if (where == "stable") {
-            this.stable.concat(card)
+        if (where == "Hand"){
+            this.hand = this.hand.concat(card) ;
+        } else if (where == "Stable") {
+            this.stable = this.stable.concat(card)
         }
     }
     removeCard(card, where) {
-        if (where == "hand"){
-            this.hand.filter(n => !card.includes(n))
-        } else if (where == "stable"){
-            this.stable.filter(n => !card.includes(n))
+        if (where == "Hand"){
+            this.hand = this.hand.filter(n => !card.includes(n))
+        } else if (where == "Stable"){
+            this.stable = this.stable.filter(n => !card.includes(n))
         }
     }
-    addCards(cards) { // takes card object in list form
-        this.hand = this.hand.concat(cards)
-        console.log(this.name+" added " + cards.length + " card(s) to hand")
-    }
-    discard(card){ // takes in index
-        delete this.hand[card];
-        console.log(this.name+" discared " + card)
-    }
-    play(card, player=false) { // could force a player to discard a card
-        this.discard(card);
-        if (player){
-            player.play(card);
-        } else {
-            this.stable.push(card);
-        }
-        console.log(this.name+" played " + card)
-    }
-    // could destroy card from another player's stable
-    destroy(card) { // removes card from stable
-        delete this.stable[card];
-        console.log(this.name + " got " + card + " removed")
-    }
-    //returnToHand function? and a deck to stable function and choose on card from deck to hand
-    UaddCards(card){
-        this.discard(card)
-    }
-    Udiscard(card){
-        this.addCards(card)
-    }
-    Uplay(card, toWho){
-        toWho.destroy(card)
-    }
-    Udestroy(card){
-        this.play(card)
-    }//*/
     checkHandNum(){
         return this.hand.length>7;
     }
@@ -100,6 +65,7 @@ class Board {
             this.players.push(new Player(playerNames[i]))
         }
         this.deck = []
+        this.discard = []
         for (let i=0; i < deck.length; i++) {//improve
             this.deck.push(deck[i].quantity)
         }
@@ -119,22 +85,69 @@ class Board {
         return final
     }
     setup(){
-        //this.players[0].addCards(this.drawFromDeck(1))
-        //this.players[1].addCards(this.drawFromDeck(1))
         this.players.forEach(p => {
-            p.addCards(this.drawFromDeck(1))
+            this.move(p, this.drawFromDeck(1), "deck", [p,"Hand"]);
         })
-        /*this.players.forEach(p => {
-            p.move(p, this.drawFromDeck(5), deck, hand);
-        })*/
     }
-    move(name, card, from, to){ // card, and to could be a list so make multiple input same function
-        console.log('class.js: '+name + " moved " + card + " from " + from + " to " +to)
-        /*for (let i of this.players){
-            if (i.getName() == ){
-
-            }
-        }*/
+    //parm card should be a list
+    addCard(card, where){//adds a card to deck or discard
+       if (where == "deck") {
+           this.deck = this.deck.concat(card);
+       } else if (where == "discard") {
+           this.discard = this.discard.concat(card);
+       }
+    }
+    //parm card should be a list
+    removeCard(card, where){// removes a card from deck or discard
+       if (where == "deck") {
+            this.deck = this.deck.filter(n => !card.includes(n))
+       } else if (where == "discard") {
+            this.discard = this.discard.filter(n => !card.includes(n))
+       }
+    }
+    move(name, card, from, to){ // params card is a list
+        console.log('class.js: '+name + " moved " + card + " from " + from+ " to " +to,to[0].name, to[1])
+        let index
+        switch (from) {
+            case "deck":
+                this.removeCard(card, from)
+                break
+            case "discard":
+                this.removeCard(card, from)
+                break
+            case "Hand":
+            case "Stable":
+                for (let i of this.players) {
+                    if (i.getName()==name){
+                        i.removeCard(card, from)
+                        break
+                    }
+                }
+                break
+            default://if opponate is returned
+                index = this.players.findIndex((player) => player==from[0])
+                this.players[index].removeCard(card, from[1])
+        }
+        switch (to) {
+            case "deck":
+                this.addCard(card, to)
+                break
+            case "discard":
+                this.addCard(card, to)
+                break
+            case "Hand":
+            case "Stable":
+                for (let i of this.players) {
+                    if (i.getName()==name){
+                        i.addCard(card, to)
+                        break
+                    }
+                }
+                break
+            default://if opponate is returned
+                index = this.players.findIndex((player) => player==to[0])
+                this.players[index].addCard(card, to[1])
+        }
         this.log.push([name, card, from, to]);
     }
     // looks at the most recent action in log and undoes it
@@ -214,8 +227,14 @@ class Board {
         }
         return send
     }
-    getDeckOrDiscard(){
-
+    getDeckOrDiscard(){// still in work in progress
+        //console.log(this.deck)
+        console.log("discard: ")
+        for (let i of this.discard){
+            console.log(i.name)
+        }
+        console.log("===")
+        return this.discard
     }
 }
 
@@ -226,9 +245,10 @@ function getRandomInt(max) { // merge with the drawFromDeck function
 module.exports = {Board}
 
 if (require.main === module){
-    //--------in server.js--------
     let list = {'longString1':'host','longString2':'p1','longString3':'p2'};
     let game = new Board(list);
     game.setup();
+    console.log(game.getState("host"))
+    game.move("host", game.players[0].getHand(), "Hand", "Stable")
     console.log(game.getState("host"))
 }

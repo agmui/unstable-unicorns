@@ -87,6 +87,7 @@ io.on('connection', (socket) => {
     function sendPic(picDir, where, forWho) {
         if (picDir) {
             for (let i of picDir) {
+                //console.log("ts",i)
                 fs.readFile(__dirname + '/server/card_images/' + i, function(err, buf) {
                     io.emit('image', {
                         image: true,
@@ -100,6 +101,7 @@ io.on('connection', (socket) => {
     function boardUpdate() { // try to make it so it just sends the only pic that has been updated
         for (let i in playerList) {
             let pics = game.getState(playerList[i])
+            console.log(pics)
             sendPic(pics.PlayerHand, "PlayerHand", playerList[i])
             sendPic(pics.PlayerStable, "PlayerStable", playerList[i])
             for (let j = 0; j < pics.OpponateList.length; j++) {
