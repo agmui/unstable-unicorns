@@ -75,11 +75,10 @@ io.on('connection', (socket) => {
         boardUpdate()
     });
     //move functions
-    socket.on('move', function(username, card, from, to) {
+    socket.on('move', function(username, card, from, to) {// move funciton only alows one card to be moved at a time plz fix
         if (username == game.getTurn()) { // may need to change getTurn for interupt cases or cut in line case
-            console.log("server.js: recived move function", username, card, from, to)
+            console.log("server.js: recived move function", username, card.name, from, to)
             game.move(username, card, from, to)
-            //io.emit('board update',game.getState(username));
             boardUpdate()
         }
     });
@@ -102,7 +101,8 @@ io.on('connection', (socket) => {
     function boardUpdate() { // try to make it so it just sends the only pic that has been updated
         for (let i in playerList) {
             let pics = game.getState(playerList[i])
-            console.log("====yay===",pics);
+            //ts
+            console.log(pics)
             sendPic(pics.PlayerHand, "PlayerHand", playerList[i])
             sendPic(pics.PlayerStable, "PlayerStable", playerList[i])
             for (let j = 0; j < pics.OpponateList.length; j++) {

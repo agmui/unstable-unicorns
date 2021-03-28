@@ -8,6 +8,7 @@ add neigh exseption
 */
 
 const e = require('express');
+const { copyFileSync } = require('fs');
 
 deck = require('./data.json');
 
@@ -35,9 +36,21 @@ class Player {
     }
     removeCard(card, where) {
         if (where == "Hand"){
-            this.hand = this.hand.filter(n => !card.includes(n))
+            for (let i=0; i<this.hand.length;i++){
+                for (let j=0; j<card.length;j++){
+                    if(this.hand[i].name==card[j].name) {
+                        this.hand.splice(i, 1)
+                    }
+                } 
+            }
         } else if (where == "Stable"){
-            this.stable = this.stable.filter(n => !card.includes(n))
+            for (let i=0; i<this.stable.length;i++){
+                for (let j=0; j<card.length;j++){
+                    if(this.stable[i].name==card[j].name) {
+                        this.stable.splice(i, 1)
+                    }
+                } 
+            }
         }
     }
     checkHandNum(){
@@ -80,7 +93,7 @@ class Board {
                 var x = getRandomInt(deck.length);
             } while(this.deck[x]==0);
             this.deck[x] --
-            final.push(new Card(deck[x].name, deck[x].text, deck[x].date, deck[x].img))
+            final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img))
         }
         return final
     }
@@ -100,15 +113,35 @@ class Board {
     //parm card should be a list
     removeCard(card, where){// removes a card from deck or discard
        if (where == "deck") {
-            this.deck = this.deck.filter(n => !card.includes(n))
+            for (let i=0; i<this.deck.length;i++){
+                for (let j=0; j<card.length;j++){
+                    if(this.deck[i].name==card[j].name) {
+                        this.deck.splice(i, 1)
+                    }
+                } 
+            }
        } else if (where == "discard") {
-            this.discard = this.discard.filter(n => !card.includes(n))
+            for (let i=0; i<this.discard.length;i++){
+                for (let j=0; j<card.length;j++){
+                    if(this.discard[i].name==card[j].name) {
+                        this.discard.splice(i, 1)
+                    }
+                } 
+            }
        }
     }
     //name, from, and to are all Strings exsept for when player is passed
     //when player is passed it is a list with [name, Hand/Stable]
-    move(name, card, from, to){ // params card is a list with card objects
-        console.log('class.js: '+name + " moved " + card[0]+ " from " + from+ " to " +to,to[0].name, to[1])
+    move(name, card, from, to){ // params card CAN be a list or Card object
+        console.log('class.js: '+name + " moved " + card.name+ " from " + from+ " to " +to,to[0].name, to[1])
+        if (card instanceof Array == false){// check if card param is a list
+            card = [card]
+        }
+        for (let i=0; i<card.length; i++){ // check if objects inside list are cards
+            if (card[i] instanceof Card == false) {
+                card[i] = new Card(card[i].name, card[i].text, card[i].type, card[i].img)
+            }
+        }
         let index
         switch (from) {
             case "deck":
@@ -152,10 +185,6 @@ class Board {
         }
         this.log.push([name, card, from, to]);
     }
-    /*// inputs card string returns card object
-    findCard(card, location){
-        this.getDeckOrDiscard()
-    }*/
     // looks at the most recent action in log and undoes it
     undo(){//note acount if reseing action or entier phase
         let action = this.log[this.log.length-1][0]
@@ -247,19 +276,22 @@ function getRandomInt(max) { // merge with the drawFromDeck function
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-module.exports = {Board}
+module.exports = {Board, Card}
 
 if (require.main === module){
-    let list = {'longString1':'host','longString2':'p1','longString3':'p2'};
+    let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
     game.setup();
     console.log("==setup over==");
     console.log(game.getState("host"))
-    game.move("host", [game.players[0].getHand()[0]], "Hand", "Stable")
-    console.log(game.getState("host"))
-    game.move("host", [game.players[0].getStable()[0]], "Stable", "Hand")
-    console.log(game.getState("host"))
-    game.move("host", [game.players[0].getHand()[0]], "Hand", [game.players[1].getName(),"Hand"])
-    console.log(game.getState("host"))
-    console.log(game.players[0])
+    let test = {name: 'Dingocorn',
+    text: "When this card enters your Stable, you may return all Baby Unicorn cards in each player's Stable to the Nursery.",
+    type: "test",
+    img: 'Dingocorn.png'}
+    test = game.players[0].getHand()
+
+    game.move("host", test, "Hand", ['a',"Hand"])
+    game.move("host", test, "Hand", ['a',"Hand"])
+    //console.log(game.getState("host"))
+    //console.log(game.getState("host").OpponateHand)
 }

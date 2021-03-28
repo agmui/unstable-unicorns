@@ -187,14 +187,14 @@ function recivedClick(btnId, where) {
       break
     case 3:
       document.getElementById('confirm').innerHTML = ''
-      card = [allCards[btnId]]// needs to send card in a list with the card object inside
+      card = allCards[btnId]
       document.getElementById('confirm').innerHTML += 'card: '+ card + ' '
       break
   }
 }
 function move() {// card should be a object
   socket.emit('move', username, card, from, to);
-  console.log(username+' moved '+ card[0].name + ' from ' + from + ' to ' + to)
+  console.log(username+' moved '+ card.name + ' from ' + from + ' to ' + to)
   document.getElementById('confirm').innerHTML = ''
 }
 
