@@ -256,22 +256,30 @@ function updateBoard(name, card, from, to){
     return
   } 
   if (to == "deck" || to == "discard") {
-    //del img
+    if (from instanceof Array) {//fix to many if statments
+      if (from[0]==username){
+        document.getElementById("Player"+from[1]).remove();//del img
+      } else{
+        document.getElementById(from[0]+from[1]).remove();//del img
+      }
+    } else {
+      if (name == username){
+        document.getElementById("Player"+from).remove();//del img
+      } else {
+        document.getElementById(name+from).remove();//del img
+      }
+    }
   } else {// fix to many if statments
     if (name == username){
       if(to instanceof Array){
-        console.log("function: yes og 1 moved card from "+ from+ " to "+to)
         document.getElementById(to[0]+to[1]).appendChild(document.getElementById(card.name))
       } else {
-        console.log("function: yes og 2 moved card from "+ from+ " to "+to)
         document.getElementById("Player"+to).appendChild(document.getElementById(card.name))
       }
     } else {
       if(to instanceof Array){
-        console.log("function: not og 1 moved card from "+ from+ " to "+to)
         document.getElementById("Player"+to[1]).appendChild(document.getElementById(card.name))
       } else {
-        console.log("function: not og 2 moved card from "+ from+ " to "+to)
         document.getElementById(name+to).appendChild(document.getElementById(card.name))
       }
     }
