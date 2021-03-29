@@ -9,7 +9,6 @@ add neigh exseption
 
 const e = require('express');
 const { copyFileSync } = require('fs');
-
 deck = require('./data.json');
 
 class Card {
@@ -82,8 +81,12 @@ class Board {
         for (let i=0; i < deck.length; i++) {//improve
             this.deck.push(deck[i].quantity)
         }
-        this.turn = getRandomInt(this.players.length)
+        //this.turn = getRandomInt(this.players.length)
+        //debug
+        this.turn = 0//getRandomInt(this.players.length)
+        //
         this.phase = 1;
+        this.sendPic = []
     }
     //returns a list of card objects
     drawFromDeck(num=1){ // fix if deck run out of cards
@@ -146,9 +149,21 @@ class Board {
         switch (from) {
             case "deck":
                 this.removeCard(card, from)
+                if (to != "discard"||to != "deck"){
+                    this.sendPic.push({//tell server.js a card has been moved from deck
+                            card: card,
+                            to: to
+                        })
+                }
                 break
             case "discard":
                 this.removeCard(card, from)
+                if (to != "discard"||to != "deck"){
+                    this.sendPic.push({//tell server.js a card has been moved from discard
+                            card: card,
+                            to: to
+                        })
+                }
                 break
             case "Hand":
             case "Stable":
@@ -276,7 +291,7 @@ function getRandomInt(max) { // merge with the drawFromDeck function
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-module.exports = {Board, Card}
+module.exports = {Board}
 
 if (require.main === module){
     let list = {'longString1':'host','longString2':'a'};

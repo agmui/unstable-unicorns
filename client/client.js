@@ -126,22 +126,31 @@ socket.on("phase", function(phase, name){
   document.getElementById('phaseUI').innerHTML = text;
 });
 
+// when another player moves a card recives action here
+socket.on("move", function(name, card, from, to){
+  if (name !== username){
+    console.log("reciving from server:" + name +' moved '+ card.name + ' from ' + from + ' to ' + to)
+    updateBoard(name, card, from, to)
+  }
+});
 // =====================reciving imgs=================
-socket.on("image", function(info, where, forWho, cardObject) {
-  if (forWho == username){
-    if (info.image) {
-      let img = document.createElement("IMG")
-      img.onclick = function(){recivedClick(img.id, 3)} // could prefill from pt of the move function
-      img.src = 'data:image/jpeg;base64,' + info.buffer;
-      allCards[cardObject.name]=cardObject;
-      img.id = cardObject.name
-      img.setAttribute("data-modal-target", "#modal")
-      img.setAttribute("width", 150)
-      img.setAttribute("height", 200)
-      document.getElementById(where).appendChild(img)
+socket.on("image", function(info, where, cardObject) {
+  if (info.image) {
+    let img = document.createElement("IMG")
+    img.onclick = function(){recivedClick(img.id, 3)} // could prefill from pt of the move function
+    img.src = 'data:image/jpeg;base64,' + info.buffer;
+    allCards[cardObject.name]=cardObject;
+    img.id = cardObject.name
+    img.setAttribute("data-modal-target", "#modal")
+    img.setAttribute("width", 150)
+    img.setAttribute("height", 200)
+    if (where[0] == username){
+      document.getElementById("Player"+where[1]).appendChild(img)
+    } else {
+      document.getElementById(where[0]+where[1]).appendChild(img)
     }
   }
-  updatePopup()
+  updatePopup()// allowes new img that has been loaded in to have popup
 });
 //================================Btns=============================================
 function ready() {
@@ -196,6 +205,7 @@ function move() {// card should be a object
   socket.emit('move', username, card, from, to);
   console.log(username+' moved '+ card.name + ' from ' + from + ' to ' + to)
   document.getElementById('confirm').innerHTML = ''
+  updateBoard(username, card, from, to)
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
@@ -239,3 +249,44 @@ function closeModal(modal) {
     modal.classList.remove('active')
     overlay.classList.remove('active')
 }
+//cuently card param can not take list
+function updateBoard(name, card, from, to){
+  //have a checks if it is player's turn
+  if(from == "deck"||from =="discard"){
+    return
+  } 
+  if (to == "deck" || to == "discard") {
+    //del img
+  } else {// fix to many if statments
+    if (name == username){
+      if(to instanceof Array){
+        console.log("function: yes og 1 moved card from "+ from+ " to "+to)
+        document.getElementById(to[0]+to[1]).appendChild(document.getElementById(card.name))
+      } else {
+        console.log("function: yes og 2 moved card from "+ from+ " to "+to)
+        document.getElementById("Player"+to).appendChild(document.getElementById(card.name))
+      }
+    } else {
+      if(to instanceof Array){
+        console.log("function: not og 1 moved card from "+ from+ " to "+to)
+        document.getElementById("Player"+to[1]).appendChild(document.getElementById(card.name))
+      } else {
+        console.log("function: not og 2 moved card from "+ from+ " to "+to)
+        document.getElementById(name+to).appendChild(document.getElementById(card.name))
+      }
+    }
+  }
+}
+
+
+
+//==========Debug code============
+socket.on("DEBUG_autofill", function(name){
+  if (username == '') {
+    document.getElementById("username_input").value = name
+    document.getElementById("b").click()
+    if (name == "host"){
+      document.getElementById("ready").click()
+    }
+  }
+});

@@ -18,8 +18,22 @@ app.get('/client.css', (req, res) => {
     res.sendFile(process.cwd() + '/client/client.css');
 });
 
+//======debug code========
+let name=0;
+//========================
+
 
 io.on('connection', (socket) => {
+    //======debug code========
+    if (name>0){
+        io.emit("DEBUG_autofill", "host");
+        name=0
+    } else {
+        io.emit("DEBUG_autofill", "player1");
+        name++
+    }
+    //========================
+
     console.log('user ' + socket.id + ' joined');
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg);
@@ -78,37 +92,33 @@ io.on('connection', (socket) => {
     socket.on('move', function(username, card, from, to) {// move funciton only alows one card to be moved at a time plz fix
         if (username == game.getTurn()) { // may need to change getTurn for interupt cases or cut in line case
             console.log("server.js: recived move function", username, card.name, from, to)
+            io.emit("move", username, card, from, to);
             game.move(username, card, from, to)
             boardUpdate()
         }
     });
-    //sending pic over
-    function sendPic(picDir, where, forWho) {
+    //sending pic over given pic dir and where it is suppose to go
+    function sendPic(picDir, where) {
         let imgFile;
-        if (picDir) {
+        if (picDir) {// may not need if statment
             for (let i of picDir) {
                 imgFile = i.img
                 fs.readFile(__dirname + '/server/card_images/' + imgFile, function(err, buf) {
                     io.emit('image', {
                         image: true,
                         buffer: buf.toString('base64')
-                    }, where, forWho, i);
+                    }, where, i);
                 });
             }
         }
     }
     // sends pics of the updated board
-    function boardUpdate() { // try to make it so it just sends the only pic that has been updated
-        for (let i in playerList) {
-            let pics = game.getState(playerList[i])
-            //ts
-            console.log(pics)
-            sendPic(pics.PlayerHand, "PlayerHand", playerList[i])
-            sendPic(pics.PlayerStable, "PlayerStable", playerList[i])
-            for (let j = 0; j < pics.OpponateList.length; j++) {
-                sendPic(pics.OpponateHand[j], pics.OpponateList[j] + "Hand", playerList[i])
-                sendPic(pics.OpponateStable[j], pics.OpponateList[j] + "Stable", playerList[i])
+    function boardUpdate() {// make it so it does not have to loop though all players and just do one emit
+        if (game.sendPic != []){
+            for (let i of game.sendPic){
+                sendPic(i.card, i.to)
             }
+            game.sendPic=[]
         }
     }
 });
