@@ -133,6 +133,21 @@ socket.on("move", function(name, card, from, to){
     updateBoard(name, card, from, to)
   }
 });
+
+// recives ping form server when someone udoes a move
+socket.on('undo', function(name){
+  if (name != username){
+    console.log(name,"undo action")
+  }
+})
+
+//reciving out of cards msg
+socket.on('no cards', function(name){
+  if (name === username){
+    document.getElementById('display').style.display = 'none'
+    document.getElementsByClassName('modal-body').innerHTML = 'no cards'//not working
+  }
+});
 // =====================reciving imgs=================
 socket.on("image", function(info, where, cardObject) {
   if (info.image) {
@@ -144,9 +159,11 @@ socket.on("image", function(info, where, cardObject) {
     img.setAttribute("data-modal-target", "#modal")
     img.setAttribute("width", 150)
     img.setAttribute("height", 200)
-    if (where[0] == username){
+    if(where[1] === 'display' && where[0] === username){//reciving deck/discard img to go to display
+      document.getElementById('display').appendChild(img)
+    }else if (where[0] == username){
       document.getElementById("Player"+where[1]).appendChild(img)
-    } else {
+    } else if (where[1]!='display') {
       document.getElementById(where[0]+where[1]).appendChild(img)
     }
   }
@@ -156,14 +173,22 @@ socket.on("image", function(info, where, cardObject) {
 function ready() {
   socket.emit('ready', username)
 }
-//have the undo button be able to undo phases if nessisary
-function undo(){ // try to make it so they cant undo when no moves have been done
-  socket.emit('undo', username);
-  console.log(username+" undo action")
+function deck(){//spesify visabilaty
+  socket.emit('getDeckOrDis', username, 'deck');
+  document.getElementById("display").style.display = "block"
+}
+function discard(){ // if returned non in discard have some msg popup
+  socket.emit('getDeckOrDis', username, 'discard');
+  document.getElementById("display").style.display = "block"
 }
 function pass(){
   socket.emit('pass', username);
   console.log(username+" passed phase")
+}
+//have the undo button be able to undo phases if nessisary
+function undo(){ // try to make it so they cant undo when no moves have been done
+  socket.emit('undo', username);
+  console.log(username+" undo action")
 }
 function endPhase(){
   socket.emit('endPhase', username);
@@ -206,6 +231,7 @@ function move() {// card should be a object
   console.log(username+' moved '+ card.name + ' from ' + from + ' to ' + to)
   document.getElementById('confirm').innerHTML = ''
   updateBoard(username, card, from, to)
+  document.getElementById("display").style.discard = "none"
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
@@ -248,6 +274,7 @@ function closeModal(modal) {
     if (modal == null) return
     modal.classList.remove('active')
     overlay.classList.remove('active')
+    document.getElementById("display").style.display = "none"
 }
 //cuently card param can not take list
 function updateBoard(name, card, from, to){

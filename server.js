@@ -68,10 +68,14 @@ io.on('connection', (socket) => {
             boardUpdate()
         }
     });
-    socket.on('undo', function(username) {
-        console.log(username, 'undid a move')
-        //io.emit('board update',game.getState());
-        boardUpdate()
+    socket.on('getDeckOrDis', function(username, where){//client askes for deck/discard img
+        let cards = game.getDeckOrDiscard(where)
+        if (cards.length != 0){//check if deck/discard runs out of cards
+            sendPic(cards, [username, 'display'])
+            return
+        } 
+        console.log('server.js no cards')
+        io.emit('no cards', username);// if deck/discard runs out of cards
     });
     socket.on('pass', function(username) {
         console.log(username, 'passed')
@@ -97,7 +101,13 @@ io.on('connection', (socket) => {
             boardUpdate()
         }
     });
-    //sending pic over given pic dir and where it is suppose to go
+    socket.on('undo', function(username) {
+        console.log(username, 'undid a move')
+        game.undo();
+        io.emit('undo', username)// broadcast to all of the undid move, up to them how to change gui
+        boardUpdate()
+    });
+    //sending pic over given card class in a list and where it is suppose to go
     function sendPic(picDir, where) {
         let imgFile;
         if (picDir) {// may not need if statment

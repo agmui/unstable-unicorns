@@ -3,6 +3,8 @@
     <head>
         <title>Unstable Unicorns</title>
         <link rel="stylesheet" href="client.css">
+        <script defer src="/socket.io/socket.io.js"></script>
+        <script defer src="client.js"></script>
     </head>
     <body>
         <p id="displayName"></p>
@@ -18,7 +20,8 @@
         </div>
         <p id="score board">Players: </p>
         <action id="btn">
-            <button id="move" onclick="move()">Move</button>
+            <button id="drawDeck" data-modal-target="#modal" onclick="deck()">Deck</button>
+            <button id="drawDeck" data-modal-target="#modal" onclick="discard()">Discard</button>
             <button id="pass" onclick="pass()">Pass</button>
             <button id="undo" onclick="undo()">UNDO</button>
             <button id="endPhase" onclick="endPhase()">End Phase</button>
@@ -31,6 +34,8 @@
                 <button data-close-button class="close-button">&times;</button>
             </div>
             <div class="modal-body">
+              <div id="display"></div>
+
               from:
               <div id="from">
                   <button id="deck" onclick="recivedClick(this.id, 1)">deck</button>
@@ -57,7 +62,5 @@
             <p id="username">Enter Username:</p>
             <input id="username_input" value="" autocomplete="off" /><button id="b">Enter</button>
         </form>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="client.js"></script>
     </body>
 </html>

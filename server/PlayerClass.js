@@ -201,7 +201,7 @@ class Board {
         this.log.push([name, card, from, to]);
     }
     // looks at the most recent action in log and undoes it
-    undo(){//note acount if reseing action or entier phase
+    undo(){//note account if reseing action or entier phase
         let action = this.log[this.log.length-1][0]
         let card = this.log[this.log.length-1][1]
         let toWho = this.log[this.log.length-1][2]
@@ -277,13 +277,9 @@ class Board {
         }
         return send
     }
-    getDeckOrDiscard(){// still in work in progress
-        //console.log(this.deck)
-        console.log("discard: ")
-        for (let i of this.discard){
-            console.log(i.name)
-        }
-        return this.discard
+    getDeckOrDiscard(deckOrDis){
+        console.log('class.js: sent '+deckOrDis)
+        return deckOrDis === 'deck' ? deck : this.discard
     }
 }
 
@@ -298,7 +294,8 @@ if (require.main === module){
     let game = new Board(list);
     game.setup();
     console.log("==setup over==");
-    console.log(game.getState("host"))
+    console.log(game.getDeckOrDiscard("deck"))
+    /*console.log(game.getState("host"))
     let test = {name: 'Dingocorn',
     text: "When this card enters your Stable, you may return all Baby Unicorn cards in each player's Stable to the Nursery.",
     type: "test",
@@ -308,5 +305,5 @@ if (require.main === module){
     game.move("host", test, "Hand", ['a',"Hand"])
     game.move("host", test, "Hand", ['a',"Hand"])
     //console.log(game.getState("host"))
-    //console.log(game.getState("host").OpponateHand)
+    //console.log(game.getState("host").OpponateHand)*/
 }

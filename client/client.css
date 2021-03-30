@@ -70,6 +70,12 @@ body {
     padding: 10px 15px;
 }
 
+#display {
+    height: 350px;
+    display: none;
+    overflow-y: scroll;
+}
+
 #overlay {
     position: fixed;
     opacity: 0;
