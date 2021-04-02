@@ -135,17 +135,25 @@ socket.on("move", function(name, card, from, to){
 });
 
 // recives ping form server when someone udoes a move
-socket.on('undo', function(name){
-  if (name != username){
-    console.log(name,"undo action")
+socket.on('undo', function(action){
+  //check's whos turn it is and makes them do the move fuction
+  if (document.getElementById('whosTurn').innerHTML=='Turn: '+username){// fix way of getting who's turn
+    move(username, action.card, action.to, action.from, true);
   }
+  //console.log(action);
 })
+
+//reciving random card form deck or discard
+socket.on('random card', function(card){
+  console.log(card)
+});
 
 //reciving out of cards msg
 socket.on('no cards', function(name){
   if (name === username){
     document.getElementById('display').style.display = 'none'
     document.getElementsByClassName('modal-body').innerHTML = 'no cards'//not working
+    console.log('no cards')
   }
 });
 // =====================reciving imgs=================
@@ -173,12 +181,12 @@ socket.on("image", function(info, where, cardObject) {
 function ready() {
   socket.emit('ready', username)
 }
-function deck(){//spesify visabilaty
-  socket.emit('getDeckOrDis', username, 'deck');
+function deck(){
+  document.getElementById("show").innerHTML += ' deck'
   document.getElementById("display").style.display = "block"
 }
-function discard(){ // if returned non in discard have some msg popup
-  socket.emit('getDeckOrDis', username, 'discard');
+function discard(){
+  document.getElementById("show").innerHTML += ' discard'
   document.getElementById("display").style.display = "block"
 }
 function pass(){
@@ -221,16 +229,23 @@ function recivedClick(btnId, where) {
       break
     case 3:
       document.getElementById('confirm').innerHTML = ''
-      card = allCards[btnId]
+      card = (btnId!='random') ? allCards[btnId] : 'random';
       document.getElementById('confirm').innerHTML += 'card: '+ card + ' '
       break
   }
 }
-function move() {// card should be a object
-  socket.emit('move', username, card, from, to);
-  console.log(username+' moved '+ card.name + ' from ' + from + ' to ' + to)
+// card should be a object, fix accepting list changes in from and to
+function move(name_, card_, from_, to_, undo) {// fix
+  if (name_) {//so far only undo functhion uses this
+    socket.emit('move', name_, card_, from_, to_, undo);
+    console.log(name_+' moved '+ card_.name + ' from ' + from_ + ' to ' + to_)
+    updateBoard(name_, card_, from_, to_)
+  } else {
+    socket.emit('move', username, card, from, to);
+    console.log(username+' moved '+ card.name + ' from ' + from + ' to ' + to)
+    updateBoard(username, card, from, to)
+  }
   document.getElementById('confirm').innerHTML = ''
-  updateBoard(username, card, from, to)
   document.getElementById("display").style.discard = "none"
 }
 
@@ -262,7 +277,17 @@ function updatePopup() {
   })
 }
 
-
+function visabile(){//spesify visabilaty for deck and discard 
+  let where = document.getElementById("show").innerHTML.slice(5)//gets where
+  socket.emit('getDeckOrDis', username, where);
+  document.getElementById("show").style.display = 'none'
+  document.getElementById("hidden").style.display = 'none'
+}
+function random() { // may need to say how many random cards get sent over
+  //draw random from deck or discard
+  recivedClick("random", 3)
+  document.getElementById("display").style.display = 'none'
+}
 
 function openModal(modal) {
     if (modal == null) return
@@ -276,8 +301,13 @@ function closeModal(modal) {
     overlay.classList.remove('active')
     document.getElementById("display").style.display = "none"
 }
+//moves cards in gui without the need a ping from server
 //cuently card param can not take list
+//could have multiplay card moves
 function updateBoard(name, card, from, to){
+  if (card instanceof Array){
+    card = card[0];//fix
+  }
   //have a checks if it is player's turn
   if(from == "deck"||from =="discard"){
     return
@@ -285,15 +315,15 @@ function updateBoard(name, card, from, to){
   if (to == "deck" || to == "discard") {
     if (from instanceof Array) {//fix to many if statments
       if (from[0]==username){
-        document.getElementById("Player"+from[1]).remove();//del img
+        document.getElementById("Player"+from[1]).removeChild(document.getElementById(card.name));
       } else{
-        document.getElementById(from[0]+from[1]).remove();//del img
+        document.getElementById(from[0]+from[1]).removeChild(document.getElementById(card.name));
       }
     } else {
       if (name == username){
-        document.getElementById("Player"+from).remove();//del img
+        document.getElementById("Player"+from).removeChild(document.getElementById(card.name));
       } else {
-        document.getElementById(name+from).remove();//del img
+        document.getElementById(name+from).removeChild(document.getElementById(card.name));
       }
     }
   } else {// fix to many if statments

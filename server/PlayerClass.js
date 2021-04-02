@@ -100,6 +100,9 @@ class Board {
         }
         return final
     }
+    drawFromDiscard() {
+        return [this.discard[getRandomInt(this.discard.length)]]
+    }
     setup(){
         this.players.forEach(p => {
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"]);
@@ -135,8 +138,11 @@ class Board {
     }
     //name, from, and to are all Strings exsept for when player is passed
     //when player is passed it is a list with [name, Hand/Stable]
-    move(name, card, from, to){ // params card CAN be a list or Card object
+    move(name, card, from, to, undo=false){ // params card CAN be a list or Card object
         console.log('class.js: '+name + " moved " + card.name+ " from " + from+ " to " +to,to[0].name, to[1])
+        if (card == 'random'){
+            card = (from=='deck') ? this.drawFromDeck(1):this.drawFromDiscard();
+        }
         if (card instanceof Array == false){// check if card param is a list
             card = [card]
         }
@@ -150,6 +156,9 @@ class Board {
             case "deck":
                 this.removeCard(card, from)
                 if (to != "discard"||to != "deck"){
+                    if (to == 'Hand' || to == 'Stable') {
+                        to = [name, to]
+                    }
                     this.sendPic.push({//tell server.js a card has been moved from deck
                             card: card,
                             to: to
@@ -158,6 +167,9 @@ class Board {
                 break
             case "discard":
                 this.removeCard(card, from)
+                if (to == 'Hand' || to == 'Stable') {
+                    to = [name, to]
+                }
                 if (to != "discard"||to != "deck"){
                     this.sendPic.push({//tell server.js a card has been moved from discard
                             card: card,
@@ -198,17 +210,18 @@ class Board {
                 index = this.players.findIndex((player) => player.getName()==to[0])
                 this.players[index].addCard(card, to[1])
         }
-        this.log.push([name, card, from, to]);
+        if(undo==false) this.log.push([name, card, from, to]);
     }
     // looks at the most recent action in log and undoes it
-    undo(){//note account if reseing action or entier phase
-        let action = this.log[this.log.length-1][0]
+    undo(username){//undo could change more than card
+        let name = this.log[this.log.length-1][0]
         let card = this.log[this.log.length-1][1]
-        let toWho = this.log[this.log.length-1][2]
-        console.log("previos action was: "+action, toWho)
+        let from = this.log[this.log.length-1][2]
+        let to = this.log[this.log.length-1][3]
+        console.log("class.js:",username,"undid a move, last action was: "+name, 'moved', card[0].name, 'from', from, 'to', to)
         this.log.pop()
         this.phase--;
-        //this.updateGui(change)
+        return {name:name, card:card, from:from, to:to}
     }
     rotateTurn(){
         //rotates to next player's turn

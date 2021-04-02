@@ -68,14 +68,18 @@ io.on('connection', (socket) => {
             boardUpdate()
         }
     });
-    socket.on('getDeckOrDis', function(username, where){//client askes for deck/discard img
+    socket.on('getDeckOrDis', function(username, where, random=false){//client askes for deck/discard img
+        //random code not used
+        if (random){// can spesify if blind or visble deck/discard
+            let card = (where === 'deck' ? game.drawFromDeck(1) : game.drawFromDiscard())
+            io.emit('random card', card)//sends cards in either a list 
+            return
+        }
         let cards = game.getDeckOrDiscard(where)
         if (cards.length != 0){//check if deck/discard runs out of cards
             sendPic(cards, [username, 'display'])
             return
-        } 
-        console.log('server.js no cards')
-        io.emit('no cards', username);// if deck/discard runs out of cards
+        } io.emit('no cards', username);// if deck/discard runs out of cards
     });
     socket.on('pass', function(username) {
         console.log(username, 'passed')
@@ -93,19 +97,18 @@ io.on('connection', (socket) => {
         boardUpdate()
     });
     //move functions
-    socket.on('move', function(username, card, from, to) {// move funciton only alows one card to be moved at a time plz fix
+    socket.on('move', function(username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         if (username == game.getTurn()) { // may need to change getTurn for interupt cases or cut in line case
             console.log("server.js: recived move function", username, card.name, from, to)
             io.emit("move", username, card, from, to);
-            game.move(username, card, from, to)
+            game.move(username, card, from, to, undo)
             boardUpdate()
         }
     });
     socket.on('undo', function(username) {
         console.log(username, 'undid a move')
-        game.undo();
-        io.emit('undo', username)// broadcast to all of the undid move, up to them how to change gui
-        boardUpdate()
+        io.emit('undo', game.undo(username));// broadcast to all of the undid move, up to them how to change gui
+        boardUpdate()//checks to see if any new card img needs to be sent
     });
     //sending pic over given card class in a list and where it is suppose to go
     function sendPic(picDir, where) {
