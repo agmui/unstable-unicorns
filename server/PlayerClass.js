@@ -210,17 +210,27 @@ class Board {
                 index = this.players.findIndex((player) => player.getName()==to[0])
                 this.players[index].addCard(card, to[1])
         }
-        if(undo==false) this.log.push([name, card, from, to]);
+        if(undo==false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     // looks at the most recent action in log and undoes it
+    // when going back a whole phase does not undo any moves yet
     undo(username){//undo could change more than card
+        if (this.log.length==0) {
+            console.log('class.js: end of log no more undo')
+            return'end';
+        }
         let name = this.log[this.log.length-1][0]
         let card = this.log[this.log.length-1][1]
         let from = this.log[this.log.length-1][2]
         let to = this.log[this.log.length-1][3]
+        let phase = this.log[this.log.length-1][4]
         console.log("class.js:",username,"undid a move, last action was: "+name, 'moved', card[0].name, 'from', from, 'to', to)
+        if (phase!=this.phase){//when undo goes back a phase
+            console.log('undo back one phase')
+            this.phase=phase;
+            return false
+        }
         this.log.pop()
-        this.phase--;
         return {name:name, card:card, from:from, to:to}
     }
     rotateTurn(){
@@ -231,6 +241,7 @@ class Board {
             return
         }
         this.phase = 1
+        this.log=[]
         if (this.turn>this.players.length-1){
             this.turn=0
         }
@@ -306,8 +317,16 @@ if (require.main === module){
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
     game.setup();
-    console.log("==setup over==");
-    console.log(game.getDeckOrDiscard("deck"))
+    console.log("==setup over==\n");
+    game.rotatePhase()
+    console.log('current phase:',game.getPhase())
+    console.log(game.log)
+    game.undo()
+    console.log('current phase:',game.getPhase())
+    console.log(game.log)
+    game.undo()
+    console.log('current phase:',game.getPhase())
+    console.log(game.log)
     /*console.log(game.getState("host"))
     let test = {name: 'Dingocorn',
     text: "When this card enters your Stable, you may return all Baby Unicorn cards in each player's Stable to the Nursery.",

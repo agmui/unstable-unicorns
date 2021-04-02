@@ -136,6 +136,13 @@ socket.on("move", function(name, card, from, to){
 
 // recives ping form server when someone udoes a move
 socket.on('undo', function(action){
+  if(action==false){
+    return;
+  }
+  if (action=='end'){
+    console.log('out of undo')
+    return
+  }
   //check's whos turn it is and makes them do the move fuction
   if (document.getElementById('whosTurn').innerHTML=='Turn: '+username){// fix way of getting who's turn
     move(username, action.card, action.to, action.from, true);

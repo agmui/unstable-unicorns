@@ -108,6 +108,7 @@ io.on('connection', (socket) => {
     socket.on('undo', function(username) {
         console.log(username, 'undid a move')
         io.emit('undo', game.undo(username));// broadcast to all of the undid move, up to them how to change gui
+        io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
         boardUpdate()//checks to see if any new card img needs to be sent
     });
     //sending pic over given card class in a list and where it is suppose to go
