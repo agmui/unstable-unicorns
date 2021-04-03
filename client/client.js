@@ -9,37 +9,37 @@ var username = '';
 let allCards = {};
 gameOver = false;
 
-form.addEventListener('submit', function(e) {
+form.addEventListener('submit', function (e) {
   e.preventDefault();
   if (input.value) { // make it so they cant use chat before they enter a username
-    socket.emit('chat message', username+": "+input.value);
+    socket.emit('chat message', username + ": " + input.value);
     input.value = '';
   }
-  if (usernameInputValue.value){
+  if (usernameInputValue.value) {
     socket.emit('username input', usernameInputValue.value);
     username = usernameInputValue.value
     usernameInputValue.value = '';
     document.getElementById("username").remove();
     usernameInputValue.remove();
     document.getElementById("b").remove();
-    document.getElementById("displayName").innerHTML = "Player: "+username
+    document.getElementById("displayName").innerHTML = "Player: " + username
   }
 });
 
-socket.on('chat message', function(msg) {
+socket.on('chat message', function (msg) {
   var item = document.createElement('li');
   item.textContent = msg;
   messages.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
 });
 
-socket.on("num of players", function(playerList){
+socket.on("num of players", function (playerList) {
   document.getElementById("ready").remove();
   document.getElementById('phaseUI').innerHTML = "Beginning Of Turn Phase";
-	let item, opponate, hand, stable, name;// fix
+  let item, opponate, hand, stable, name;// fix
   for (var element in playerList) {
     name = playerList[element]
-    if (username != name){
+    if (username != name) {
       // displaying player names gui
       item = document.createElement('li');
       item.textContent = name;
@@ -48,16 +48,16 @@ socket.on("num of players", function(playerList){
       // creating opponate gui
       opponate = document.createElement('div');
       opponate.id = name;
-      opponate.innerHTML = name+"'s cards: ";
+      opponate.innerHTML = name + "'s cards: ";
       document.getElementById("board").append(opponate)
 
       hand = document.createElement('div');
-      hand.id = name+'Hand'
+      hand.id = name + 'Hand'
       hand.innerHTML = 'Hand:'
       opponate.append(hand)
 
       stable = document.createElement('div');
-      stable.id = name+'Stable'
+      stable.id = name + 'Stable'
       stable.innerHTML = 'Stable:'
       opponate.append(stable)
 
@@ -65,30 +65,30 @@ socket.on("num of players", function(playerList){
       //creating opponate gui in popup
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){recivedClick([this.id,"Hand"], 1)}
-      opponate.innerHTML = name+"'s hand"
+      opponate.onclick = function () { recivedClick([this.id, "Hand"], 1) }
+      opponate.innerHTML = name + "'s hand"
       document.getElementById('from').append(opponate)
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){recivedClick([this.id,"Stable"], 1)}
-      opponate.innerHTML = name+"'s stable"
+      opponate.onclick = function () { recivedClick([this.id, "Stable"], 1) }
+      opponate.innerHTML = name + "'s stable"
       document.getElementById('from').append(opponate)
 
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){recivedClick([this.id,"Hand"], 2)}
-      opponate.innerHTML = name+"'s hand"
+      opponate.onclick = function () { recivedClick([this.id, "Hand"], 2) }
+      opponate.innerHTML = name + "'s hand"
       document.getElementById('to').append(opponate)
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){recivedClick([this.id,"Stable"], 2)}
-      opponate.innerHTML = name+"'s stable"
+      opponate.onclick = function () { recivedClick([this.id, "Stable"], 2) }
+      opponate.innerHTML = name + "'s stable"
       document.getElementById('to').append(opponate)
 
       //creating interupt gui
       opponate = document.createElement("button")
       opponate.id = name
-      opponate.onclick = function(){interupt(name)}
+      opponate.onclick = function () { interupt(name) }
       opponate.innerHTML = name
       document.getElementById('interupt').append(opponate)
       document.getElementById('interupt').style.display = 'none'
@@ -97,9 +97,9 @@ socket.on("num of players", function(playerList){
 });
 
 //shows all action btn
-socket.on("turn start", function(name){
-  document.getElementById('whosTurn').innerHTML = 'Turn: '+ name
-  if (username == name){
+socket.on("turn start", function (name) {
+  document.getElementById('whosTurn').innerHTML = 'Turn: ' + name
+  if (username == name) {
     elem = document.getElementById('btn');
     elem.style.display = "block";
   } else {
@@ -108,9 +108,9 @@ socket.on("turn start", function(name){
   }
 })
 
-socket.on("phase", function(phase, name){
+socket.on("phase", function (phase, name) {
   let text;
-  switch(phase){
+  switch (phase) {
     case 1:
       text = "Beginning Of Turn Phase"
       break
@@ -125,74 +125,78 @@ socket.on("phase", function(phase, name){
       break
     case 5:
       text = "Press End Turn to continue"
-      if (name == username){
+      if (name == username) {
         document.getElementById('endPhase').style.display = "none";
         document.getElementById('end turn').style.display = "block";
       }
       break
+    default://if player has >7 cards in hand
+      text = "End of Turn Phase"
+      console.log('to many cards remove', phase.numOfCards, 'num of cards')
   }
-  console.log('phase: '+text)
+  console.log('phase: ' + text)
   document.getElementById('phaseUI').innerHTML = text;
 });
 
 // when another player moves a card recives action here
-socket.on("move", function(name, card, from, to, winner){
-  if (name !== username){
-    console.log("reciving from server:" + name +' moved '+ card.name + ' from ' + from + ' to ' + to)
+socket.on("move", function (name, card, from, to, winner) {
+  if (name !== username) {
+    console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
     updateBoard(name, card, from, to)
   }
-  if(winner){
+  if (winner) {//game over sequence
     console.log('winner:', winner);
     document.getElementById('btn').style.display = 'none'
-    gameOver=true;
+    gameOver = true;//blocks furthure actions
+    //add game over animation and popup here
   }
 });
 
 // recives ping form server when someone udoes a move
-socket.on('undo', function(action){
-  if(action==false){
+socket.on('undo', function (action) {
+  if (action == false) {
     return;
   }
-  if (action=='end'){
+  if (action == 'end') {
     console.log('out of undo')
     return
   }
   //check's whos turn it is and makes them do the move fuction
-  if (document.getElementById('whosTurn').innerHTML=='Turn: '+username){// fix way of getting who's turn
+  if (document.getElementById('whosTurn').innerHTML == 'Turn: ' + username) {// fix way of getting who's turn
     move(username, action.card, action.to, action.from, true);
   }
 })
 
 //reciving random card from deck or discard
-socket.on('random card', function(card){
+socket.on('random card', function (card) {
   console.log(card)
 });
 
 //reciving out of cards msg
-socket.on('no cards', function(name){
-  if (name === username){
+socket.on('no cards', function (name) {
+  if (name === username) {
     document.getElementById('display').style.display = 'none'
     document.getElementsByClassName('modal-body').innerHTML = 'no cards'//not working
     console.log('no cards')
   }
 });
 // =====================reciving imgs=================
-socket.on("image", function(info, where, cardObject) {
+socket.on("image", function (info, where, cardObject) {
   if (info.image) {
     let img = document.createElement("IMG")
-    img.onclick = function(){recivedClick(img.id, 3)} // could prefill from pt of the move function
+    img.onclick = function () { recivedClick(img.id, 3) } // could prefill from pt of the move function
     img.src = 'data:image/jpeg;base64,' + info.buffer;
-    allCards[cardObject.name]=cardObject;
+    allCards[cardObject.name] = cardObject;
     img.id = cardObject.name
     img.setAttribute("data-modal-target", "#modal")
     img.setAttribute("width", 150)
     img.setAttribute("height", 200)
-    if(where[1] === 'display' && where[0] === username){//reciving deck/discard img to go to display
+    if (where[1] === 'display' && where[0] === username) {//reciving deck/discard img to go to display
       document.getElementById('display').appendChild(img)
-    }else if (where[0] == username){
-      document.getElementById("Player"+where[1]).appendChild(img)
-    } else if (where[1]!='display') {
-      document.getElementById(where[0]+where[1]).appendChild(img)
+    } else if (where[0] == username) {
+      document.getElementById("Player" + where[1]).appendChild(img)
+    } else if (where[1] != 'display') {
+      document.getElementById(where[0] + where[1]).appendChild(img)
     }
   }
   updatePopup()// allowes new img that has been loaded in to have popup
@@ -201,41 +205,41 @@ socket.on("image", function(info, where, cardObject) {
 function ready() {
   socket.emit('ready', username)
 }
-function deck(){
-  document.getElementById('from').style.display='block'
-  document.getElementById('to').style.display='block'
+function deck() {
+  document.getElementById('from').style.display = 'block'
+  document.getElementById('to').style.display = 'block'
   document.getElementById("show").innerHTML += ' deck'
   document.getElementById("display").style.display = "block"
 }
-function discard(){
-  document.getElementById('from').style.display='block'
-  document.getElementById('to').style.display='block'
+function discard() {
+  document.getElementById('from').style.display = 'block'
+  document.getElementById('to').style.display = 'block'
   document.getElementById("show").innerHTML += ' discard'
   document.getElementById("display").style.display = "block"
 }
-function pass(){
+function pass() {
   socket.emit('pass', username);
-  console.log(username+" passed phase")
+  console.log(username + " passed phase")
 }
 //have the undo button be able to undo phases if nessisary
-function undo(){ // try to make it so they cant undo when no moves have been done
+function undo() { // try to make it so they cant undo when no moves have been done
   socket.emit('undo', username);
-  console.log(username+" undo action")
+  console.log(username + " undo action")
 }
 function interupt(toWho) {
-  document.getElementById('interupt').style.display='block'
-  document.getElementById('from').style.display='none'
-  document.getElementById('to').style.display='none'
-  if (toWho)socket.emit('interupt', toWho);
+  document.getElementById('interupt').style.display = 'block'
+  document.getElementById('from').style.display = 'none'
+  document.getElementById('to').style.display = 'none'
+  if (toWho) socket.emit('interupt', toWho);
   console.log(username, 'interupted', toWho)
 }
-function endPhase(){
+function endPhase() {
   socket.emit('endPhase', username);
-  console.log(username+" ends phase")
+  console.log(username + " ends phase")
 }
-function endTurn(){
+function endTurn() {
   socket.emit('endTurn', username);
-  console.log(username+" ends turn")
+  console.log(username + " ends turn")
   document.getElementById('endPhase').style.display = "block";
   document.getElementById('end turn').style.display = "none";
 }
@@ -249,19 +253,19 @@ function endTurn(){
 //move functions
 let from, to, card
 function recivedClick(btnId, where) {
-  switch (where){
+  switch (where) {
     case 1:
       from = btnId
-      document.getElementById('confirm').innerHTML += 'from: '+ from + ' '
+      document.getElementById('confirm').innerHTML += 'from: ' + from + ' '
       break
     case 2:
       to = btnId
-      document.getElementById('confirm').innerHTML += 'to: '+ to + ' '
+      document.getElementById('confirm').innerHTML += 'to: ' + to + ' '
       break
     case 3:
       document.getElementById('confirm').innerHTML = ''
-      card = (btnId!='random') ? allCards[btnId] : 'random';
-      document.getElementById('confirm').innerHTML += 'card: '+ card + ' '
+      card = (btnId != 'random') ? allCards[btnId] : 'random';
+      document.getElementById('confirm').innerHTML += 'card: ' + card + ' '
       break
   }
 }
@@ -269,11 +273,11 @@ function recivedClick(btnId, where) {
 function move(name_, card_, from_, to_, undo) {// fix
   if (name_) {//so far only undo functhion uses this
     socket.emit('move', name_, card_, from_, to_, undo);
-    console.log(name_+' moved '+ card_.name + ' from ' + from_ + ' to ' + to_)
+    console.log(name_ + ' moved ' + card_.name + ' from ' + from_ + ' to ' + to_)
     updateBoard(name_, card_, from_, to_)
   } else {
     socket.emit('move', username, card, from, to);
-    console.log(username+' moved '+ card.name + ' from ' + from + ' to ' + to)
+    console.log(username + ' moved ' + card.name + ' from ' + from + ' to ' + to)
     updateBoard(username, card, from, to)
   }
   document.getElementById('confirm').innerHTML = ''
@@ -288,28 +292,28 @@ function updatePopup() {
   const overlay = document.getElementById('overlay')
 
   openModalButtons.forEach(button => {
-      button.addEventListener('click', () => {
-          const modal = document.querySelector(button.dataset.modalTarget)
-          openModal(modal)
-      })
+    button.addEventListener('click', () => {
+      const modal = document.querySelector(button.dataset.modalTarget)
+      openModal(modal)
+    })
   })
 
   overlay.addEventListener('click', () => { //closes popup when clicking outside of popup
-      const modals = document.querySelectorAll('.modal.active')
-      modals.forEach( modal => {
-          closeModal(modal)
-      })
+    const modals = document.querySelectorAll('.modal.active')
+    modals.forEach(modal => {
+      closeModal(modal)
+    })
   })
 
   closeModalButtons.forEach(button => {
-      button.addEventListener('click', () => {
-          const modal = button.closest('.modal')
-          closeModal(modal)
-      })
+    button.addEventListener('click', () => {
+      const modal = button.closest('.modal')
+      closeModal(modal)
+    })
   })
 }
 
-function visabile(){//spesify visabilaty for deck and discard 
+function visabile() {//spesify visabilaty for deck and discard 
   let where = document.getElementById("show").innerHTML.slice(5)//gets where
   socket.emit('getDeckOrDis', username, where);
   document.getElementById("show").style.display = 'none'
@@ -322,56 +326,56 @@ function random() { // may need to say how many random cards get sent over
 }
 
 function openModal(modal) {
-    if (gameOver) return
-    if (modal == null) return
-    modal.classList.add('active')
-    overlay.classList.add('active')
+  if (gameOver) return
+  if (modal == null) return
+  modal.classList.add('active')
+  overlay.classList.add('active')
 }
 
 function closeModal(modal) {
-    if (modal == null) return
-    modal.classList.remove('active')
-    overlay.classList.remove('active')
-    document.getElementById("display").style.display = "none"
-    document.getElementById("interupt").style.display = "none"
+  if (modal == null) return
+  modal.classList.remove('active')
+  overlay.classList.remove('active')
+  document.getElementById("display").style.display = "none"
+  document.getElementById("interupt").style.display = "none"
 }
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list
 //could have multiplay card moves
-function updateBoard(name, card, from, to){
-  if (card instanceof Array){
+function updateBoard(name, card, from, to) {
+  if (card instanceof Array) {
     card = card[0];//fix
   }
   //have a checks if it is player's turn
-  if(from == "deck"||from =="discard"){
+  if (from == "deck" || from == "discard") {
     return
-  } 
+  }
   if (to == "deck" || to == "discard") {
     if (from instanceof Array) {//fix to many if statments
-      if (from[0]==username){
-        document.getElementById("Player"+from[1]).removeChild(document.getElementById(card.name));
-      } else{
-        document.getElementById(from[0]+from[1]).removeChild(document.getElementById(card.name));
+      if (from[0] == username) {
+        document.getElementById("Player" + from[1]).removeChild(document.getElementById(card.name));
+      } else {
+        document.getElementById(from[0] + from[1]).removeChild(document.getElementById(card.name));
       }
     } else {
-      if (name == username){
-        document.getElementById("Player"+from).removeChild(document.getElementById(card.name));
+      if (name == username) {
+        document.getElementById("Player" + from).removeChild(document.getElementById(card.name));
       } else {
-        document.getElementById(name+from).removeChild(document.getElementById(card.name));
+        document.getElementById(name + from).removeChild(document.getElementById(card.name));
       }
     }
   } else {// fix to many if statments
-    if (name == username){
-      if(to instanceof Array){
-        document.getElementById(to[0]+to[1]).appendChild(document.getElementById(card.name))
+    if (name == username) {
+      if (to instanceof Array) {
+        document.getElementById(to[0] + to[1]).appendChild(document.getElementById(card.name))
       } else {
-        document.getElementById("Player"+to).appendChild(document.getElementById(card.name))
+        document.getElementById("Player" + to).appendChild(document.getElementById(card.name))
       }
     } else {
-      if(to instanceof Array){
-        document.getElementById("Player"+to[1]).appendChild(document.getElementById(card.name))
+      if (to instanceof Array) {
+        document.getElementById("Player" + to[1]).appendChild(document.getElementById(card.name))
       } else {
-        document.getElementById(name+to).appendChild(document.getElementById(card.name))
+        document.getElementById(name + to).appendChild(document.getElementById(card.name))
       }
     }
   }
@@ -380,11 +384,11 @@ function updateBoard(name, card, from, to){
 
 
 //==========Debug code============
-socket.on("DEBUG_autofill", function(name){
+socket.on("DEBUG_autofill", function (name) {
   if (username == '') {
     document.getElementById("username_input").value = name
     document.getElementById("b").click()
-    if (name == "host"){
+    if (name == "host") {
       document.getElementById("ready").click()
     }
   }

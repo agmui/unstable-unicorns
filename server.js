@@ -19,15 +19,15 @@ app.get('/client.css', (req, res) => {
 });
 
 //======debug code========
-let name=0;
+let name = 0;
 //========================
 
 
 io.on('connection', (socket) => {
     //======debug code========
-    if (name>0){
+    if (name > 0) {
         io.emit("DEBUG_autofill", "host");
-        name=0
+        name = 0
     } else {
         io.emit("DEBUG_autofill", "player1");
         name++
@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
         console.log('user disconnected' + ', playerList: ', playerList);
         delete playerList[socket.id];
     });
-    socket.on('username input', function(name) {
+    socket.on('username input', function (name) {
         let taken = false
         for (var i in playerList) { // make it so that people cant share the same username
             if (playerList[i] == name) {
@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
             io.emit("That username is taken!");
         }
     });
-    socket.on('ready', function(name) { // make it so when everyone clicks ready then start
+    socket.on('ready', function (name) { // make it so when everyone clicks ready then start
         if (name == 'host') { // make the host the first person who joins and can be switchable
             io.emit('num of players', playerList)
             game = new PlayerClass.Board(playerList);
@@ -68,27 +68,27 @@ io.on('connection', (socket) => {
             boardUpdate()
         }
     });
-    socket.on('getDeckOrDis', function(username, where, random=false){//client askes for deck/discard img
+    socket.on('getDeckOrDis', function (username, where, random = false) {//client askes for deck/discard img
         //random code not used
-        if (random){// can spesify if blind or visble deck/discard
+        if (random) {// can spesify if blind or visble deck/discard
             let card = (where === 'deck' ? game.drawFromDeck(1) : game.drawFromDiscard())
             io.emit('random card', card)//sends cards in either a list 
             return
         }
         let cards = game.getDeckOrDiscard(where)
-        if (cards.length != 0){//check if deck/discard runs out of cards
+        if (cards.length != 0) {//check if deck/discard runs out of cards
             sendPic(cards, [username, 'display'])
             return
         } io.emit('no cards', username);// if deck/discard runs out of cards
     });
-    socket.on('pass', function(username) {
+    socket.on('pass', function (username) {
         console.log(username, 'passed')
     });
-    socket.on('endPhase', function(username) {
+    socket.on('endPhase', function (username) {
         console.log('end phase')
         io.emit('phase', game.rotatePhase(), game.getTurn())
     });
-    socket.on('endTurn', function(username) {
+    socket.on('endTurn', function (username) {
         if (game.getPhase() == 5) {
             console.log('switched turns')
             io.emit('turn start', game.rotateTurn());
@@ -97,21 +97,21 @@ io.on('connection', (socket) => {
         boardUpdate()
     });
     //move functions
-    socket.on('move', function(username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
+    socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         console.log("server.js: recived move function", username, card.name, from, to)
         let state = game.move(username, card, from, to, undo)
-        if (state==false) return//checking if move is alowed with class.js
-        if(state) console.log('server.js: game over')
+        if (state == false) return//checking if move is alowed with class.js
+        if (state) console.log('server.js: game over')
         io.emit("move", username, card, from, to, state);
         boardUpdate()
     });
-    socket.on('undo', function(username) {//fix anyone can call for undo
+    socket.on('undo', function (username) {//fix anyone can call for undo
         console.log('server.js:', username, 'undid a move')
         io.emit('undo', game.undo(username));// broadcast to all of the undid move, up to them how to change gui
         io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
         boardUpdate()//checks to see if any new card img needs to be sent
     });
-    socket.on('interupt', function(toWho){
+    socket.on('interupt', function (toWho) {
         console.log('server.js: interupt recived');
         game.interupt(toWho);
     });
@@ -121,7 +121,7 @@ io.on('connection', (socket) => {
         if (picDir) {// may not need if statment
             for (let i of picDir) {
                 imgFile = i.img
-                fs.readFile(__dirname + '/server/card_images/' + imgFile, function(err, buf) {
+                fs.readFile(__dirname + '/server/card_images/' + imgFile, function (err, buf) {
                     io.emit('image', {
                         image: true,
                         buffer: buf.toString('base64')
@@ -132,11 +132,11 @@ io.on('connection', (socket) => {
     }
     // sends pics of the updated board
     function boardUpdate() {// make it so it does not have to loop though all players and just do one emit
-        if (game.sendPic != []){
-            for (let i of game.sendPic){
+        if (game.sendPic != []) {
+            for (let i of game.sendPic) {
                 sendPic(i.card, i.to)
             }
-            game.sendPic=[]
+            game.sendPic = []
         }
     }
 });
