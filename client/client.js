@@ -7,6 +7,7 @@ var input = document.getElementById('input');
 var usernameInputValue = document.getElementById('username_input')
 var username = '';
 let allCards = {};
+gameOver = false;
 
 form.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -60,6 +61,7 @@ socket.on("num of players", function(playerList){
       stable.innerHTML = 'Stable:'
       opponate.append(stable)
 
+      //fix
       //creating opponate gui in popup
       opponate = document.createElement("button")
       opponate.id = name
@@ -82,12 +84,19 @@ socket.on("num of players", function(playerList){
       opponate.onclick = function(){recivedClick([this.id,"Stable"], 2)}
       opponate.innerHTML = name+"'s stable"
       document.getElementById('to').append(opponate)
+
+      //creating interupt gui
+      opponate = document.createElement("button")
+      opponate.id = name
+      opponate.onclick = function(){interupt(name)}
+      opponate.innerHTML = name
+      document.getElementById('interupt').append(opponate)
+      document.getElementById('interupt').style.display = 'none'
     }
   }
 });
 
 //shows all action btn
-//remove the move btn
 socket.on("turn start", function(name){
   document.getElementById('whosTurn').innerHTML = 'Turn: '+ name
   if (username == name){
@@ -127,10 +136,15 @@ socket.on("phase", function(phase, name){
 });
 
 // when another player moves a card recives action here
-socket.on("move", function(name, card, from, to){
+socket.on("move", function(name, card, from, to, winner){
   if (name !== username){
     console.log("reciving from server:" + name +' moved '+ card.name + ' from ' + from + ' to ' + to)
     updateBoard(name, card, from, to)
+  }
+  if(winner){
+    console.log('winner:', winner);
+    document.getElementById('btn').style.display = 'none'
+    gameOver=true;
   }
 });
 
@@ -147,10 +161,9 @@ socket.on('undo', function(action){
   if (document.getElementById('whosTurn').innerHTML=='Turn: '+username){// fix way of getting who's turn
     move(username, action.card, action.to, action.from, true);
   }
-  //console.log(action);
 })
 
-//reciving random card form deck or discard
+//reciving random card from deck or discard
 socket.on('random card', function(card){
   console.log(card)
 });
@@ -189,10 +202,14 @@ function ready() {
   socket.emit('ready', username)
 }
 function deck(){
+  document.getElementById('from').style.display='block'
+  document.getElementById('to').style.display='block'
   document.getElementById("show").innerHTML += ' deck'
   document.getElementById("display").style.display = "block"
 }
 function discard(){
+  document.getElementById('from').style.display='block'
+  document.getElementById('to').style.display='block'
   document.getElementById("show").innerHTML += ' discard'
   document.getElementById("display").style.display = "block"
 }
@@ -204,6 +221,13 @@ function pass(){
 function undo(){ // try to make it so they cant undo when no moves have been done
   socket.emit('undo', username);
   console.log(username+" undo action")
+}
+function interupt(toWho) {
+  document.getElementById('interupt').style.display='block'
+  document.getElementById('from').style.display='none'
+  document.getElementById('to').style.display='none'
+  if (toWho)socket.emit('interupt', toWho);
+  console.log(username, 'interupted', toWho)
 }
 function endPhase(){
   socket.emit('endPhase', username);
@@ -253,7 +277,8 @@ function move(name_, card_, from_, to_, undo) {// fix
     updateBoard(username, card, from, to)
   }
   document.getElementById('confirm').innerHTML = ''
-  document.getElementById("display").style.discard = "none"
+  document.getElementById("display").style.display = "none"
+  document.getElementById("interupt").style.display = "none"
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
@@ -297,6 +322,7 @@ function random() { // may need to say how many random cards get sent over
 }
 
 function openModal(modal) {
+    if (gameOver) return
     if (modal == null) return
     modal.classList.add('active')
     overlay.classList.add('active')
@@ -307,6 +333,7 @@ function closeModal(modal) {
     modal.classList.remove('active')
     overlay.classList.remove('active')
     document.getElementById("display").style.display = "none"
+    document.getElementById("interupt").style.display = "none"
 }
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list

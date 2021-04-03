@@ -98,18 +98,22 @@ io.on('connection', (socket) => {
     });
     //move functions
     socket.on('move', function(username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
-        if (username == game.getTurn()) { // may need to change getTurn for interupt cases or cut in line case
-            console.log("server.js: recived move function", username, card.name, from, to)
-            io.emit("move", username, card, from, to);
-            game.move(username, card, from, to, undo)
-            boardUpdate()
-        }
+        console.log("server.js: recived move function", username, card.name, from, to)
+        let state = game.move(username, card, from, to, undo)
+        if (state==false) return//checking if move is alowed with class.js
+        if(state) console.log('server.js: game over')
+        io.emit("move", username, card, from, to, state);
+        boardUpdate()
     });
-    socket.on('undo', function(username) {
-        console.log(username, 'undid a move')
+    socket.on('undo', function(username) {//fix anyone can call for undo
+        console.log('server.js:', username, 'undid a move')
         io.emit('undo', game.undo(username));// broadcast to all of the undid move, up to them how to change gui
         io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
         boardUpdate()//checks to see if any new card img needs to be sent
+    });
+    socket.on('interupt', function(toWho){
+        console.log('server.js: interupt recived');
+        game.interupt(toWho);
     });
     //sending pic over given card class in a list and where it is suppose to go
     function sendPic(picDir, where) {

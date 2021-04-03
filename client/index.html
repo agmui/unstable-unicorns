@@ -23,7 +23,8 @@
             <button id="drawDeck" data-modal-target="#modal" onclick="deck()">Deck</button>
             <button id="drawDeck" data-modal-target="#modal" onclick="discard()">Discard</button>
             <button id="pass" onclick="pass()">Pass</button>
-            <button id="undo" onclick="undo()">UNDO</button>
+            <!--button id="undo" onclick="undo()">UNDO</-button-->
+            <button id="interuptBtn" data-modal-target="#modal" onclick="interupt()">Interupt</button>
             <button id="endPhase" onclick="endPhase()">End Phase</button>
         </action>
         <button id="end turn" onclick="endTurn()">End Turn</button>
@@ -34,6 +35,7 @@
                 <button data-close-button class="close-button">&times;</button>
             </div>
             <div class="modal-body">
+              <div id="interupt">Who?</div>
               <div id="display">
                 <button id="show" onclick="visabile()">show</button>
                 <button id="hidden" onclick="random()">random</button>

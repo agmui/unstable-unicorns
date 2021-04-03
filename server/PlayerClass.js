@@ -86,7 +86,8 @@ class Board {
         this.turn = 0//getRandomInt(this.players.length)
         //
         this.phase = 1;
-        this.sendPic = []
+        this.sendPic = [];
+        this.bypass=[];
     }
     //returns a list of card objects
     drawFromDeck(num=1){ // fix if deck run out of cards
@@ -105,7 +106,8 @@ class Board {
     }
     setup(){
         this.players.forEach(p => {
-            this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"]);
+            this.move(p.getName(), this.drawFromDeck(6), "deck", [p.getName(),"Stable"], false, true);//ts
+            //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"], false, true);
         })
     }
     //parm card should be a list
@@ -138,7 +140,12 @@ class Board {
     }
     //name, from, and to are all Strings exsept for when player is passed
     //when player is passed it is a list with [name, Hand/Stable]
-    move(name, card, from, to, undo=false){ // params card CAN be a list or Card object
+    //bypass is to let game move anything anwhere, server.js cant accept bypass parma for security
+    move(name, card, from, to, undo=false, bypass=false){ // params card CAN be a list or Card object
+        if(name==this.bypass[this.bypass.length-1]) this.bypass.pop()// checks bypass list for the most resent name to check if bypass is allowed
+        else if (undo) {this.bypass.pop()}//if move call is an undo then can bypass (this could cause error if more than one bypass => undo)
+        else if (name!=this.getTurn()&&bypass==false) return false
+        else if(this.bypass.length>0)return false// ensures that once inturupt is pressed noone else can go
         console.log('class.js: '+name + " moved " + card.name+ " from " + from+ " to " +to,to[0].name, to[1])
         if (card == 'random'){
             card = (from=='deck') ? this.drawFromDeck(1):this.drawFromDiscard();
@@ -210,6 +217,14 @@ class Board {
                 index = this.players.findIndex((player) => player.getName()==to[0])
                 this.players[index].addCard(card, to[1])
         }
+        for(let i of this.players){// checks every move if someone wins, if true return username
+            console.log(i.winCondition())//ts
+            console.log(i.getStable().length)//ts
+            if (i.winCondition()){
+                console.log('Class.js: game over')
+                return i;
+            }
+        }
         if(undo==false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     // looks at the most recent action in log and undoes it
@@ -232,6 +247,12 @@ class Board {
         }
         this.log.pop()
         return {name:name, card:card, from:from, to:to}
+    }
+    //alows other player(single) to make actions cutting temp breaking the turns
+    //askes for who to break to as a string
+    interupt(toWho){
+        console.log('class.js: recived interupt',toWho);
+        this.bypass.push(toWho);
     }
     rotateTurn(){
         //rotates to next player's turn
@@ -318,24 +339,7 @@ if (require.main === module){
     let game = new Board(list);
     game.setup();
     console.log("==setup over==\n");
-    game.rotatePhase()
-    console.log('current phase:',game.getPhase())
-    console.log(game.log)
-    game.undo()
-    console.log('current phase:',game.getPhase())
-    console.log(game.log)
-    game.undo()
-    console.log('current phase:',game.getPhase())
-    console.log(game.log)
-    /*console.log(game.getState("host"))
-    let test = {name: 'Dingocorn',
-    text: "When this card enters your Stable, you may return all Baby Unicorn cards in each player's Stable to the Nursery.",
-    type: "test",
-    img: 'Dingocorn.png'}
-    test = game.players[0].getHand()
-
-    game.move("host", test, "Hand", ['a',"Hand"])
-    game.move("host", test, "Hand", ['a',"Hand"])
+    game.interupt('a')
     //console.log(game.getState("host"))
     //console.log(game.getState("host").OpponateHand)*/
 }
