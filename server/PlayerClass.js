@@ -82,9 +82,9 @@ class Board {
             this.deck.push(deck[i].quantity)
         }
         //this.turn = getRandomInt(this.players.length)
-        //debug
+        //==debug==
         this.turn = 0//getRandomInt(this.players.length)
-        //
+        //=========
         this.phase = 1;
         this.sendPic = [];
         this.bypass = [];
@@ -106,8 +106,9 @@ class Board {
     }
     setup() {
         this.players.forEach(p => {
-            this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);//ts
-            //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"], false, true);
+            //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
+            //debug
+            this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"], false, true);//ts
         })
     }
     //parm card should be a list
@@ -247,7 +248,7 @@ class Board {
         return { name: name, card: card, from: from, to: to }
     }
     //alows other player(single) to make actions cutting temp breaking the turns
-    //askes for who to break to as a string
+    //askes for toWho break to as a string
     interupt(toWho) {
         console.log('class.js: recived interupt', toWho);
         this.bypass.push(toWho);

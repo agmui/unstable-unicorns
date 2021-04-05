@@ -63,7 +63,7 @@ socket.on("num of players", function (playerList) {
 
       //fix
       //creating opponate gui in popup
-      opponate = document.createElement("button")
+      /*opponate = document.createElement("button")//from section gui not nessisary
       opponate.id = name
       opponate.onclick = function () { recivedClick([this.id, "Hand"], 1) }
       opponate.innerHTML = name + "'s hand"
@@ -72,7 +72,7 @@ socket.on("num of players", function (playerList) {
       opponate.id = name
       opponate.onclick = function () { recivedClick([this.id, "Stable"], 1) }
       opponate.innerHTML = name + "'s stable"
-      document.getElementById('from').append(opponate)
+      document.getElementById('from').append(opponate)*/
 
       opponate = document.createElement("button")
       opponate.id = name
@@ -184,7 +184,16 @@ socket.on('no cards', function (name) {
 socket.on("image", function (info, where, cardObject) {
   if (info.image) {
     let img = document.createElement("IMG")
-    img.onclick = function () { recivedClick(img.id, 3) } // could prefill from pt of the move function
+    img.onclick = function () {//auto fills for move function
+      //recivedClick(img.parentElement.id, 1)//fix formating not right
+      if (img.parentElement.id==='PlayerHand' || img.parentElement.id==='PlayerStable'){
+        recivedClick(img.parentElement.id.slice(6), 1)
+      } else {
+        let name = img.parentElement.parentElement.id
+        recivedClick([name, img.parentElement.id.slice(name.length)],1)
+      }
+      recivedClick(img.id, 3) 
+    }
     img.src = 'data:image/jpeg;base64,' + info.buffer;
     allCards[cardObject.name] = cardObject;
     img.id = cardObject.name
@@ -252,7 +261,8 @@ function endTurn() {
 //make it so it cant movve to the same place (exseption like in deck move to top of deck)
 //move functions
 let from, to, card
-function recivedClick(btnId, where) {
+function recivedClick(btnId, where) {//could have error with btn Id if multiple of the same cards are on screen
+  console.log('from:',btnId, 'where:', where)//ts
   switch (where) {
     case 1:
       from = btnId
@@ -392,4 +402,4 @@ socket.on("DEBUG_autofill", function (name) {
       document.getElementById("ready").click()
     }
   }
-});
+});//*/
