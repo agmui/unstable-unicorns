@@ -143,6 +143,7 @@ socket.on("phase", function (phase, name) {
   document.getElementById('phaseUI').innerHTML = text;
 });
 socket.on('cardClientClass', function(name, card, output){
+  console.log('output',output)//ts
   if(name !== username|| output==null)return
   console.log('from card.js:', output)//output can spesify if it needs to open modal
   //alows gui to take input
@@ -150,7 +151,11 @@ socket.on('cardClientClass', function(name, card, output){
 });
 socket.on('final', function(output){
   //code to handel board changes
-
+  if(typeof output === 'string') {
+    console.log(output); 
+    return
+  }
+  inputFormCard = false
 })
 // when another player moves a card recives action here
 socket.on("move", function (name, card, from, to, winner) {
@@ -207,19 +212,22 @@ socket.on("image", function (info, where, cardObject) {
       recivedClick(img.id, 3) 
     }*/
     img.onclick = function() {
-      if (inputFormCard) {
+      let who =  img.parentElement.parentElement.id
+      let location = img.parentElement.id.slice(who.length)
+      if (inputFormCard) {//maybe needs a check if needs to verify if it is player's turn and card
         //open gui opptions for what ever needs to be inputed in
-        let location = document.getElementById(cardObject.name).parentElement.parentElement.id;
-        console.log('location:',location)//ts
-        socket.emit('cardClientClassClient', username, inputFormCard, [cardObject, location])//move over to card
-        inputFormCard = false;
+
+        //pass info back to card.js
+        socket.emit('cardClientClassClient', username, inputFormCard, cardObject, [who, location])
+        //inputFormCard = false;//needs a way of checking if card.js says valid input
       } else {
-        cardAutoFill(cardObject)
+        cardAutoFill(cardObject, [who, location])
       }
     }
     img.src = 'data:image/jpeg;base64,' + info.buffer;
     allCards[cardObject.name] = cardObject;
     img.id = cardObject.name
+    img.name = cardObject.name 
     img.setAttribute("data-modal-target", "#modal")
     img.setAttribute("width", 150)
     img.setAttribute("height", 200)
@@ -302,8 +310,8 @@ function recivedClick(btnId, where) {//could have error with btn Id if multiple 
   }
 }
 //auto fill card function
-function cardAutoFill(card){
-  socket.emit('cardClient', username, card);
+function cardAutoFill(card, location){
+  socket.emit('cardClient', username, card, location);
 }
 
 // card should be a object, fix accepting list changes in from and to
@@ -395,42 +403,14 @@ function updateBoard(name, card, from, to) {//fix array thing with to
         document.getElementById(from[0] + from[1]).removeChild(i)
       }
     }
-    //document.getElementById(from[0] + from[1]).removeChild(document.getElementById(name).getElementById(card.name));
-    /*if (from instanceof Array) {//fix to many if statments
-      if (from[0] == username) {
-        document.getElementById("Player" + from[1]).removeChild(document.getElementById(card.name));
-      } else {
-        document.getElementById(from[0] + from[1]).removeChild(document.getElementById(card.name));
+  } else { 
+    //fix
+    let x = document.getElementById(from[0]+from[1])//to insure it grabs the card from the right domain if multiple people have the same card
+    for(let i of x.childNodes) {
+      if (i.id===card.name){
+        document.getElementById(to[0] + to[1]).appendChild(i)
       }
-    } else {
-      if (name == username) {
-        document.getElementById("Player" + from).removeChild(document.getElementById(card.name));
-      } else {
-        document.getElementById(name + from).removeChild(document.getElementById(card.name));
-      }
-    }*/
-  } else {// fix to many if statments
-      //fix
-      let x = document.getElementById(from[0]+from[1])//to insure it grabs the card from the right domain if multiple people have the same card
-      for(let i of x.childNodes) {
-        if (i.id===card.name){
-          document.getElementById(to[0] + to[1]).appendChild(i)
-        }
-      }
-
-      /*if (name == username) {
-        if (to instanceof Array) {
-          document.getElementById(to[0] + to[1]).appendChild(document.getElementById(card.name))
-        } else {
-          document.getElementById("Player" + to).appendChild(document.getElementById(card.name))
-        }
-      } else {
-        if (to instanceof Array) {
-          document.getElementById("Player" + to[1]).appendChild(document.getElementById(card.name))
-        } else {
-          document.getElementById(name + to).appendChild(document.getElementById(card.name))
-      }
-    }*/
+    }
   }
 }
 

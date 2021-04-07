@@ -40,17 +40,23 @@ class Player {
                 for (let j = 0; j < card.length; j++) {
                     if (this.hand[i].name == card[j].name) {
                         this.hand.splice(i, 1)
+                        return
                     }
                 }
             }
+            console.log('class.js: not in domain')
+            return null
         } else if (where == "Stable") {
             for (let i = 0; i < this.stable.length; i++) {
                 for (let j = 0; j < card.length; j++) {
                     if (this.stable[i].name == card[j].name) {
                         this.stable.splice(i, 1)
+                        return
                     }
                 }
             }
+            console.log('class.js: not in domain')
+            return null
         }
     }
     checkHandNum() {
@@ -123,8 +129,8 @@ class Board {
         this.players.forEach(p => {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
-            let card = new Card('controlled destruction', 'test', 'test', 'Controlled_Destruction.png')
-            //let card = new Card('basic unicorn', 'test', 'test', 'Guardsman_Unicorn.png')
+            //let card = new Card('controlled destruction', 'test', 'test', 'Controlled_Destruction.png')
+            let card = new Card('basic unicorn', 'test', 'test', 'Guardsman_Unicorn.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
         })
@@ -144,21 +150,27 @@ class Board {
                 for (let j = 0; j < card.length; j++) {
                     if (this.deck[i].name == card[j].name) {
                         this.deck.splice(i, 1)
+                        return
                     }
                 }
             }
+            //console.log('class.js: not in domain')
+            //return null //fix
         } else if (where == "discard") {
             for (let i = 0; i < this.discard.length; i++) {
                 for (let j = 0; j < card.length; j++) {
                     if (this.discard[i].name == card[j].name) {
                         this.discard.splice(i, 1)
+                        return
                     }
                 }
             }
+            //console.log('class.js: not in domain')
+            //return null//fix
         }
     }
-    card(game, request, name, card, affectedCards=false){//optimize
-        return cardAuto.main(game, request, name, card, affectedCards)
+    card(game, request, name, card, affectedCards=false, affectedPlayers=false){//optimize
+        return cardAuto.main(game, request, name, card, affectedCards, affectedPlayers)
     }
     //name, from, and to are all Strings exsept for when player is passed
     //when player is passed it is a list with [name, Hand/Stable]
@@ -166,7 +178,10 @@ class Board {
     move(name, card, from, to, undo = false, bypass = false) { // params card CAN be a list or Card object
         if (name == this.bypass[this.bypass.length - 1]) this.bypass.pop()// checks bypass list for the most resent name to check if bypass is allowed
         else if (undo) { this.bypass.pop() }//if move call is an undo then can bypass (this could cause error if more than one bypass => undo)
-        else if (name != this.getTurn() && bypass == false) return false
+        else if (name != this.getTurn() && bypass == false) {//to prevent anyone from going out of turn
+            console.log('class.js: not players turn');
+            return false
+        }
         else if (this.bypass.length > 0) return false// ensures that once inturupt is pressed noone else can go
         console.log('class.js: ' + name + " moved " + card.name + " from " + from + " to " + to, to[0].name, to[1])
         if (card == 'random') {
@@ -183,7 +198,8 @@ class Board {
         let index
         switch (from) {
             case "deck":
-                this.removeCard(card, from)
+                //checks if card is in domain
+                if(this.removeCard(card, from)===null) return false
                 if (to != "discard" || to != "deck") {
                     if (to == 'Hand' || to == 'Stable') {
                         to = [name, to]
@@ -195,7 +211,8 @@ class Board {
                 }
                 break
             case "discard":
-                this.removeCard(card, from)
+                //checks if card is in domain
+                if(this.removeCard(card, from)===null) return false
                 if (to == 'Hand' || to == 'Stable') {
                     to = [name, to]
                 }
@@ -210,14 +227,16 @@ class Board {
             case "Stable":
                 for (let i of this.players) {
                     if (i.getName() == name) {
-                        i.removeCard(card, from)
+                        //checks if card is in domain
+                        if(i.removeCard(card, from)===null)return false
                         break
                     }
                 }
                 break
             default://if opponate is returned
+                //checks if card is in domain
                 index = this.players.findIndex((player) => player.getName() == from[0])
-                this.players[index].removeCard(card, from[1])
+                if(this.players[index].removeCard(card, from[1])===null) return false
         }
         switch (to) {
             case "deck":

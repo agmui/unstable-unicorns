@@ -1,10 +1,18 @@
-function main(game, request, name, card, affectedCard) {
-    let send;
+function main(game, request, name, card, affectedCard, affectedPlayer) {
+    let send, phase;
     let move = [];
     //request to see if more info needed
     console.log('card.js: ', card.name);
     if (request == 'get') {
-        game.move(name, card, 'Hand', 'Stable'); //when initaly playing something
+        //check if clicked on card location is correct
+        //affectedCard means soemthing else when it is a get request
+        if (affectedCard[0] !== name) {
+            console.log('card.js: not users hand');
+            return null;
+        } //all checks below could have vonabilaty if user were to change request on client side
+        let test = game.move(name, card, 'Hand', 'Stable'); //when initaly playing something
+        if (test === false)
+            return null; //if class.js throws and error
         //tells client something moved
         move.push({ name: name, card: card, from: [name, 'Hand'], to: [name, 'Stable'] });
         switch (card.name) {
@@ -31,28 +39,29 @@ function main(game, request, name, card, affectedCard) {
         //reply
         switch (card.name) {
             case 'controlled destruction':
+                console.log('affectedPlayer:', affectedPlayer); //ts
                 //checks if it is valid imput first
-                if (game.getPlayer(affectedCard[1]).getStableStr().includes(affectedCard[0].name) === false) {
+                if (affectedPlayer[1] !== 'Stable' || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false) {
                     console.log('affectedCard is not valid input');
-                    return;
+                    return 'error: not valid input';
                 }
-                console.log('card.js: recived affected Card', affectedCard[0].name); //ts
+                console.log('card.js: recived affected Card', affectedCard.name); //ts
                 console.log('activated controlled destruction');
                 //after reciving reqest back for what to do
-                game.move(game.getPlayer(affectedCard[1]).name, affectedCard[0], 'Stable', 'discard', false, true);
+                game.move(affectedPlayer[0], affectedCard, [affectedPlayer[0], 'Stable'], 'discard', false, true);
                 //tells client something moved
-                move.push({ name: game.getPlayer(affectedCard[1]).name, card: affectedCard[0], from: [name, 'Stable'], to: 'discard' });
+                move.push({ name: affectedPlayer[0], card: affectedCard, from: [affectedPlayer[0], 'Stable'], to: 'discard' });
                 //checks if enough cards have been moved
-                //otherwise rotate
-                game.rotatePhase();
-                console.log('card.js: rotated phase'); //ts
                 // after using the magic card
                 game.move(name, card, 'Stable', 'discard');
                 //tells client something moved
                 move.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
+                phase = game.rotatePhase();
+                //tell client phase rotated
+                console.log('card.js: rotated phase'); //ts
                 break;
         }
-        return { move: move };
+        return { move: move, phase: phase };
     }
 }
 module.exports = { main };
