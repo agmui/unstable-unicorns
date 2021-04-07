@@ -96,6 +96,29 @@ io.on('connection', (socket) => {
         io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
         boardUpdate()
     });
+    //auto fill card functions
+    //==================try to make getting the auto fill to work request wise 
+    //to resemble the web's get requests or protocalls==========
+    socket.on('cardClient', function(name, card){//inital request from client to ask what info the card needs form class
+        console.log('class.js', card)//ts
+        let output = game.card(game, 'get', name, card);
+        console.log('class.js sending output', output)//ts
+        for (let i of output.move){
+            io.emit('move', i.name, i.card, i.from, i.to);
+        }
+        io.emit('cardClientClass', name, card, output.send)//sends form with info that needs to be filled out to original sender
+        boardUpdate()
+    });
+    socket.on('cardClientClassClient', function(who, card, affectedCards){//recived all that needs to be inputed form client
+        let output = game.card(game, 'reply', who, card, affectedCards);
+        //sends back what changes has been made to board to all users
+        if (output==null)return//card.js checks if valid input
+        for (let i of output.move){
+            io.emit('move', i.name, i.card, i.from, i.to);
+        }
+        io.emit('final', output)
+        boardUpdate()
+    });
     //move functions
     socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         console.log("server.js: recived move function", username, card.name, from, to)

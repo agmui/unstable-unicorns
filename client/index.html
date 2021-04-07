@@ -14,8 +14,8 @@
         <p id="cards">Cards:</p>
         <div  id="board">
           <div id="Player">
-            <div id="PlayerHand">Hand:</div>
-            <div id="PlayerStable">Stable:</div>
+            <div id="Hand">Hand:</div>
+            <div id="Stable">Stable:</div>
           </div>
         </div>
         <p id="score board">Players: </p>
@@ -34,7 +34,7 @@
                 <div class="title">Move Card</div>
                 <button data-close-button class="close-button">&times;</button>
             </div>
-            <div class="modal-body">
+            <div id="modalBody" class="modal-body">
               <div id="interupt">Who?</div>
               <div id="display">
                 <button id="show" onclick="visabile()">show</button>
@@ -47,13 +47,12 @@
                   <button id="Hand" onclick="recivedClick(this.id, 1)">Hand</button>
                   <button id="Stable" onclick="recivedClick(this.id, 1)">Stable</button>
               </div-->
-              to:
-              <div id="to">
+              <!--div id="to">
                   <button id="deck" onclick="recivedClick(this.id, 2)">deck</button>
                   <button id="discard" onclick="recivedClick(this.id, 2)">discard</button>
                   <button id="Hand" onclick="recivedClick(this.id, 2)">Hand</button>
                   <button id="Stable" onclick="recivedClick(this.id, 2)">Stable</button>
-              </div>
+              </div-->
               <p id="confirm"></p>
               <button onclick="move()">Confirm</button>
             </div>

@@ -10,6 +10,7 @@ add neigh exseption
 const e = require('express');
 const { copyFileSync } = require('fs');
 deck = require('./data.json');
+const cardAuto = require('./card.js');
 
 class Card {
     constructor(name, text, type, img) {
@@ -64,8 +65,22 @@ class Player {
     getHand() {
         return this.hand;
     }
+    getHandStr(){
+        let l = []
+        for (let i of this.hand){
+            l.push(i.name)
+        }
+        return l
+    }
     getStable() {
         return this.stable;
+    }
+    getStableStr(){
+        let l = []
+        for (let i of this.stable){
+            l.push(i.name)
+        }
+        return l
     }
 }
 
@@ -108,7 +123,10 @@ class Board {
         this.players.forEach(p => {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
-            this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Hand"], false, true);//ts
+            let card = new Card('controlled destruction', 'test', 'test', 'Controlled_Destruction.png')
+            //let card = new Card('basic unicorn', 'test', 'test', 'Guardsman_Unicorn.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
+            this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
         })
     }
     //parm card should be a list
@@ -138,6 +156,9 @@ class Board {
                 }
             }
         }
+    }
+    card(game, request, name, card, affectedCards=false){//optimize
+        return cardAuto.main(game, request, name, card, affectedCards)
     }
     //name, from, and to are all Strings exsept for when player is passed
     //when player is passed it is a list with [name, Hand/Stable]
@@ -270,13 +291,35 @@ class Board {
     //could have vulnerability when going form phase 4 => 5 could send move request
     rotatePhase() {//fix
         this.phase++
-        if (this.phase >= 4 && this.getTurn(true).checkHandNum()) {
+        if (this.phase >= 4 && this.getTurn(true).checkHandNum()) {// try to merge with bottom
             if (this.phase == 5) {//prevent player from going to next phase without discarding the right amount
                 this.phase--
             }
             console.log('class.js:', this.getTurn(), 'has to many cards')
             return { numOfCards: this.getTurn(true).getHand().length - 7 }
         }
+        //ts
+        switch (this.phase) {
+            //beginning of turn phase check
+            case 1:
+                //check for preturn start card effects
+                break
+            //draw phase
+            case 2:
+                console.log('game draws card for player')
+                //this.move(p.getName(), this.drawFromDeck(1), "deck", [.getName(),"Hand"], false, true);//ts
+                this.rotatePhase()//ts idk help
+                break
+            //ask for action
+            case 3:
+                console.log('draw or play')
+                break
+            //end of turn phase check
+            case 4:
+                // check for end of turn card effects
+                break
+        }
+        //==
         return this.phase;
     }
     getPhase() {
@@ -286,6 +329,11 @@ class Board {
     getTurn(str) {
         if (str) return this.players[this.turn];
         return this.players[this.turn].getName();
+    }
+    getPlayer(name){
+        for (let i of this.players){
+            if (i.name===name) return i
+        }
     }
     //ask for visabliaty when getting state of domains
     getState(name, other = false) { // could be improved to find the only change and send that
@@ -344,11 +392,21 @@ function getRandomInt(max) { // merge with the drawFromDeck function
 module.exports = { Board }
 
 if (require.main === module) {
-    /*let list = {'longString1':'host','longString2':'a'};
+    let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
     game.setup();
+    game.players[0].getHand()[0].name = 'controlled destruction'//ts
+    game.move('a', game.drawFromDeck(), 'deck', 'Stable', false, true)
     console.log("==setup over==\n");
-    game.interupt('a')
-    //console.log(game.getState("host"))
-    //console.log(game.getState("host").OpponateHand)*/
+    //==========
+    console.log(game.getState('host'))
+    console.log('phase:',game.getPhase())
+    game.rotatePhase()//help
+    let output = game.card(game, 'get', 'host', game.players[0].getHand()[0])
+    console.log(game.getState('host'))
+    console.log('phase:',game.getPhase())
+    console.log('card.js output:', output)
+    //some gui magic with fillingout output
+    game.card(game, 'reply', 'a', game.players[0].getStable()[0], [game.players[1].getStable()[0]])
+    console.log(game.getState('host'))
 }

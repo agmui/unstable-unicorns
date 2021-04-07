@@ -8,6 +8,7 @@ var usernameInputValue = document.getElementById('username_input')
 var username = '';
 let allCards = {};
 gameOver = false;
+let inputFormCard = false;
 
 form.addEventListener('submit', function (e) {
   e.preventDefault();
@@ -61,6 +62,10 @@ socket.on("num of players", function (playerList) {
       stable.innerHTML = 'Stable:'
       opponate.append(stable)
 
+      //fixing player's hands and stable id's
+      document.getElementById('Player').id = username
+      document.getElementById('Hand').id = username+'Hand'
+      document.getElementById('Stable').id = username+'Stable'
       //fix
       //creating opponate gui in popup
       /*opponate = document.createElement("button")//from section gui not nessisary
@@ -74,7 +79,7 @@ socket.on("num of players", function (playerList) {
       opponate.innerHTML = name + "'s stable"
       document.getElementById('from').append(opponate)*/
 
-      opponate = document.createElement("button")
+      /*opponate = document.createElement("button")
       opponate.id = name
       opponate.onclick = function () { recivedClick([this.id, "Hand"], 2) }
       opponate.innerHTML = name + "'s hand"
@@ -83,7 +88,7 @@ socket.on("num of players", function (playerList) {
       opponate.id = name
       opponate.onclick = function () { recivedClick([this.id, "Stable"], 2) }
       opponate.innerHTML = name + "'s stable"
-      document.getElementById('to').append(opponate)
+      document.getElementById('to').append(opponate)*/
 
       //creating interupt gui
       opponate = document.createElement("button")
@@ -137,13 +142,20 @@ socket.on("phase", function (phase, name) {
   console.log('phase: ' + text)
   document.getElementById('phaseUI').innerHTML = text;
 });
+socket.on('cardClientClass', function(name, card, output){
+  if(name !== username|| output==null)return
+  console.log('from card.js:', output)//output can spesify if it needs to open modal
+  //alows gui to take input
+  inputFormCard = card;
+});
+socket.on('final', function(output){
+  //code to handel board changes
 
+})
 // when another player moves a card recives action here
 socket.on("move", function (name, card, from, to, winner) {
-  if (name !== username) {
-    console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
-    updateBoard(name, card, from, to)
-  }
+  console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
+  updateBoard(name, card, from, to)
   if (winner) {//game over sequence
     console.log('winner:', winner);
     document.getElementById('btn').style.display = 'none'
@@ -184,7 +196,7 @@ socket.on('no cards', function (name) {
 socket.on("image", function (info, where, cardObject) {
   if (info.image) {
     let img = document.createElement("IMG")
-    img.onclick = function () {//auto fills for move function
+    /*img.onclick = function () {//auto fills for move function
       //recivedClick(img.parentElement.id, 1)//fix formating not right
       if (img.parentElement.id==='PlayerHand' || img.parentElement.id==='PlayerStable'){
         recivedClick(img.parentElement.id.slice(6), 1)
@@ -193,6 +205,17 @@ socket.on("image", function (info, where, cardObject) {
         recivedClick([name, img.parentElement.id.slice(name.length)],1)
       }
       recivedClick(img.id, 3) 
+    }*/
+    img.onclick = function() {
+      if (inputFormCard) {
+        //open gui opptions for what ever needs to be inputed in
+        let location = document.getElementById(cardObject.name).parentElement.parentElement.id;
+        console.log('location:',location)//ts
+        socket.emit('cardClientClassClient', username, inputFormCard, [cardObject, location])//move over to card
+        inputFormCard = false;
+      } else {
+        cardAutoFill(cardObject)
+      }
     }
     img.src = 'data:image/jpeg;base64,' + info.buffer;
     allCards[cardObject.name] = cardObject;
@@ -203,7 +226,7 @@ socket.on("image", function (info, where, cardObject) {
     if (where[1] === 'display' && where[0] === username) {//reciving deck/discard img to go to display
       document.getElementById('display').appendChild(img)
     } else if (where[0] == username) {
-      document.getElementById("Player" + where[1]).appendChild(img)
+      document.getElementById(where[0] + where[1]).appendChild(img)//fix
     } else if (where[1] != 'display') {
       document.getElementById(where[0] + where[1]).appendChild(img)
     }
@@ -262,7 +285,6 @@ function endTurn() {
 //move functions
 let from, to, card
 function recivedClick(btnId, where) {//could have error with btn Id if multiple of the same cards are on screen
-  console.log('from:',btnId, 'where:', where)//ts
   switch (where) {
     case 1:
       from = btnId
@@ -279,6 +301,11 @@ function recivedClick(btnId, where) {//could have error with btn Id if multiple 
       break
   }
 }
+//auto fill card function
+function cardAutoFill(card){
+  socket.emit('cardClient', username, card);
+}
+
 // card should be a object, fix accepting list changes in from and to
 function move(name_, card_, from_, to_, undo) {// fix
   if (name_) {//so far only undo functhion uses this
@@ -288,7 +315,7 @@ function move(name_, card_, from_, to_, undo) {// fix
   } else {
     socket.emit('move', username, card, from, to);
     console.log(username + ' moved ' + card.name + ' from ' + from + ' to ' + to)
-    updateBoard(username, card, from, to)
+    //updateBoard(username, card, from, to)
   }
   document.getElementById('confirm').innerHTML = ''
   document.getElementById("display").style.display = "none"
@@ -352,7 +379,7 @@ function closeModal(modal) {
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list
 //could have multiplay card moves
-function updateBoard(name, card, from, to) {
+function updateBoard(name, card, from, to) {//fix array thing with to
   if (card instanceof Array) {
     card = card[0];//fix
   }
@@ -361,7 +388,15 @@ function updateBoard(name, card, from, to) {
     return
   }
   if (to == "deck" || to == "discard") {
-    if (from instanceof Array) {//fix to many if statments
+    //fix
+    let x =document.getElementById(from[0]+from[1])//to insure it grabs the card from the right domain if multiple people have the same card
+    for(let i of x.childNodes) {
+      if (i.id===card.name){
+        document.getElementById(from[0] + from[1]).removeChild(i)
+      }
+    }
+    //document.getElementById(from[0] + from[1]).removeChild(document.getElementById(name).getElementById(card.name));
+    /*if (from instanceof Array) {//fix to many if statments
       if (from[0] == username) {
         document.getElementById("Player" + from[1]).removeChild(document.getElementById(card.name));
       } else {
@@ -373,25 +408,31 @@ function updateBoard(name, card, from, to) {
       } else {
         document.getElementById(name + from).removeChild(document.getElementById(card.name));
       }
-    }
+    }*/
   } else {// fix to many if statments
-    if (name == username) {
-      if (to instanceof Array) {
-        document.getElementById(to[0] + to[1]).appendChild(document.getElementById(card.name))
-      } else {
-        document.getElementById("Player" + to).appendChild(document.getElementById(card.name))
+      //fix
+      let x = document.getElementById(from[0]+from[1])//to insure it grabs the card from the right domain if multiple people have the same card
+      for(let i of x.childNodes) {
+        if (i.id===card.name){
+          document.getElementById(to[0] + to[1]).appendChild(i)
+        }
       }
-    } else {
-      if (to instanceof Array) {
-        document.getElementById("Player" + to[1]).appendChild(document.getElementById(card.name))
+
+      /*if (name == username) {
+        if (to instanceof Array) {
+          document.getElementById(to[0] + to[1]).appendChild(document.getElementById(card.name))
+        } else {
+          document.getElementById("Player" + to).appendChild(document.getElementById(card.name))
+        }
       } else {
-        document.getElementById(name + to).appendChild(document.getElementById(card.name))
+        if (to instanceof Array) {
+          document.getElementById("Player" + to[1]).appendChild(document.getElementById(card.name))
+        } else {
+          document.getElementById(name + to).appendChild(document.getElementById(card.name))
       }
-    }
+    }*/
   }
 }
-
-
 
 //==========Debug code============
 socket.on("DEBUG_autofill", function (name) {

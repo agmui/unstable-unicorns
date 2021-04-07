@@ -116,6 +116,7 @@ game.move('a', game.players[1].getHand(), ['a', 'Hand'], 'discard');
 console.log('discard:', game.discard);
 if (game.discard.length == 0)
     console.log('ERROR: interupt did not let opponate go');
+//chain interupts
 console.log('---------');
 //==check rotateTurn==
 setup();
