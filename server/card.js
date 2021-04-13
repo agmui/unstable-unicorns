@@ -1,12 +1,12 @@
-function main(game, request, name, card, affectedCard, affectedPlayer) {
+function main(game, request, name, card, affectedCard, affectedPlayer, bypass = false) {
     let send, phase;
     let move = [];
     //request to see if more info needed
-    console.log('card.js: ', card.name);
+    console.log('card.js: card', card.name, 'request', request);
     if (request == 'get') {
         //check if clicked on card location is correct
         //affectedCard means soemthing else when it is a get request
-        if (affectedCard[0] !== name) {
+        if (affectedCard !== name || affectedCard === 'bypass') {
             console.log('card.js: not users hand');
             return null;
         } //all checks below could have vonabilaty if user were to change request on client side
@@ -17,20 +17,32 @@ function main(game, request, name, card, affectedCard, affectedPlayer) {
         move.push({ name: name, card: card, from: [name, 'Hand'], to: [name, 'Stable'] });
         switch (card.name) {
             case "basic unicorn":
-                game.rotatePhase();
+                game.rotatePhase(); //not working
                 break;
-            case 'controlled destruction':
+            case 'Controlled Destruction':
                 //ping client.js for which card to move
                 let show = [];
                 for (let i of game.players) {
                     show.push(i.getStable());
                 }
                 send = {
-                    show: show,
+                    //show: show,//(not used)sends a list with card objectes inside 
                     text: 'choose one card',
+                    //maybe not nessisary because Player and card.js decides that
                     action: ['Stable', 'Discard'],
                     numOfCards: 1
                 };
+                break;
+            case 'Broken Stable':
+                // as long as this card is in you stable you cant play upgrade cards
+                game.activate.push({ turn: name, name: 'Broken Stable' }); //to prevent downgrade card activating on the same phase at it is played
+                //game.rotatePhase()
+                //fix does not not tell client.js rotated phase
+                break;
+            case 'glitter bomb':
+                // if this card is in your stable at the beginning of you turn 
+                //you may sacrifice a card, then destroy a card
+                game.rotatePhase();
                 break;
         }
         return { send: send, move: move };
@@ -56,7 +68,7 @@ function main(game, request, name, card, affectedCard, affectedPlayer) {
                 game.move(name, card, 'Stable', 'discard');
                 //tells client something moved
                 move.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
-                phase = game.rotatePhase();
+                phase = game.rotatePhase(); //fix
                 //tell client phase rotated
                 console.log('card.js: rotated phase'); //ts
                 break;
