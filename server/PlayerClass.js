@@ -129,8 +129,8 @@ class Board {
         this.players.forEach(p => {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
-            //let card = new Card('controlled destruction', 'test', 'test', 'Controlled_Destruction.png')
-            let card = new Card('basic unicorn', 'test', 'test', 'Guardsman_Unicorn.png')
+            let card = new Card('Controlled Destruction', 'test', 'test', 'Controlled_Destruction.png')
+            //let card = new Card('basic unicorn', 'test', 'test', 'Guardsman_Unicorn.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
         })

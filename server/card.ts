@@ -36,10 +36,13 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
     if (request=='get') {
         //check if clicked on card location is correct
         //affectedCard means soemthing else when it is a get request
-        if(affectedCard!==name||affectedCard==='bypass') {
+        if(affectedCard === name || affectedCard[0] === name|| affectedCard ==='bypass') {//fix
+
+        } else {
             console.log('card.js: not users hand')
             return null
-        }//all checks below could have vonabilaty if user were to change request on client side
+        }
+        //all checks below could have vonabilaty if user were to change request on client side
         let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
         if (test === false) return null//if class.js throws and error
         //tells client something moved
@@ -49,11 +52,6 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
                 game.rotatePhase()//not working
                 break;
             case 'Controlled Destruction':
-                //ping client.js for which card to move
-                let show = []
-                for(let i of game.players){
-                    show.push(i.getStable())
-                }
                 send = {
                     //show: show,//(not used)sends a list with card objectes inside 
                     text: 'choose one card',
@@ -62,26 +60,22 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
                     numOfCards: 1
                 }
                 break;
-            case 'Broken Stable':
-                // as long as this card is in you stable you cant play upgrade cards
-                game.activate.push({turn: name, name: 'Broken Stable'})//to prevent downgrade card activating on the same phase at it is played
-                //game.rotatePhase()
-                //fix does not not tell client.js rotated phase
-                break;
-            case 'glitter bomb':
-                // if this card is in your stable at the beginning of you turn 
-                //you may sacrifice a card, then destroy a card
-                game.rotatePhase()
+            case 'Unicorn Poison':// DESTROY a Unicorn
+                send = {
+                    text: 'choose one card',
+                    action: ['Stable','Discard'],
+                    numOfCards: 1
+                }
                 break;
         }
         return {send: send, move: move};
     } else if (request == 'reply'){
         //reply
         switch(card.name){
-            case 'controlled destruction':
+            case 'Controlled Destruction':
                 console.log('affectedPlayer:',affectedPlayer)//ts
                 //checks if it is valid imput first
-                if (affectedPlayer[1]!=='Stable' || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false){
+                if (affectedPlayer[1]!=='Stable' || affectedCard.name === card.name || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false){
                     console.log('affectedCard is not valid input');
                     return 'error: not valid input';
                 }

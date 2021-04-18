@@ -101,20 +101,28 @@ io.on('connection', (socket) => {
     //auto fill card functions
     //==================try to make getting the auto fill to work request wise 
     //to resemble the web's get requests or protocalls==========
-    socket.on('cardClient', function(name, card){//inital request from client to ask what info the card needs form class
-        console.log('class.js', card)//ts
-        let output = game.card(game, 'get', name, card);
-        console.log('class.js sending output', output)//ts
+    socket.on('cardClient', function(name, card, location){//inital request from client to ask what info the card needs form class
+        let output = game.card(game, 'get', name, card, location);
+        console.log('server.js sending output', output)//ts
+        if(output === null) return//if card.js throws an error
         for (let i of output.move){
             io.emit('move', i.name, i.card, i.from, i.to);
         }
+        console.log('server.js: output',output.send)
         io.emit('cardClientClass', name, card, output.send)//sends form with info that needs to be filled out to original sender
         boardUpdate()
     });
-    socket.on('cardClientClassClient', function(who, card, affectedCards){//recived all that needs to be inputed form client
-        let output = game.card(game, 'reply', who, card, affectedCards);
+    socket.on('cardClientClassClient', function(who, card, affectedCards, affectedPlayers){//recived all that needs to be inputed form client
+        let output = game.card(game, 'reply', who, card, affectedCards, affectedPlayers);
         //sends back what changes has been made to board to all users
         io.emit('final', output)
+        if (output===null||typeof output === 'string')return//card.js checks if valid input
+        for (let i of output.move){
+            io.emit('move', i.name, i.card, i.from, i.to);
+        }
+        if(output.phase) io.emit('phase', output.phase, game.getTurn());
+        
+        //io.emit('final', output)
         boardUpdate()
     });
     //move functions
