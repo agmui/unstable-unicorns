@@ -108,8 +108,8 @@ io.on('connection', (socket) => {
         for (let i of output.move){
             io.emit('move', i.name, i.card, i.from, i.to);
         }
-        console.log('server.js: output',output.send)
         io.emit('cardClientClass', name, card, output.send)//sends form with info that needs to be filled out to original sender
+        if(output.phase) io.emit('phase', output.phase, game.getTurn());
         boardUpdate()
     });
     socket.on('cardClientClassClient', function(who, card, affectedCards, affectedPlayers){//recived all that needs to be inputed form client
@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
         }
         if(output.phase) io.emit('phase', output.phase, game.getTurn());
         
-        //io.emit('final', output)
+        io.emit('final', output)
         boardUpdate()
     });
     //move functions

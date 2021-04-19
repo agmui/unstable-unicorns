@@ -2,6 +2,7 @@
 https://www.unicornsdatabase.com/
 https://github.com/kedarv/unstable/blob/master/src/data.json
 https://static.wikia.nocookie.net/unstableunicorns/images/1/18/336.png/revision/latest?cb=20190418002346*/
+//https://docs.google.com/spreadsheets/d/1pOji9_-2YIam2euNTGYeryaVBfRNrWstHDaLEe-fddU/edit#gid=889093624
 /*
 extra rules when playing with 2 players
 add neigh exseption
@@ -129,11 +130,13 @@ class Board {
         this.players.forEach(p => {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
-            let card = new Card('Controlled Destruction', 'test', 'test', 'Controlled_Destruction.png')
-            //let card = new Card('basic unicorn', 'test', 'test', 'Guardsman_Unicorn.png')
+            let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
+            card = new Card('basic unicorn', 'test', 'Magical Unicorn', 'Guardsman_Unicorn.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
         })
+        console.log('=========setup over=========')
     }
     //parm card should be a list
     addCard(card, where) {//adds a card to deck or discard

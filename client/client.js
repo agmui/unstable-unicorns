@@ -143,16 +143,19 @@ socket.on("phase", function (phase, name) {
   document.getElementById('phaseUI').innerHTML = text;
 });
 socket.on('cardClientClass', function(name, card, output){
-  console.log('output',output)//ts
   if(name !== username|| output==null)return
   console.log('from card.js:', output)//output can spesify if it needs to open modal
+  document.getElementById('text').innerHTML += output.text;
   //alows gui to take input
   inputFormCard = card;
 });
 socket.on('final', function(output){
+  document.getElementById('text').innerHTML= ''
   //code to handel board changes
   if(typeof output === 'string') {
-    console.log(output); 
+    console.log(output);//if there is an error
+    return
+  } else if(output.numOfCards) {//applys to cards that need multipule card selections
     return
   }
   inputFormCard = false
