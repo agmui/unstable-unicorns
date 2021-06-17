@@ -224,18 +224,9 @@ class Board {
             case "Hand":
             case "Stable":
                 if(this.getPlayer(name).removeCard(card, from) == null) return false
-                /*for (let i of this.players) {
-                    if (i.getName() == name) {
-                        //checks if card is in domain
-                        if(i.removeCard(card, from)===null)return false
-                        break
-                    }
-                }*/
                 break
             default://if opponate is returned
                 //checks if card is in domain
-                //index = this.players.findIndex((player) => player.getName() == from[0])
-                //if(this.players[index].removeCard(card, from[1])===null) return false
                 if(this.getPlayer(name).removeCard(card, from[1])===null) return false
         }
         switch (to) {
@@ -245,18 +236,10 @@ class Board {
                 break
             case "Hand":
             case "Stable":
-                if(this.getPlayer(name).addCard(card, from) == null) return false
-                /*for (let i of this.players) {
-                    if (i.getName() == name) {
-                        i.addCard(card, to)
-                        break
-                    }
-                }*/
+                this.getPlayer(name).addCard(card, to)
                 break
             default://if opponate is returned
-                //index = this.players.findIndex((player) => player.getName() == to[0])
-                //this.players[index].addCard(card, to[1])
-                if(this.getPlayer(name).addCard(card, from[1])===null) return false
+                this.getPlayer(to[0]).addCard(card, to[1])
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
@@ -267,7 +250,7 @@ class Board {
         if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
-    findCard(loacation, card) {
+    findCard(loacation, card) {//fix
         switch(location) {
             case "deck":
                 for(let i of this.deckValue){
@@ -443,6 +426,7 @@ module.exports = { Board }
 if (require.main === module) {
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
+
     //=====
     game.move("host", deck[0], 'deck', ['a','Hand'], false, true)
     console.log(game.getPlayer('a').getHandStr())
