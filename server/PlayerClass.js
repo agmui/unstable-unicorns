@@ -130,6 +130,8 @@ class Board {
         this.players.forEach(p => {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
+            //let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             card = new Card('basic unicorn', 'test', 'Magical Unicorn', 'Guardsman_Unicorn.png')
@@ -268,6 +270,36 @@ class Board {
             }
         }
         if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
+    }
+    //returns card object
+    findCard(loacation, card) {
+        switch(location) {
+            case "deck":
+                for(let i of this.deck){
+                    if (i.name === card.name) return i;
+                }
+                console.log('Class.js: error card not found')
+                return null;
+            case "discard":
+                for(let i of this.discard){
+                    if (i.name === card.name) return i;
+                }
+                console.log('Class.js: error card not found')
+                return null;
+            case "Hand":
+            case "Stable":
+                for(let i of this.players){
+                    if(i.getName() === location){
+                        if (i.name === card.name) return i;
+                    }
+                }
+                console.log('Class.js: error card not found')
+                return null;
+            default://if array is returned
+                if(location[0]==='Player'){//if player is returned
+                    return;
+                }//if opponate is returned
+        }
     }
     // looks at the most recent action in log and undoes it
     // when going back a whole phase does not undo any moves yet

@@ -104,8 +104,12 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
             case 'Glitter Bomb':
                 //If this card is in your Stable at the beginning of your turn,
                 //you may SACRIFICE a card, then DESTROY a card
+                console.log('active:', card.activated); //ts
                 if (affectedCard[1] === 'Hand') { //inital play from hand to stable
                     phase = game.rotatePhase();
+                }
+                else if () {
+                    console.log('error: card already used');
                 }
                 else if (game.getPhase() === 1) { //when card is tapped durring beggining of turn phase
                     send = {
@@ -164,7 +168,7 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
                 move.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
                 phase = game.rotatePhase();
                 break;
-            case 'Glitter Bomb': //try to prevent soft locks
+            case 'Glitter Bomb':
                 if (numOfCards === 0) {
                     numOfCards++;
                     if (affectedPlayer[1] !== 'Stable'
