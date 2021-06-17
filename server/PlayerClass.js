@@ -143,7 +143,11 @@ class Board {
     //parm card should be a list
     addCard(card, where) {//adds a card to deck or discard
         if (where == "deck") {
-            this.deckValue = this.deckValue.concat(card); //fix
+            for (let i of deck){
+                for(let j of card){
+                    if(i.name === j.name) this.deckValue[i] ++
+                }
+            }
         } else if (where == "discard") {
             this.discard = this.discard.concat(card);
         }
@@ -153,14 +157,14 @@ class Board {
         if (where == "deck") {
             for (let i = 0; i < deck.length; i++) {
                 for (let j = 0; j < card.length; j++) {
-                    if (deck[i].name == card[j].name) {
+                    if (deck[i].name == card[j].name && this.deckValue[i] > 0) {
                         this.deckValue[i] --
                         return //fix
                     }
                 }
             }
             console.log('class.js: card not in deck')
-            //return null //fix
+            return null //fix
         } else if (where == "discard") {
             for (let i = 0; i < this.discard.length; i++) {
                 for (let j = 0; j < card.length; j++) {
@@ -171,7 +175,7 @@ class Board {
                 }
             }
             console.log('class.js: card not in discard')
-            //return null//fix
+            return null//fix
         }
     }
     card(game, request, name, card, affectedCards=false, affectedPlayers=false){//optimize
@@ -442,8 +446,20 @@ if (require.main === module) {
     game.players[0].getHand()[0].name = 'controlled destruction'//ts
     game.move('a', game.drawFromDeck(), 'deck', 'Stable', false, true)*/
     //==========
-    game.move("a", game.drawFromDeck(), "deck", "discard", false, true)
+    let c = [deck[0]]
+
+    for(let i=0; i < deck.length; i++){
+        if (deck[i].name === c[0].name){
+            console.log("num check:",game.deckValue[i])
+            break
+        }
+    }
+
+    game.move("a", c, "deck", "discard", false, true)
     console.log(game.discard[0].name)
-    //game.move("a", game.drawFromDeck(), "discard", "Hand", false, true)
+
+    console.log(game.move("a", c, "deck", "discard", false, true))
+    console.log(game.discard)
+    //game.move("a", game.drawFromDiscard(), "discard", "Hand", false, true)
     //console.log(game.getPlayer("a").getHandStr())
 }
