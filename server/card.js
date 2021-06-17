@@ -108,7 +108,7 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
                 if (affectedCard[1] === 'Hand') { //inital play from hand to stable
                     phase = game.rotatePhase();
                 }
-                else if (False) {
+                else if (false) {
                     console.log('error: card already used');
                 }
                 else if (game.getPhase() === 1) { //when card is tapped durring beggining of turn phase

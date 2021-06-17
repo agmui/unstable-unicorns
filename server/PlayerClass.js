@@ -8,9 +8,10 @@ extra rules when playing with 2 players
 add neigh exseption
 */
 
+const colors = require('colors');
 const e = require('express');
 const { copyFileSync } = require('fs');
-deck = require('./data.json');
+let deck = require('./data.json');
 const cardAuto = require('./card.js');
 
 class Card {
@@ -118,7 +119,7 @@ class Board {
             do {
                 var x = getRandomInt(deck.length);
             } while (this.deckValue[x] == 0);
-            this.deckValue[x]--
+            //this.deckValue[x]--//will be subtracted in move function
             final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img))
         }
         return final
@@ -143,9 +144,9 @@ class Board {
     //parm card should be a list
     addCard(card, where) {//adds a card to deck or discard
         if (where == "deck") {
-            for (let i of deck){
+            for (let i = 0; i < deck.length; i++) {
                 for(let j of card){
-                    if(i.name === j.name) this.deckValue[i] ++
+                    if(deck[i].name === j.name) this.deckValue[i] ++
                 }
             }
         } else if (where == "discard") {
@@ -163,7 +164,7 @@ class Board {
                     }
                 }
             }
-            console.log('class.js: card not in deck')
+            console.log('class.js: card [',card[0].name ,'] not in deck')
             return null //fix
         } else if (where == "discard") {
             for (let i = 0; i < this.discard.length; i++) {
@@ -174,7 +175,7 @@ class Board {
                     }
                 }
             }
-            console.log('class.js: card not in discard')
+            console.log('class.js: card [',card[0].name ,'] not in discard')
             return null//fix
         }
     }
@@ -239,23 +240,23 @@ class Board {
         }
         switch (to) {
             case "deck":
-                this.addCard(card, to)
-                break
             case "discard":
                 this.addCard(card, to)
                 break
             case "Hand":
             case "Stable":
-                for (let i of this.players) {
+                if(this.getPlayer(name).addCard(card, from) == null) return false
+                /*for (let i of this.players) {
                     if (i.getName() == name) {
                         i.addCard(card, to)
                         break
                     }
-                }
+                }*/
                 break
             default://if opponate is returned
-                index = this.players.findIndex((player) => player.getName() == to[0])
-                this.players[index].addCard(card, to[1])
+                //index = this.players.findIndex((player) => player.getName() == to[0])
+                //this.players[index].addCard(card, to[1])
+                if(this.getPlayer(name).addCard(card, from[1])===null) return false
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
@@ -442,24 +443,7 @@ module.exports = { Board }
 if (require.main === module) {
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
-    /*game.setup();
-    game.players[0].getHand()[0].name = 'controlled destruction'//ts
-    game.move('a', game.drawFromDeck(), 'deck', 'Stable', false, true)*/
-    //==========
-    let c = [deck[0]]
-
-    for(let i=0; i < deck.length; i++){
-        if (deck[i].name === c[0].name){
-            console.log("num check:",game.deckValue[i])
-            break
-        }
-    }
-
-    game.move("a", c, "deck", "discard", false, true)
-    console.log(game.discard[0].name)
-
-    console.log(game.move("a", c, "deck", "discard", false, true))
-    console.log(game.discard)
-    //game.move("a", game.drawFromDiscard(), "discard", "Hand", false, true)
-    //console.log(game.getPlayer("a").getHandStr())
+    //=====
+    game.move("host", deck[0], 'deck', ['a','Hand'], false, true)
+    console.log(game.getPlayer('a').getHandStr())
 }
