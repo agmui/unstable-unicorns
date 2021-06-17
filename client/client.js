@@ -6,7 +6,7 @@ var form = document.getElementById('form');
 var input = document.getElementById('input');
 var usernameInputValue = document.getElementById('username_input')
 var username = '';
-let allCards = {};
+let allCards = {};//not used
 gameOver = false;
 let inputFormCard = false;
 

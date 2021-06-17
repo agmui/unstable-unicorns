@@ -30,7 +30,7 @@ class Player {
     }
     addCard(card, where) { // card should be a list
         if (where == "Hand") {
-            this.hand = this.hand.concat(card);
+            this.hand = this.hand.concat(card); //fix
         } else if (where == "Stable") {
             this.stable = this.stable.concat(card)
         }
@@ -98,10 +98,10 @@ class Board {
         for (var i in playerNames) {
             this.players.push(new Player(playerNames[i]))
         }
-        this.deck = []
+        this.deckValue = []
         this.discard = []
         for (let i = 0; i < deck.length; i++) {//improve
-            this.deck.push(deck[i].quantity)
+            this.deckValue.push(deck[i].quantity)
         }
         //this.turn = getRandomInt(this.players.length)
         //==debug==
@@ -117,8 +117,8 @@ class Board {
         for (let index = 0; index < num; index++) {
             do {
                 var x = getRandomInt(deck.length);
-            } while (this.deck[x] == 0);
-            this.deck[x]--
+            } while (this.deckValue[x] == 0);
+            this.deckValue[x]--
             final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img))
         }
         return final
@@ -143,7 +143,7 @@ class Board {
     //parm card should be a list
     addCard(card, where) {//adds a card to deck or discard
         if (where == "deck") {
-            this.deck = this.deck.concat(card);
+            this.deckValue = this.deckValue.concat(card); //fix
         } else if (where == "discard") {
             this.discard = this.discard.concat(card);
         }
@@ -151,15 +151,15 @@ class Board {
     //parm card should be a list
     removeCard(card, where) {// removes a card from deck or discard
         if (where == "deck") {
-            for (let i = 0; i < this.deck.length; i++) {
+            for (let i = 0; i < deck.length; i++) {
                 for (let j = 0; j < card.length; j++) {
-                    if (this.deck[i].name == card[j].name) {
-                        this.deck.splice(i, 1)
-                        return
+                    if (deck[i].name == card[j].name) {
+                        this.deckValue[i] --
+                        return //fix
                     }
                 }
             }
-            //console.log('class.js: not in domain')
+            console.log('class.js: card not in deck')
             //return null //fix
         } else if (where == "discard") {
             for (let i = 0; i < this.discard.length; i++) {
@@ -170,7 +170,7 @@ class Board {
                     }
                 }
             }
-            //console.log('class.js: not in domain')
+            console.log('class.js: card not in discard')
             //return null//fix
         }
     }
@@ -188,7 +188,6 @@ class Board {
             return false
         }
         else if (this.bypass.length > 0) return false// ensures that once inturupt is pressed noone else can go
-        console.log('class.js: ' + name + " moved " + card.name + " from " + from + " to " + to, to[0].name, to[1])
         if (card == 'random') {
             card = (from == 'deck') ? this.drawFromDeck(1) : this.drawFromDiscard();
         }
@@ -200,28 +199,17 @@ class Board {
                 card[i] = new Card(card[i].name, card[i].text, card[i].type, card[i].img)
             }
         }
+        console.log('class.js: ' + name + " moved " + card[0].name + " from " + from + " to " + to, to[0].name, to[1])
         let index
         switch (from) {
             case "deck":
+            case "discard":
                 //checks if card is in domain
                 if(this.removeCard(card, from)===null) return false
                 if (to != "discard" || to != "deck") {
                     if (to == 'Hand' || to == 'Stable') {
                         to = [name, to]
                     }
-                    this.sendPic.push({//tell server.js a card has been moved from deck
-                        card: card,
-                        to: to
-                    })
-                }
-                break
-            case "discard":
-                //checks if card is in domain
-                if(this.removeCard(card, from)===null) return false
-                if (to == 'Hand' || to == 'Stable') {
-                    to = [name, to]
-                }
-                if (to != "discard" || to != "deck") {
                     this.sendPic.push({//tell server.js a card has been moved from discard
                         card: card,
                         to: to
@@ -230,18 +218,20 @@ class Board {
                 break
             case "Hand":
             case "Stable":
-                for (let i of this.players) {
+                if(this.getPlayer(name).removeCard(card, from) == null) return false
+                /*for (let i of this.players) {
                     if (i.getName() == name) {
                         //checks if card is in domain
                         if(i.removeCard(card, from)===null)return false
                         break
                     }
-                }
+                }*/
                 break
             default://if opponate is returned
                 //checks if card is in domain
-                index = this.players.findIndex((player) => player.getName() == from[0])
-                if(this.players[index].removeCard(card, from[1])===null) return false
+                //index = this.players.findIndex((player) => player.getName() == from[0])
+                //if(this.players[index].removeCard(card, from[1])===null) return false
+                if(this.getPlayer(name).removeCard(card, from[1])===null) return false
         }
         switch (to) {
             case "deck":
@@ -275,7 +265,7 @@ class Board {
     findCard(loacation, card) {
         switch(location) {
             case "deck":
-                for(let i of this.deck){
+                for(let i of this.deckValue){
                     if (i.name === card.name) return i;
                 }
                 console.log('Class.js: error card not found')
@@ -448,19 +438,12 @@ module.exports = { Board }
 if (require.main === module) {
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
-    game.setup();
+    /*game.setup();
     game.players[0].getHand()[0].name = 'controlled destruction'//ts
-    game.move('a', game.drawFromDeck(), 'deck', 'Stable', false, true)
-    console.log("==setup over==\n");
+    game.move('a', game.drawFromDeck(), 'deck', 'Stable', false, true)*/
     //==========
-    console.log(game.getState('host'))
-    console.log('phase:',game.getPhase())
-    game.rotatePhase()//help
-    let output = game.card(game, 'get', 'host', game.players[0].getHand()[0])
-    console.log(game.getState('host'))
-    console.log('phase:',game.getPhase())
-    console.log('card.js output:', output)
-    //some gui magic with fillingout output
-    game.card(game, 'reply', 'a', game.players[0].getStable()[0], [game.players[1].getStable()[0]])
-    console.log(game.getState('host'))
+    game.move("a", game.drawFromDeck(), "deck", "discard", false, true)
+    console.log(game.discard[0].name)
+    //game.move("a", game.drawFromDeck(), "discard", "Hand", false, true)
+    //console.log(game.getPlayer("a").getHandStr())
 }

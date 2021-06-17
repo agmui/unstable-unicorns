@@ -106,7 +106,7 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
                 console.log('active:',card.activated)//ts
                 if(affectedCard[1]==='Hand'){//inital play from hand to stable
                     phase = game.rotatePhase()
-                }else if(){
+                }else if(False){
                     console.log('error: card already used')
                 }else if (game.getPhase()===1){//when card is tapped durring beggining of turn phase
                     send = {
