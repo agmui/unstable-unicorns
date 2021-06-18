@@ -2,7 +2,6 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
-//const PlayerClass = require('./server/PlayerClass');
 const PlayerClass = require('./PlayerClass');
 let playerList = {};
 var fs = require('fs');
@@ -12,7 +11,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/client.js', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client','client.js'));
+    res.sendFile(path.join(__dirname, '..', 'client','test_client.js'));// changed
 });
 
 app.get('/client.css', (req, res) => {
@@ -101,7 +100,7 @@ io.on('connection', (socket) => {
     //auto fill card functions
     //==================try to make getting the auto fill to work request wise 
     //to resemble the web's get requests or protocalls==========
-    socket.on('cardClient', function(name, card, location){//inital request from client to ask what info the card needs form class
+    /*socket.on('cardClient', function(name, card, location){//inital request from client to ask what info the card needs form class
         let output = game.card(game, 'get', name, card, location);
         if(output === null) return//if card.js throws an error
         for (let i of output.move){
@@ -123,7 +122,23 @@ io.on('connection', (socket) => {
         
         io.emit('final', output)
         boardUpdate()
-    });
+    });*/
+
+    socket.on('play', function(name, card, location){
+        let output = game.card(game, 'get', name, card, location);
+        if(output === null) return//if card.js throws an error
+        for (let i of output.move){
+            io.emit('move', i.name, i.card, i.from, i.to);
+        }
+
+        if(output.phase) io.emit('phase', output.phase, game.getTurn());
+        boardUpdate()
+    })
+
+    socket.on('checkTapped', function(name, card, location){
+        io.emit('recivedTapped', game.checkTapped(name, card, location))
+    })
+
     //move functions
     socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         console.log("server.js: recived move function", username, card.name, from, to)

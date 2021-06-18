@@ -48,6 +48,7 @@ function draw(game, moveL, name, card) {
 }
 let numOfCards = 0; //when multiple cards need to be inputed
 function main(game, request, name, card, affectedCard, affectedPlayer, bypass = false) {
+    //console.log('ts',card)//ts
     let send, phase;
     let move = [];
     //request to see if more info needed
@@ -84,7 +85,7 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
             }
         }
         switch (card.name) {
-            case "basic unicorn":
+            case "Basic Unicorn (Red)":
                 phase = game.rotatePhase();
                 break;
             //==========Magic==========
@@ -102,9 +103,10 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
                 break;
             //==========up,down grade==========
             case 'Glitter Bomb':
+                //switch mode to tapped
+                card.tap = true; // might not work cuz might not pass card object and just pass dict
                 //If this card is in your Stable at the beginning of your turn,
                 //you may SACRIFICE a card, then DESTROY a card
-                console.log('active:', card.activated); //ts
                 if (affectedCard[1] === 'Hand') { //inital play from hand to stable
                     phase = game.rotatePhase();
                 }

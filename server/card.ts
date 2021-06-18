@@ -50,6 +50,7 @@ function draw(game, moveL, name:string|Object, card){//deck > Hand
 
 let numOfCards = 0;//when multiple cards need to be inputed
 function main(game:any, request:string, name:string, card, affectedCard:any, affectedPlayer:any, bypass=false) {
+    //console.log('ts',card)//ts
     let send, phase;
     let move: Array<any> = [];
     //request to see if more info needed
@@ -71,10 +72,10 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
             move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
         }*/
         if (affectedCard[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
-                let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
-                if (test === false) return null//if class.js throws and error
-                //tells client something moved
-                move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
+            let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
+            if (test === false) return null//if class.js throws and error
+            //tells client something moved
+            move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
         } else {
             if (card.type === 'Upgrade' || card.type === 'Downgrade') {//fix
             } else {
@@ -83,7 +84,7 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
             }
         }
         switch(card.name){
-            case "basic unicorn":
+            case "Basic Unicorn (Red)":
                 phase = game.rotatePhase()
                 break;
             //==========Magic==========
@@ -101,9 +102,11 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
                 break;
             //==========up,down grade==========
             case 'Glitter Bomb':
+                //switch mode to tapped
+                card.tap = true// might not work cuz might not pass card object and just pass dict
+
                 //If this card is in your Stable at the beginning of your turn,
                 //you may SACRIFICE a card, then DESTROY a card
-                console.log('active:',card.activated)//ts
                 if(affectedCard[1]==='Hand'){//inital play from hand to stable
                     phase = game.rotatePhase()
                 }else if(false){

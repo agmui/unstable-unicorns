@@ -20,6 +20,7 @@ class Card {
         this.text = text;
         this.type = type;
         this.img = img;
+        this.tap = false;
     }
 }
 
@@ -42,11 +43,11 @@ class Player {
                 for (let j = 0; j < card.length; j++) {
                     if (this.hand[i].name == card[j].name) {
                         this.hand.splice(i, 1)
-                        return
+                        return 
                     }
                 }
             }
-            console.log('class.js: not in domain')
+            console.log('class.js: card not in hand')
             return null
         } else if (where == "Stable") {
             for (let i = 0; i < this.stable.length; i++) {
@@ -57,7 +58,7 @@ class Player {
                     }
                 }
             }
-            console.log('class.js: not in domain')
+            console.log('class.js: card not in stable')
             return null
         }
     }
@@ -133,9 +134,9 @@ class Board {
             //debug
             //let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
-            let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
-            card = new Card('basic unicorn', 'test', 'Magical Unicorn', 'Guardsman_Unicorn.png')
+            card = [deck[13]]
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
         })
@@ -223,7 +224,7 @@ class Board {
                 break
             case "Hand":
             case "Stable":
-                if(this.getPlayer(name).removeCard(card, from) == null) return false
+                if(this.getPlayer(name).removeCard(card, from) === null) return false
                 break
             default://if opponate is returned
                 //checks if card is in domain
@@ -250,17 +251,23 @@ class Board {
         if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
-    findCard(loacation, card) {//fix
+    findCard(card,location) {//fix
         switch(location) {
+            case undefined://if location param is not filled
+                console.log("class.js: fill in location param")
+                return null
             case "deck":
-                for(let i of this.deckValue){
-                    if (i.name === card.name) return i;
+                for(let i =0; i < deck.length; i ++){
+                    if (deck[i].name === card) {
+                        console.log("index:",i)
+                        return deck[i];
+                    }
                 }
                 console.log('Class.js: error card not found')
                 return null;
             case "discard":
                 for(let i of this.discard){
-                    if (i.name === card.name) return i;
+                    if (i.name === card) return i;
                 }
                 console.log('Class.js: error card not found')
                 return null;
@@ -268,7 +275,7 @@ class Board {
             case "Stable":
                 for(let i of this.players){
                     if(i.getName() === location){
-                        if (i.name === card.name) return i;
+                        if (i.name === card) return i;
                     }
                 }
                 console.log('Class.js: error card not found')
@@ -306,6 +313,9 @@ class Board {
         console.log('class.js: recived interupt', toWho);
         this.bypass.push(toWho);
     }
+    checkTapped(name, card, location){//ts
+        return True
+    }
     rotateTurn() {
         //rotates to next player's turn
         this.turn++
@@ -318,7 +328,7 @@ class Board {
         if (this.turn > this.players.length - 1) {
             this.turn = 0
         }
-        return this.players[this.turn].getName();
+        return this.getTurn()//this.players[this.turn].getName();
     }
     //could have vulnerability when going form phase 4 => 5 could send move request
     rotatePhase() {//fix
@@ -339,7 +349,6 @@ class Board {
             //draw phase
             case 2:
                 console.log('game draws card for player')
-                //this.move(p.getName(), this.drawFromDeck(1), "deck", [.getName(),"Hand"], false, true);//ts
                 this.rotatePhase()//ts idk help
                 break
             //ask for action
@@ -368,24 +377,13 @@ class Board {
         }
     }
     //ask for visabliaty when getting state of domains
-    getState(name, other = false) { // could be improved to find the only change and send that
-        let userHand = [];//fix
-        let userStable = [];
+    getState(name, str=false) { // could be improved to find the only change and send that
         let list = [];
         let OpponateHand = [];
         let OpponateStable = [];
         let test = []
-        if (other) {
-            other = this.getDeckOrDiscard(other)//other can provide spsfication on what is visiable
-        }
         for (let element of this.players) {
             if (element.getName() == name) {
-                for (let i of element.getHand()) {
-                    userHand.push(i)
-                }
-                for (let i of element.getStable()) {
-                    userStable.push(i)
-                }
             } else {
                 list.push(element.getName())
                 test = []
@@ -401,13 +399,29 @@ class Board {
 
             }
         };
-        let send = {
-            PlayerHand: userHand,
-            PlayerStable: userStable,
+        let send = {//fix
+            PlayerHand: this.getPlayer(name).getHandStr(),//userHand,
+            PlayerStable: this.getPlayer(name).getStableStr(),
             OpponateList: list,
             OpponateHand: OpponateHand,
             OpponateStable: OpponateStable,
-            DeckandDiscard: other
+            Discard: this.getDeckOrDiscard("Discard")
+        }
+
+        if(str){
+            let phase = '\nPhase:'+this.getPhase()
+            console.log(phase.white.bold.bgGreen)
+            let turn = 'Turn:'+this.getTurn()
+            console.log(turn.white.bold.bgRed+'\n')
+
+            console.log(name.white.bold.bgBlack)
+            console.log('hand:',send.PlayerHand)
+            console.log('stable:',send.PlayerStable,'\n')
+
+            console.log(send.OpponateList[0].white.bold.bgBlack)
+            console.log('hand:', this.getPlayer(send.OpponateList[0]).getHandStr())
+            console.log('stable:', this.getPlayer(send.OpponateList[0]).getStableStr(),'\n')
+            return
         }
         return send
     }
@@ -421,13 +435,43 @@ function getRandomInt(max) { // merge with the drawFromDeck function
     return Math.floor(Math.random() * Math.floor(max));
 }
 
+
 module.exports = { Board }
 
 if (require.main === module) {
-    let list = {'longString1':'host','longString2':'a'};
-    let game = new Board(list);
+    //let list = {'longString1':'host','longString2':'a'};
+    //let game = new Board(list);
 
     //=====
-    game.move("host", deck[0], 'deck', ['a','Hand'], false, true)
-    console.log(game.getPlayer('a').getHandStr())
+    cardTest()
+}
+
+
+function cardTest(){
+    let list = {'longString1':'host','longString2':'a'};
+    let game = new Board(list);
+    game.setup()
+    game.getState('host',true)
+    //                     game,request, name,  card(object),                          location
+    //output = game.card(game, 'get', 'host', game.getPlayer('host').getHand()[1], ['host', 'Hand'])
+    //if (output===null) console.log('NULL'.bgRed)
+    let output = game.card(game, 'get', 'host', game.getPlayer('host').getHand()[0], ['host', 'Hand'])
+    if (output===null) console.log('NULL'.bgRed)
+
+    game.getState('host',true)
+    game.rotatePhase()
+    game.rotatePhase()
+    game.rotateTurn()
+
+    game.getState('host',true)
+    output = game.card(game, 'get', 'a', game.getPlayer('a').getHand()[1], ['a', 'Hand'])
+    if (output===null) console.log('NULL'.bgRed)
+
+    game.getState('host',true)
+    game.rotatePhase()
+    game.rotatePhase()
+    game.rotateTurn()
+
+    game.getState('host',true)
+
 }
