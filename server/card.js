@@ -26,28 +26,48 @@ Upgrade/Downgrade
         | focred move
 | game play
 */
-function sacrifice(game, moveL, name, card) {
+function sacrifice(game, moveList, name, card) {
     game.move(name, card, 'Stable', 'discard', false, true);
-    moveL.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
+    moveList.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
 }
-function destroy(game, moveL, name, card) {
+function destroy(game, moveList, name, card) {
     game.move(name, card, [name, 'Stable'], 'discard', false, true);
-    moveL.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
+    moveList.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
 }
-function discard(game, moveL, name, card) {
+function discard(game, moveList, name, card) {
     game.move(name, card, 'Hand', 'discard', false, true);
-    moveL.push({ name: name, card: card, from: [name, 'Hand'], to: 'discard' });
+    moveList.push({ name: name, card: card, from: [name, 'Hand'], to: 'discard' });
 }
-function steal(game, moveL, name, card) {
+function steal(game, moveList, name, card) {
     game.move(name, card, [name, 'Stable'], 'Stable', false, true);
-    moveL.push({ name: name, card: card, from: [name, 'Stable'], to: 'Stable' });
+    moveList.push({ name: name, card: card, from: [name, 'Stable'], to: 'Stable' });
 }
-function draw(game, moveL, name, card) {
+function draw(game, moveList, name, card) {
     game.move(name, card, 'deck', 'Hand', false, true);
-    moveL.push({ name: name, card: card, from: [name, 'deck'], to: 'Hand' });
+    moveList.push({ name: name, card: card, from: [name, 'deck'], to: 'Hand' });
 }
-let numOfCards = 0; //when multiple cards need to be inputed
-function main(game, request, name, card, affectedCard, affectedPlayer, bypass = false) {
+function action(game, moveList, affectedObjects) {
+    for (let i of affectedObjects) {
+        switch (i.action) {
+            case 'sacrifice':
+                sacrifice(game, moveList, i.name, i.card);
+                break;
+            case 'destroy':
+                destroy(game, moveList, i.name, i.card);
+                break;
+            case 'discard':
+                discard(game, moveList, i.name, i.card);
+                break;
+            case 'steal':
+                steal(game, moveList, i.name, i.card);
+                break;
+            case 'draw':
+                draw(game, moveList, i.name, i.card);
+                break;
+        }
+    }
+}
+function main(game, request, name, card, affectedObjects, bypass = false) {
     //console.log('ts',card)//ts
     let send, phase;
     let move = [];
@@ -55,7 +75,7 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
     if (request == 'play') {
         //check if clicked on card location is correct
         //affectedCard means soemthing else when it is a get request
-        if (affectedCard === name || affectedCard[0] === name || affectedCard === 'bypass') { //fix
+        if (affectedObjects === name || affectedObjects[0] === name || affectedObjects === 'bypass') { //fix
         }
         else {
             console.log('card.js: not users hand');
@@ -68,7 +88,7 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
             //tells client something moved
             move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
         }*/
-        if (affectedCard[1] !== 'Stable') { //checks are ment for upgrade and downgrade cards
+        if (affectedObjects[1] !== 'Stable') { //checks are ment for upgrade and downgrade cards
             let test = game.move(name, card, 'Hand', 'Stable'); //when initaly playing something
             if (test === false)
                 return null; //if class.js throws and error
@@ -103,14 +123,11 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
             //==========up,down grade==========
             case 'Glitter Bomb':
                 //switch mode to tapped
-                card.tap = true; // might not work cuz might not pass card object and just pass dict
+                card.tap = true;
                 //If this card is in your Stable at the beginning of your turn,
                 //you may SACRIFICE a card, then DESTROY a card
-                if (affectedCard[1] === 'Hand') { //inital play from hand to stable
+                if (affectedObjects[1] === 'Hand') { //inital play from hand to stable
                     phase = game.rotatePhase();
-                }
-                else if (false) {
-                    console.log('error: card already used');
                 }
                 else if (game.getPhase() === 1) { //when card is tapped durring beggining of turn phase
                     send = {
@@ -124,79 +141,19 @@ function main(game, request, name, card, affectedCard, affectedPlayer, bypass = 
                 }
                 break;
         }
-        return { send: send, move: move, phase: phase };
+        return { send: send, move: move, phase: phase, card: card };
         //send is ment for the client.js gui, all the checks to see if recived vailid input is in reply (the code below)
     }
     else if (request == 'tapped') {
         switch (card.name) {
-            case 'Controlled Destruction': //fix cant trigger death effects
-                //checks if it is valid imput first
-                if (affectedPlayer[1] !== 'Stable'
-                    || affectedCard.name === card.name //all cards might have condition so may need to move it up
-                    || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false) {
-                    console.log('affectedCard is not valid input');
-                    return 'error: not valid input';
-                }
-                console.log('card.js: recived affected Card', affectedCard.name); //ts
-                console.log('activated controlled destruction');
-                //after reciving reqest back for what to do
-                destroy(game, move, affectedPlayer[0], affectedCard);
-                //tells client something moved
-                //move.push({name:affectedPlayer[0], card:affectedCard, from:[affectedPlayer[0],'Stable'], to:'discard'})
-                //checks if enough cards have been moved
-                // after using the magic card
-                game.move(name, card, 'Stable', 'discard');
-                //tells client something moved
-                move.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
-                phase = game.rotatePhase();
-                //tell client phase rotated
+            case 'special cards': //for cards the main function can't work with
                 break;
-            case 'Unicorn Poison':
-                if (affectedPlayer[1] !== 'Stable'
-                    || affectedPlayer[0] === name //check if it form opponate stable
-                    || affectedCard.name === card.name //all cards might have condition so may need to move it up
-                    || affectedCard.type.includes('Unicorn') === false //can only destroy unicorn types
-                    || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false) { //checks is affected player even has the card
-                    console.log('affectedCard is not valid input');
-                    return 'error: not valid input';
-                }
-                console.log('activated Unicorn Poison');
-                destroy(game, move, affectedPlayer[0], affectedCard);
-                //move.push({name:affectedPlayer[0], card:affectedCard, from:[affectedPlayer[0],'Stable'], to:'discard'})
-                //checks if enough cards have been moved
-                //add code
-                game.move(name, card, 'Stable', 'discard');
-                move.push({ name: name, card: card, from: [name, 'Stable'], to: 'discard' });
-                phase = game.rotatePhase();
-                break;
-            case 'Glitter Bomb':
-                if (numOfCards === 0) {
-                    numOfCards++;
-                    if (affectedPlayer[1] !== 'Stable'
-                        || affectedPlayer[0] !== name //check if it is Player stable
-                        || affectedCard.name === card.name //all cards might have condition so may need to move it up
-                        || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false) {
-                        console.log('affected card is not valid input');
-                        return 'error: not valid input';
-                    }
-                    console.log('activated Glitter Bomb');
-                    sacrifice(game, move, affectedPlayer[0], affectedCard);
-                }
-                else if (numOfCards === 1) {
-                    if (affectedPlayer[1] !== 'Stable'
-                        || affectedPlayer[0] === name //check if it is Opponate stable
-                        || affectedCard.name === card.name //all cards might have condition so may need to move it up
-                        || game.getPlayer(affectedPlayer[0]).getStableStr().includes(affectedCard.name) === false) {
-                        console.log('affected card is not valid input');
-                        return 'error: not valid input';
-                    }
-                    destroy(game, move, affectedPlayer[0], affectedCard);
-                    move.push({ name: affectedPlayer[0], card: affectedCard, from: [affectedPlayer[0], 'Stable'], to: 'discard' });
-                    numOfCards = 0;
-                }
-                break;
+            default:
+                console.log(affectedObjects); //ts
+                action(game, move, affectedObjects);
+                card.tap = null;
         }
-        return { move: move, phase: phase, numOfCards: numOfCards };
+        return { move: move, phase: phase };
     }
 }
 module.exports = { main };

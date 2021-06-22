@@ -100,11 +100,13 @@ io.on('connection', (socket) => {
 
     //auto fill card functions
     socket.on('play', function(name, card, location){//optimise
-        let tap = game.checkTapped(card, location)
-        if(tap === null) return//if card.js throws an error
+        //check if card is in right location
+        if(game.findCard(card, location)===null) return null
         let output = game.card(game, 'play', name, card, location);
         if(output === null) return//if card.js throws an error
-        //check for tap
+        //let tap = game.checkTapped(card, location)//check if card is in location
+        let tap = output.card.tap//needs to be tested
+        if(tap === null) return//card has error or is already used
         if (tap === false){
             for (let i of output.move){//needs to be fixed depending on if tapped or not
                 io.emit('move', i.name, i.card, i.from, i.to);
@@ -119,13 +121,14 @@ io.on('connection', (socket) => {
             }
         } else if (tap===true){
             //ping back to player options
-            io.emit('recivedTapped', output)
+            io.emit('recivedTapped', name, card, output, location)
         }
     })
 
     socket.on('filledForm', function(name, card, affectedCards, location){
-        let output = game.card(game, 'tapped', name, card, affectedCards, location);
+        let output = game.card(game, 'tapped', name, card, affectedCards, );//fix
         if (output===null||typeof output === 'string')return//card.js checks if valid input
+        //if input is invalid should emit recivedTapped again with error text
         for (let i of output.move){
             io.emit('move', i.name, i.card, i.from, i.to);
         }

@@ -187,13 +187,13 @@ socket.on('no cards', function (name) {
 socket.on("image", function (info, where, cardObject) {
   if (info.image) {
     let img = document.createElement("IMG")
+
     img.onclick = function() {
       let who =  img.parentElement.parentElement.id
       let location = img.parentElement.id.slice(who.length)
-      //socket.emit('checkTapped', username, cardObject, [who, location])//ping class to check if card is tapped
-      //exicutes card function on recived in recivedTapped
       socket.emit('play', username, cardObject, [who,location]);
     }
+
     img.src = 'data:image/jpeg;base64,' + info.buffer;
     allCards[cardObject.name] = cardObject;
     img.id = cardObject.name
@@ -216,7 +216,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
   if (username !== name ) return
   console.log('client.js: (output):', output.send)
   //open gui and fill form
-  //socket.emit('filledForm', name, card, affectedCards, location)//ts
+  //socket.emit('filledForm', name, card, affectedObjects)//ts
 })
 
 //================================Btns=============================================

@@ -308,7 +308,7 @@ class Board {
         console.log('class.js: recived interupt', toWho);
         this.bypass.push(toWho);
     }
-    checkTapped(card, location){//test
+    checkTapped(card, location){//maybe not used
         //name (str), card (Card obj), location [name, location]
         let c = this.findCard(card, location)//this.getPlayer(name).findCardInPlayer(card, location[1])
         if(c === null) return null
@@ -424,7 +424,6 @@ class Board {
         return send
     }
     getDeckOrDiscard(deckOrDis) {
-        console.log('class.js: sent ' + deckOrDis)
         return deckOrDis === 'deck' ? deck : this.discard
     }
 }
@@ -442,11 +441,7 @@ if (require.main === module) {
 
     //=====
 
-    game.setup()
-    let x = game.checkTapped(game.getPlayer('a').getHand()[0], ['a', 'Hand'])
-    console.log(x)
-
-    //cardTest()
+    cardTest()
 }
 
 
@@ -458,7 +453,7 @@ function cardTest(){
     //                     game,request, name,  card(object),                          location
     //output = game.card(game, 'get', 'host', game.getPlayer('host').getHand()[1], ['host', 'Hand'])
     //if (output===null) console.log('NULL'.bgRed)
-    let output = game.card(game, 'get', 'host', game.getPlayer('host').getHand()[0], ['host', 'Hand'])
+    let output = game.card(game, 'play', 'host', game.getPlayer('host').getHand()[0], ['host', 'Hand'])
     if (output===null) console.log('NULL'.bgRed)
 
     game.getState('host',true)
@@ -467,14 +462,27 @@ function cardTest(){
     game.rotateTurn()
 
     game.getState('host',true)
-    output = game.card(game, 'get', 'a', game.getPlayer('a').getHand()[1], ['a', 'Hand'])
+    output = game.card(game, 'play', 'a', game.getPlayer('a').getHand()[1], ['a', 'Hand'])
     if (output===null) console.log('NULL'.bgRed)
 
+    //something wrong here==========================================
     game.getState('host',true)
     game.rotatePhase()
     game.rotatePhase()
     game.rotateTurn()
+    //==========================================
 
-    game.getState('host',true)
+    /*game.getState('host',true)
+    output = game.card(game, 'play', 'host', game.getPlayer('host').getStable()[1], ['host', 'Stable'])
+    console.log('output from Glitter Bomb:',output.send.text.bold)
+    let tap = output.card.tap//game.checkTapped(game.getPlayer('host').getStable()[1], ['host', 'Stable'])
+    console.log('tap:', tap)
+    //fill form section?
+    let affectedObjects = [
+        {action:'sacrifice', name:'host', card:game.getPlayer('host').getStable()[0]},
+        {action:'destroy', name:'a', card:game.getPlayer('a').getStable()[0]}]
+    output = game.card(game, 'tapped', 'host', game.getPlayer('host').getStable()[1], affectedObjects)
+    //console.log('output:', output)
 
+    game.getState('host',true)//might needs to move output stuff first*/
 }
