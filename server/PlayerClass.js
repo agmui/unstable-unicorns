@@ -45,9 +45,9 @@ class Player {
             let c = this.findCardInPlayer(i, where)
             if ( c === null) return null
             if(where === 'Hand'){
-                this.hand.splice(c[0], 1)
+                this.hand.splice(c[1], 1)
             } else if (where === 'Stable'){
-                this.stable.splice(c[0], 1)
+                this.stable.splice(c[1], 1)
             }
         }
     }
@@ -57,16 +57,16 @@ class Player {
     winCondition() {
         return this.stable.length >= 7;
     }
-    findCardInPlayer(card, location=false){
+    findCardInPlayer(card, location=false, index=false){
         if (location === 'Hand'){
             for (let i of this.getHand()){
-                if (i.name === card.name) return [i, this.hand.indexOf(i)]
+                if (i.name === card.name) return (index) ? [i, this.hand.indexOf(i)] : i
             }
             console.log('Class.js: card not in hand')
             return null
         } else if (location === 'Stable'){
             for (let i of this.getStable()){
-                if (i.name === card.name) return [i, this.stable.indexOf(i)]
+                if (i.name === card.name) return (index) ? [i, this.stable.indexOf(i)] : i
             }
             console.log('Class.js: card not in Stable')
             return null
@@ -143,7 +143,7 @@ class Board {
             //let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card[0], "deck", [p.getName(),"Hand"], false, true);//ts
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             card = [deck[13]]
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
@@ -154,7 +154,7 @@ class Board {
     addCard(card, where) {//adds a card to deck or discard
         if (where == "deck") {
             for (let i of card){
-                let c = this.findCard(i, 'deck')
+                let c = this.findCard(i, 'deck', true)
                 if (c === null) return null
                 this.deckValue[c[1]] ++ 
             }
@@ -165,7 +165,7 @@ class Board {
     //parm card should be a list
     removeCard(card, where) {// removes a card from deck or discard
         for(let i of card){
-            let c = this.findCard(i, where)
+            let c = this.findCard(i, where, true)
             if ( c === null) return null
             if(where === 'deck'){
                 this.deckValue[c[1]]--//fix
@@ -246,7 +246,7 @@ class Board {
     }
     //returns card object
     //card should be a Card obj
-    findCard(card,location) {//fix
+    findCard(card,location, index=false) {//fix
         switch(location) {
             case undefined://if location param is not filled
                 console.log("class.js: fill in location param")
@@ -255,7 +255,7 @@ class Board {
                 if(card.name) card = card.name
                 for(let i =0; i < deck.length; i ++){
                     if (deck[i].name === card) {
-                        return [deck[i], i];
+                        return (index) ? [deck[i], i] : deck[i];
                     }
                 }
                 console.log('Class.js: error card not found in deck')
@@ -263,7 +263,7 @@ class Board {
             case "discard":
                 if(card.name) card = card.name
                 for(let i of this.discard){
-                    if (i.name === card) return [i, this.discard.indexOf(i)];
+                    if (i.name === card) return (index) ? [i, this.discard.indexOf(i)] : i;
                 }
                 console.log('Class.js: error card not found in discard')
                 return null;
@@ -277,7 +277,7 @@ class Board {
                 console.log('Class.js: error card not found')
                 return null;*/
             default://if array is returned
-                return this.getPlayer(location[0]).findCardInPlayer(card, location[1])
+                return this.getPlayer(location[0]).findCardInPlayer(card, location[1], false)
         }
         
     }
@@ -312,7 +312,7 @@ class Board {
         //name (str), card (Card obj), location [name, location]
         let c = this.findCard(card, location)//this.getPlayer(name).findCardInPlayer(card, location[1])
         if(c === null) return null
-        return c[0].tap
+        return c.tap
     }
     rotateTurn() {
         //rotates to next player's turn
@@ -445,14 +445,18 @@ if (require.main === module) {
 }
 
 
+
+
+
+
+
+
 function cardTest(){
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
     game.setup()
     game.getState('host',true)
-    //                     game,request, name,  card(object),                          location
-    //output = game.card(game, 'get', 'host', game.getPlayer('host').getHand()[1], ['host', 'Hand'])
-    //if (output===null) console.log('NULL'.bgRed)
+
     let output = game.card(game, 'play', 'host', game.getPlayer('host').getHand()[0], ['host', 'Hand'])
     if (output===null) console.log('NULL'.bgRed)
 
@@ -465,18 +469,20 @@ function cardTest(){
     output = game.card(game, 'play', 'a', game.getPlayer('a').getHand()[1], ['a', 'Hand'])
     if (output===null) console.log('NULL'.bgRed)
 
-    //something wrong here==========================================
     game.getState('host',true)
+
+    console.log(game.getPlayer('a').getHandStr())
+
     game.rotatePhase()
     game.rotatePhase()
     game.rotateTurn()
-    //==========================================
 
-    /*game.getState('host',true)
+    game.getState('host',true)
     output = game.card(game, 'play', 'host', game.getPlayer('host').getStable()[1], ['host', 'Stable'])
     console.log('output from Glitter Bomb:',output.send.text.bold)
-    let tap = output.card.tap//game.checkTapped(game.getPlayer('host').getStable()[1], ['host', 'Stable'])
+    let tap = game.checkTapped(game.getPlayer('host').getStable()[1], ['host', 'Stable'])
     console.log('tap:', tap)
+    if(tap === false) return
     //fill form section?
     let affectedObjects = [
         {action:'sacrifice', name:'host', card:game.getPlayer('host').getStable()[0]},
@@ -484,5 +490,5 @@ function cardTest(){
     output = game.card(game, 'tapped', 'host', game.getPlayer('host').getStable()[1], affectedObjects)
     //console.log('output:', output)
 
-    game.getState('host',true)//might needs to move output stuff first*/
+    game.getState('host',true)//might needs to move output stuff first
 }

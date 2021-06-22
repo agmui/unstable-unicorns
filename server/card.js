@@ -109,30 +109,32 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
                 break;
             //==========Magic==========
             case 'Controlled Destruction':
+                phase = game.rotatePhase();
                 send = {
-                    text: 'choose one card',
-                    numOfCards: 1
+                    text: card.text,
+                    action: ['destroy']
                 };
                 break;
             case 'Unicorn Poison': // DESTROY a Unicorn
+                phase = game.rotatePhase();
                 send = {
-                    text: 'choose one card',
-                    numOfCards: 1
+                    text: card.text,
+                    action: ['destroy']
                 };
                 break;
             //==========up,down grade==========
             case 'Glitter Bomb':
-                //switch mode to tapped
-                card.tap = true;
                 //If this card is in your Stable at the beginning of your turn,
                 //you may SACRIFICE a card, then DESTROY a card
                 if (affectedObjects[1] === 'Hand') { //inital play from hand to stable
                     phase = game.rotatePhase();
                 }
                 else if (game.getPhase() === 1) { //when card is tapped durring beggining of turn phase
+                    //switch mode to tapped
+                    card.tap = true;
                     send = {
-                        text: 'choose a card to sacrifice then one to destroy',
-                        numOfCards: 2
+                        text: card.text,
+                        action: ['sacrifice', 'destroy']
                     };
                 }
                 else {
@@ -141,7 +143,7 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
                 }
                 break;
         }
-        return { send: send, move: move, phase: phase, card: card };
+        return { send: send, move: move, phase: phase };
         //send is ment for the client.js gui, all the checks to see if recived vailid input is in reply (the code below)
     }
     else if (request == 'tapped') {
