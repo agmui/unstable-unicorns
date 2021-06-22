@@ -200,8 +200,9 @@ socket.on("image", function (info, where, cardObject) {
     img.onclick = function() {
       let who =  img.parentElement.parentElement.id
       let location = img.parentElement.id.slice(who.length)
-      socket.emit('checkTapped',card)//ping class to check if card is tapped
+      //socket.emit('checkTapped', username, cardObject, [who, location])//ping class to check if card is tapped
       //exicutes card function on recived in recivedTapped
+      socket.emit('play', username, cardObject, [who,location]);
     }
     img.src = 'data:image/jpeg;base64,' + info.buffer;
     allCards[cardObject.name] = cardObject;
@@ -221,14 +222,11 @@ socket.on("image", function (info, where, cardObject) {
   updatePopup()// allowes new img that has been loaded in to have popup
 });
 
-socket.on('recivedTapped', function(name,tap) {
-  if (username !== name) return
-  if(tap === false){
-    cardAutoFill(cardObject, [who, location])
-  } else{
-    //open gui and fill form
-    activate(cardObject)
-  }
+socket.on('recivedTapped', function(name, card, output, location) {
+  if (username !== name ) return
+  console.log('client.js: (output):', output.send)
+  //open gui and fill form
+  //socket.emit('filledForm', name, card, affectedCards, location)//ts
 })
 
 //================================Btns=============================================
@@ -298,13 +296,6 @@ function recivedClick(btnId, where) {//could have error with btn Id if multiple 
       document.getElementById('confirm').innerHTML += 'card: ' + card + ' '
       break
   }
-}
-//auto fill card function
-function cardAutoFill(card, location){
-  socket.emit('play', username, card, location);
-}
-function activate(card) {
-  socket.emit('filledForm')
 }
 
 /*socket.on('cardClientClass', function(name, card, output){

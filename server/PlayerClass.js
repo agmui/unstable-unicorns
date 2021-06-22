@@ -6,6 +6,8 @@ https://static.wikia.nocookie.net/unstableunicorns/images/1/18/336.png/revision/
 /*
 extra rules when playing with 2 players
 add neigh exseption
+recode everything without card param needing to be an array
+optimize name, card, location param
 */
 
 const colors = require('colors');
@@ -37,29 +39,16 @@ class Player {
             this.stable = this.stable.concat(card)
         }
     }
-    removeCard(card, where) {
-        if (where == "Hand") {
-            for (let i = 0; i < this.hand.length; i++) {
-                for (let j = 0; j < card.length; j++) {
-                    if (this.hand[i].name == card[j].name) {
-                        this.hand.splice(i, 1)
-                        return 
-                    }
-                }
+    removeCard(card, where) {//test
+        if(card instanceof Array === false) card = [card]
+        for (let i of card){
+            let c = this.findCardInPlayer(i, where)
+            if ( c === null) return null
+            if(where === 'Hand'){
+                this.hand.splice(c[0], 1)
+            } else if (where === 'Stable'){
+                this.stable.splice(c[0], 1)
             }
-            console.log('class.js: card not in hand')
-            return null
-        } else if (where == "Stable") {
-            for (let i = 0; i < this.stable.length; i++) {
-                for (let j = 0; j < card.length; j++) {
-                    if (this.stable[i].name == card[j].name) {
-                        this.stable.splice(i, 1)
-                        return
-                    }
-                }
-            }
-            console.log('class.js: card not in stable')
-            return null
         }
     }
     checkHandNum() {
@@ -67,6 +56,25 @@ class Player {
     }
     winCondition() {
         return this.stable.length >= 7;
+    }
+    findCardInPlayer(card, location=false){
+        if (location === 'Hand'){
+            for (let i of this.getHand()){
+                if (i.name === card.name) return [i, this.hand.indexOf(i)]
+            }
+            console.log('Class.js: card not in hand')
+            return null
+        } else if (location === 'Stable'){
+            for (let i of this.getStable()){
+                if (i.name === card.name) return [i, this.stable.indexOf(i)]
+            }
+            console.log('Class.js: card not in Stable')
+            return null
+        }
+        else {//needs to be tested
+            let output = this.findCardInPlayer(card, 'Hand')
+            return (output === null) ? this.findCardInPlayer(card, 'Stable') : output
+        }
     }
     getName() {
         return this.name;
@@ -135,7 +143,7 @@ class Board {
             //let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
+            this.move(p.getName(), card[0], "deck", [p.getName(),"Hand"], false, true);//ts
             card = [deck[13]]
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
@@ -145,10 +153,10 @@ class Board {
     //parm card should be a list
     addCard(card, where) {//adds a card to deck or discard
         if (where == "deck") {
-            for (let i = 0; i < deck.length; i++) {
-                for(let j of card){
-                    if(deck[i].name === j.name) this.deckValue[i] ++
-                }
+            for (let i of card){
+                let c = this.findCard(i, 'deck')
+                if (c === null) return null
+                this.deckValue[c[1]] ++ 
             }
         } else if (where == "discard") {
             this.discard = this.discard.concat(card);
@@ -156,28 +164,14 @@ class Board {
     }
     //parm card should be a list
     removeCard(card, where) {// removes a card from deck or discard
-        if (where == "deck") {
-            for (let i = 0; i < deck.length; i++) {
-                for (let j = 0; j < card.length; j++) {
-                    if (deck[i].name == card[j].name && this.deckValue[i] > 0) {
-                        this.deckValue[i] --
-                        return //fix
-                    }
-                }
+        for(let i of card){
+            let c = this.findCard(i, where)
+            if ( c === null) return null
+            if(where === 'deck'){
+                this.deckValue[c[1]]--//fix
+            } else if (where=== 'discard'){
+                this.discard.splice(c[1],1)//fix
             }
-            console.log('class.js: card [',card[0].name ,'] not in deck')
-            return null //fix
-        } else if (where == "discard") {
-            for (let i = 0; i < this.discard.length; i++) {
-                for (let j = 0; j < card.length; j++) {
-                    if (this.discard[i].name == card[j].name) {
-                        this.discard.splice(i, 1)
-                        return
-                    }
-                }
-            }
-            console.log('class.js: card [',card[0].name ,'] not in discard')
-            return null//fix
         }
     }
     card(game, request, name, card, affectedCards=false, affectedPlayers=false){//optimize
@@ -251,40 +245,41 @@ class Board {
         if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
+    //card should be a Card obj
     findCard(card,location) {//fix
         switch(location) {
             case undefined://if location param is not filled
                 console.log("class.js: fill in location param")
                 return null
             case "deck":
+                if(card.name) card = card.name
                 for(let i =0; i < deck.length; i ++){
                     if (deck[i].name === card) {
-                        console.log("index:",i)
-                        return deck[i];
+                        return [deck[i], i];
                     }
                 }
-                console.log('Class.js: error card not found')
+                console.log('Class.js: error card not found in deck')
                 return null;
             case "discard":
+                if(card.name) card = card.name
                 for(let i of this.discard){
-                    if (i.name === card) return i;
+                    if (i.name === card) return [i, this.discard.indexOf(i)];
                 }
-                console.log('Class.js: error card not found')
+                console.log('Class.js: error card not found in discard')
                 return null;
-            case "Hand":
+            /*case "Hand"://fix array thing wrong
             case "Stable":
                 for(let i of this.players){
-                    if(i.getName() === location){
-                        if (i.name === card) return i;
+                    if(i.getName() === location[0]){
+                        return i.findCardInPlayer(card, location[1]) 
                     }
                 }
                 console.log('Class.js: error card not found')
-                return null;
+                return null;*/
             default://if array is returned
-                if(location[0]==='Player'){//if player is returned
-                    return;
-                }//if opponate is returned
+                return this.getPlayer(location[0]).findCardInPlayer(card, location[1])
         }
+        
     }
     // looks at the most recent action in log and undoes it
     // when going back a whole phase does not undo any moves yet
@@ -313,8 +308,11 @@ class Board {
         console.log('class.js: recived interupt', toWho);
         this.bypass.push(toWho);
     }
-    checkTapped(name, card, location){//ts
-        return True
+    checkTapped(name, card, location){//test
+        //name (str), card (Card obj), location [name, location]
+        let c = this.findCard(card, location)//this.getPlayer(name).findCardInPlayer(card, location[1])
+        if(c === null) return null
+        return c[0].tap
     }
     rotateTurn() {
         //rotates to next player's turn
@@ -439,11 +437,16 @@ function getRandomInt(max) { // merge with the drawFromDeck function
 module.exports = { Board }
 
 if (require.main === module) {
-    //let list = {'longString1':'host','longString2':'a'};
-    //let game = new Board(list);
+    let list = {'longString1':'host','longString2':'a'};
+    let game = new Board(list);
 
     //=====
-    cardTest()
+
+    game.setup()
+    let x = game.checkTapped('a', game.getPlayer('a').getHand()[0], ['a', 'Hand'])
+    console.log(x)
+
+    //cardTest()
 }
 
 

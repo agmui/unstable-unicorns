@@ -97,51 +97,47 @@ io.on('connection', (socket) => {
         io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
         boardUpdate()
     });
+
     //auto fill card functions
-    //==================try to make getting the auto fill to work request wise 
-    //to resemble the web's get requests or protocalls==========
-    /*socket.on('cardClient', function(name, card, location){//inital request from client to ask what info the card needs form class
-        let output = game.card(game, 'get', name, card, location);
+    socket.on('play', function(name, card, location){//optimise
+        let tap = game.checkTapped(name, card, location)
+        if(tap === null) return//if card.js throws an error
+        let output = game.card(game, 'play', name, card, location);
         if(output === null) return//if card.js throws an error
-        for (let i of output.move){
-            io.emit('move', i.name, i.card, i.from, i.to);
+        //check for tap
+        if (tap === false){
+            for (let i of output.move){//needs to be fixed depending on if tapped or not
+                io.emit('move', i.name, i.card, i.from, i.to);
+            }
+
+            if(output.phase) io.emit('phase', output.phase, game.getTurn());
+            boardUpdate()
+            
+            if(card.type === 'Magic'){
+                //ping back to player options
+                io.emit('recivedTapped', name, card, output, location)
+            }
+        } else if (tap===true){
+            //ping back to player options
+            io.emit('recivedTapped', output)
         }
-        io.emit('cardClientClass', name, card, output.send)//sends form with info that needs to be filled out to original sender
-        if(output.phase) io.emit('phase', output.phase, game.getTurn());
-        boardUpdate()
-    });
-    socket.on('cardClientClassClient', function(who, card, affectedCards, affectedPlayers){//recived all that needs to be inputed form client
-        let output = game.card(game, 'reply', who, card, affectedCards, affectedPlayers);
-        //sends back what changes has been made to board to all users
-        io.emit('final', output)
+    })
+
+    socket.on('filledForm', function(name, card, affectedCards, location){
+        let output = game.card(game, 'tapped', name, card, affectedCards, location);
         if (output===null||typeof output === 'string')return//card.js checks if valid input
         for (let i of output.move){
             io.emit('move', i.name, i.card, i.from, i.to);
         }
-        if(output.phase) io.emit('phase', output.phase, game.getTurn());
-        
-        io.emit('final', output)
-        boardUpdate()
-    });*/
-
-    socket.on('play', function(name, card, location){
-        let output = game.card(game, 'get', name, card, location);
-        if(output === null) return//if card.js throws an error
-        for (let i of output.move){
-            io.emit('move', i.name, i.card, i.from, i.to);
-        }
 
         if(output.phase) io.emit('phase', output.phase, game.getTurn());
         boardUpdate()
-    })
-
-    socket.on('checkTapped', function(name, card, location){
-        io.emit('recivedTapped', game.checkTapped(name, card, location))
     })
 
     //move functions
     socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         console.log("server.js: recived move function", username, card.name, from, to)
+        console.log('wtf======')//ts
         let state = game.move(username, card, from, to, undo)
         if (state == false) return//checking if move is alowed with class.js
         if (state) console.log('server.js: game over')

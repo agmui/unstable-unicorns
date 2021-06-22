@@ -53,9 +53,8 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
     //console.log('ts',card)//ts
     let send, phase;
     let move: Array<any> = [];
-    //request to see if more info needed
     console.log('card.js: card', card.name, 'request', request)
-    if (request=='get') {
+    if (request=='play') {
         //check if clicked on card location is correct
         //affectedCard means soemthing else when it is a get request
         if(affectedCard === name || affectedCard[0] === name|| affectedCard ==='bypass') {//fix
@@ -125,7 +124,7 @@ function main(game:any, request:string, name:string, card, affectedCard:any, aff
         }
         return {send: send, move: move, phase: phase};
         //send is ment for the client.js gui, all the checks to see if recived vailid input is in reply (the code below)
-    } else if (request == 'reply'){
+    } else if (request == 'tapped'){
         switch(card.name){
             case 'Controlled Destruction'://fix cant trigger death effects
                 //checks if it is valid imput first
