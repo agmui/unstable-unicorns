@@ -8,7 +8,7 @@ var usernameInputValue = document.getElementById('username_input')
 var username = '';
 let allCards = {};//not used
 gameOver = false;
-let inputFormCard = false;
+
 
 form.addEventListener('submit', function (e) {
   e.preventDefault();
@@ -182,31 +182,17 @@ socket.on('no cards', function (name) {
     console.log('no cards')
   }
 });
+
 // =====================reciving imgs=================
 socket.on("image", function (info, where, cardObject) {
   if (info.image) {
     let img = document.createElement("IMG")
-    /*img.onclick = function () {//auto fills for move function
-      //recivedClick(img.parentElement.id, 1)//fix formating not right
-      if (img.parentElement.id==='PlayerHand' || img.parentElement.id==='PlayerStable'){
-        recivedClick(img.parentElement.id.slice(6), 1)
-      } else {
-        let name = img.parentElement.parentElement.id
-        recivedClick([name, img.parentElement.id.slice(name.length)],1)
-      }
-      recivedClick(img.id, 3) 
-    }*/
     img.onclick = function() {
       let who =  img.parentElement.parentElement.id
       let location = img.parentElement.id.slice(who.length)
-      if (inputFormCard) {//maybe needs a check if needs to verify if it is player's turn and card
-        //open gui opptions for what ever needs to be inputed in
-        //pass info back to card.js
-        socket.emit('cardClientClassClient', username, inputFormCard, cardObject, [who, location])
-        //inputFormCard = false;//needs a way of checking if card.js says valid input
-      } else {
-        cardAutoFill(cardObject, [who, location])
-      }
+      //socket.emit('checkTapped', username, cardObject, [who, location])//ping class to check if card is tapped
+      //exicutes card function on recived in recivedTapped
+      socket.emit('play', username, cardObject, [who,location]);
     }
     img.src = 'data:image/jpeg;base64,' + info.buffer;
     allCards[cardObject.name] = cardObject;
@@ -225,6 +211,14 @@ socket.on("image", function (info, where, cardObject) {
   }
   updatePopup()// allowes new img that has been loaded in to have popup
 });
+
+socket.on('recivedTapped', function(name, card, output, location) {
+  if (username !== name ) return
+  console.log('client.js: (output):', output.send)
+  //open gui and fill form
+  //socket.emit('filledForm', name, card, affectedCards, location)//ts
+})
+
 //================================Btns=============================================
 function ready() {
   socket.emit('ready', username)
@@ -293,28 +287,7 @@ function recivedClick(btnId, where) {//could have error with btn Id if multiple 
       break
   }
 }
-//auto fill card function
-function cardAutoFill(card, location){
-  socket.emit('cardClient', username, card, location);
-}
-socket.on('cardClientClass', function(name, card, output){
-  if(name !== username|| output==null)return
-  console.log('from card.js:', output)//output can spesify if it needs to open modal
-  document.getElementById('text').innerHTML += output.text;
-  //alows gui to take input
-  inputFormCard = card;
-});
-socket.on('final', function(output){
-  document.getElementById('text').innerHTML= ''
-  //code to handel board changes
-  if(typeof output === 'string') {
-    console.log(output);//if there is an error
-    return
-  } else if(output.numOfCards) {//applys to cards that need multipule card selections
-    return
-  }
-  inputFormCard = false
-})
+
 // card should be a object, fix accepting list changes in from and to
 function move(name_, card_, from_, to_, undo) {// fix
   if (name_) {//so far only undo functhion uses this

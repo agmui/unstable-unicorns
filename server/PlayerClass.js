@@ -308,7 +308,7 @@ class Board {
         console.log('class.js: recived interupt', toWho);
         this.bypass.push(toWho);
     }
-    checkTapped(name, card, location){//test
+    checkTapped(card, location){//test
         //name (str), card (Card obj), location [name, location]
         let c = this.findCard(card, location)//this.getPlayer(name).findCardInPlayer(card, location[1])
         if(c === null) return null
@@ -443,7 +443,7 @@ if (require.main === module) {
     //=====
 
     game.setup()
-    let x = game.checkTapped('a', game.getPlayer('a').getHand()[0], ['a', 'Hand'])
+    let x = game.checkTapped(game.getPlayer('a').getHand()[0], ['a', 'Hand'])
     console.log(x)
 
     //cardTest()
