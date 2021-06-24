@@ -76,6 +76,10 @@ body {
     overflow-y: scroll;
 }
 
+#text {
+    font-size: medium;
+}
+
 #overlay {
     position: fixed;
     opacity: 0;

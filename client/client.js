@@ -66,29 +66,6 @@ socket.on("num of players", function (playerList) {
       document.getElementById('Player').id = username
       document.getElementById('Hand').id = username+'Hand'
       document.getElementById('Stable').id = username+'Stable'
-      //fix
-      //creating opponate gui in popup
-      /*opponate = document.createElement("button")//from section gui not nessisary
-      opponate.id = name
-      opponate.onclick = function () { recivedClick([this.id, "Hand"], 1) }
-      opponate.innerHTML = name + "'s hand"
-      document.getElementById('from').append(opponate)
-      opponate = document.createElement("button")
-      opponate.id = name
-      opponate.onclick = function () { recivedClick([this.id, "Stable"], 1) }
-      opponate.innerHTML = name + "'s stable"
-      document.getElementById('from').append(opponate)*/
-
-      /*opponate = document.createElement("button")
-      opponate.id = name
-      opponate.onclick = function () { recivedClick([this.id, "Hand"], 2) }
-      opponate.innerHTML = name + "'s hand"
-      document.getElementById('to').append(opponate)
-      opponate = document.createElement("button")
-      opponate.id = name
-      opponate.onclick = function () { recivedClick([this.id, "Stable"], 2) }
-      opponate.innerHTML = name + "'s stable"
-      document.getElementById('to').append(opponate)*/
 
       //creating interupt gui
       opponate = document.createElement("button")
@@ -214,12 +191,71 @@ socket.on("image", function (info, where, cardObject) {
 
 socket.on('recivedTapped', function(name, card, output, location) {
   if (username !== name ) return
-  console.log('client.js: (output):', output.send)
-  //open gui and fill form
-  //socket.emit('filledForm', name, card, affectedObjects)//ts
+  //console.log('client.js: (output):', output.send)
+  //open gui and fill form ========
+  let affectedObjects = []//optimize
+  document.getElementById('text').innerHTML = output.send.text
+  for(let action of output.send.action){
+    let text = document.createTextNode(action)
+    document.getElementById('displayCards').appendChild(text)
+    switch(action){
+      case 'sacrifice':
+        //show player stable
+        let img = document.getElementById(username+'Stable').childNodes
+        for (let i = 1; i < img.length; i++) {
+          let cloneImg = img[i].cloneNode(true)
+          cloneImg.onclick = function() {
+              affectedObjects = affectedObjects.concat(
+                {action:action, 
+                name:username, 
+                card:cloneImg
+              })
+          }
+          document.getElementById('displayCards').appendChild(cloneImg)
+        }
+        break
+      case 'destroy':
+        //show opponate stable
+        let opponates = document.getElementById('score board').childNodes
+        for(let j=1; j < opponates.length; j++ ){
+          let opponateName = opponates[j].innerHTML
+          let text = document.createTextNode(opponateName)
+          document.getElementById('displayCards').appendChild(text) 
+          let img = document.getElementById(opponateName+'Stable').childNodes
+          for (let i = 1; i < img.length; i++) {
+            let cloneImg = img[i].cloneNode(true)
+            cloneImg.onclick = function() {
+              affectedObjects = affectedObjects.concat(
+                {action:action, 
+                name:opponateName, 
+                card:cloneImg
+              })
+            }
+            document.getElementById('displayCards').appendChild(cloneImg)
+          }
+        }
+        break
+      case 'discard':
+        //show player hand
+        break
+      case 'steal':
+        //show oppponate's stable
+        break
+      case 'draw':
+        //show deck
+        break
+    }
+  }
+  document.getElementById('confirm').onclick = function () {
+    console.log(affectedObjects)
+    closeModal()
+    console.log(name)
+    socket.emit('filledForm', name, card, affectedObjects, location)//ts
+  }
 })
 
 //================================Btns=============================================
+
 function ready() {
   socket.emit('ready', username)
 }
@@ -357,6 +393,8 @@ function closeModal(modal) {
   overlay.classList.remove('active')
   document.getElementById("display").style.display = "none"
   document.getElementById("interupt").style.display = "none"
+  //clear card img in popup
+  document.getElementById('displayCards').innerHTML = ''
 }
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list

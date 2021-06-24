@@ -15,6 +15,7 @@ const e = require('express');
 const { copyFileSync } = require('fs');
 let deck = require('./data.json');
 const cardAuto = require('./card.js');
+const { count } = require('console');
 
 class Card {
     constructor(name, text, type, img) {
@@ -58,15 +59,16 @@ class Player {
         return this.stable.length >= 7;
     }
     findCardInPlayer(card, location=false, index=false){
+        if(card.name) card = card.name
         if (location === 'Hand'){
             for (let i of this.getHand()){
-                if (i.name === card.name) return (index) ? [i, this.hand.indexOf(i)] : i
+                if (i.name === card) return (index) ? [i, this.hand.indexOf(i)] : i
             }
             console.log('Class.js: card not in hand')
             return null
         } else if (location === 'Stable'){
             for (let i of this.getStable()){
-                if (i.name === card.name) return (index) ? [i, this.stable.indexOf(i)] : i
+                if (i.name === card) return (index) ? [i, this.stable.indexOf(i)] : i
             }
             console.log('Class.js: card not in Stable')
             return null
@@ -200,7 +202,6 @@ class Board {
             }
         }
         console.log('class.js: ' + name + " moved " + card[0].name + " from " + from + " to " + to, to[0].name, to[1])
-        let index
         switch (from) {
             case "deck":
             case "discard":
@@ -245,14 +246,14 @@ class Board {
         if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
-    //card should be a Card obj
+    //card should be a Card obj or string
     findCard(card,location, index=false) {//fix
+        if(card.name) card = card.name
         switch(location) {
             case undefined://if location param is not filled
                 console.log("class.js: fill in location param")
                 return null
             case "deck":
-                if(card.name) card = card.name
                 for(let i =0; i < deck.length; i ++){
                     if (deck[i].name === card) {
                         return (index) ? [deck[i], i] : deck[i];
@@ -261,21 +262,11 @@ class Board {
                 console.log('Class.js: error card not found in deck')
                 return null;
             case "discard":
-                if(card.name) card = card.name
                 for(let i of this.discard){
                     if (i.name === card) return (index) ? [i, this.discard.indexOf(i)] : i;
                 }
                 console.log('Class.js: error card not found in discard')
                 return null;
-            /*case "Hand"://fix array thing wrong
-            case "Stable":
-                for(let i of this.players){
-                    if(i.getName() === location[0]){
-                        return i.findCardInPlayer(card, location[1]) 
-                    }
-                }
-                console.log('Class.js: error card not found')
-                return null;*/
             default://if array is returned
                 return this.getPlayer(location[0]).findCardInPlayer(card, location[1], false)
         }
@@ -440,8 +431,10 @@ if (require.main === module) {
     let game = new Board(list);
 
     //=====
-
-    cardTest()
+    game.setup()
+    let c = game.getPlayer('host').getHand()[0]
+    console.log(game.findCard(c, ['host', 'Hand']))
+    //cardTest()
 }
 
 
