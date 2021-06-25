@@ -50,18 +50,23 @@ function action(game, moveList, affectedObjects) {
     for (let i of affectedObjects) {
         switch (i.action) {
             case 'sacrifice':
+                i.card = game.findCard(i.card, [i.name, 'Stable']);
                 sacrifice(game, moveList, i.name, i.card);
                 break;
             case 'destroy':
+                i.card = game.findCard(i.card, [i.name, 'Stable']);
                 destroy(game, moveList, i.name, i.card);
                 break;
             case 'discard':
+                i.card = game.findCard(i.card, [i.name, 'Hand']);
                 discard(game, moveList, i.name, i.card);
                 break;
             case 'steal':
+                i.card = game.findCard(i.card, [i.name, 'Stable']);
                 steal(game, moveList, i.name, i.card);
                 break;
             case 'draw':
+                i.card = game.findCard(i.card, 'deck');
                 draw(game, moveList, i.name, i.card);
                 break;
         }
@@ -151,7 +156,7 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
             case 'special cards': //for cards the main function can't work with
                 break;
             default:
-                console.log(affectedObjects); //ts
+                console.log('ya', affectedObjects); //ts
                 action(game, move, affectedObjects);
                 card.tap = null;
         }

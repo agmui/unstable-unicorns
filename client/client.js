@@ -169,6 +169,15 @@ socket.on("image", function (info, where, cardObject) {
       let who =  img.parentElement.parentElement.id
       let location = img.parentElement.id.slice(who.length)
       socket.emit('play', username, cardObject, [who,location]);
+
+      //====popup stuff===
+      //checks if btn is in hand and if its player's turn
+      let turn = document.getElementById('whosTurn').innerHTML.slice(6)
+      if( !(turn === username && location === 'Hand' &&  who === username)){//optimize
+        document.getElementById('text').innerHTML = cardObject.text
+        const modal = document.querySelector(img.dataset.modalTarget)
+        openModal(modal)
+      } 
     }
 
     img.src = 'data:image/jpeg;base64,' + info.buffer;
@@ -186,7 +195,7 @@ socket.on("image", function (info, where, cardObject) {
       document.getElementById(where[0] + where[1]).appendChild(img)
     }
   }
-  updatePopup()// allowes new img that has been loaded in to have popup
+  //updatePopup()// allowes new img that has been loaded in to have popup
 });
 
 socket.on('recivedTapped', function(name, card, output, location) {
@@ -208,7 +217,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
               affectedObjects = affectedObjects.concat(
                 {action:action, 
                 name:username, 
-                card:cloneImg
+                card:cloneImg.name
               })
           }
           document.getElementById('displayCards').appendChild(cloneImg)
@@ -228,7 +237,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
               affectedObjects = affectedObjects.concat(
                 {action:action, 
                 name:opponateName, 
-                card:cloneImg
+                card:cloneImg.name
               })
             }
             document.getElementById('displayCards').appendChild(cloneImg)
@@ -246,15 +255,19 @@ socket.on('recivedTapped', function(name, card, output, location) {
         break
     }
   }
-  document.getElementById('confirm').onclick = function () {
-    console.log(affectedObjects)
-    closeModal()
-    console.log(name)
-    socket.emit('filledForm', name, card, affectedObjects, location)//ts
+  document.getElementById('confirm').onclick = function () {//fix
+    socket.emit('filledForm', name, card, affectedObjects, location)
   }
 })
 
 //================================Btns=============================================
+
+function confirm(){
+  /*console.log('ts',output)//ts
+  if (output.length === 0) return
+  socket.emit('filledForm', output[0], output[1], output[2], output[3])
+  output = []*/
+}
 
 function ready() {
   socket.emit('ready', username)
@@ -341,32 +354,39 @@ function move(name_, card_, from_, to_, undo) {// fix
 }
 
 //make some sourt of intuerupt or cut in line when reqiring other player's actions
-function updatePopup() {
-  const openModalButtons = document.querySelectorAll('[data-modal-target')
-  const closeModalButtons = document.querySelectorAll('[data-close-button')
-  const overlay = document.getElementById('overlay')
-
-  openModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const modal = document.querySelector(button.dataset.modalTarget)
-      openModal(modal)
-    })
+//ts
+/*function updatePopup(button) {
+  button.addEventListener('click', () => {
+    //checks if btn is in hand and if its player's turn
+    const modal = document.querySelector(button.dataset.modalTarget)
+    openModal(modal)
   })
+}*/
+let openModalButtons = document.querySelectorAll('[data-modal-target')
+let closeModalButtons = document.querySelectorAll('[data-close-button')
+let overlay = document.getElementById('overlay')
 
-  overlay.addEventListener('click', () => { //closes popup when clicking outside of popup
-    const modals = document.querySelectorAll('.modal.active')
-    modals.forEach(modal => {
-      closeModal(modal)
-    })
+openModalButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const modal = document.querySelector(button.dataset.modalTarget)
+    openModal(modal)
   })
+})
 
-  closeModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const modal = button.closest('.modal')
-      closeModal(modal)
-    })
+overlay.addEventListener('click', () => { //closes popup when clicking outside of popup
+  const modals = document.querySelectorAll('.modal.active')
+  modals.forEach(modal => {
+    closeModal(modal)
   })
-}
+})
+
+closeModalButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const modal = button.closest('.modal')
+    closeModal(modal)
+  })
+})
+
 
 function visabile() {//spesify visabilaty for deck and discard 
   let where = document.getElementById("show").innerHTML.slice(5)//gets where
@@ -393,7 +413,7 @@ function closeModal(modal) {
   overlay.classList.remove('active')
   document.getElementById("display").style.display = "none"
   document.getElementById("interupt").style.display = "none"
-  //clear card img in popup
+  //clear card img and text in popup
   document.getElementById('displayCards').innerHTML = ''
 }
 //moves cards in gui without the need a ping from server

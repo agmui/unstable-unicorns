@@ -40,10 +40,10 @@ class Player {
             this.stable = this.stable.concat(card)
         }
     }
-    removeCard(card, where) {//test
+    removeCard(card, where) {
         if(card instanceof Array === false) card = [card]
         for (let i of card){
-            let c = this.findCardInPlayer(i, where)
+            let c = this.findCardInPlayer(i, where, true)
             if ( c === null) return null
             if(where === 'Hand'){
                 this.hand.splice(c[1], 1)
@@ -247,7 +247,7 @@ class Board {
     }
     //returns card object
     //card should be a Card obj or string
-    findCard(card,location, index=false) {//fix
+    findCard(card,location, index=false) {
         if(card.name) card = card.name
         switch(location) {
             case undefined://if location param is not filled
@@ -432,8 +432,18 @@ if (require.main === module) {
 
     //=====
     game.setup()
-    let c = game.getPlayer('host').getHand()[0]
-    console.log(game.findCard(c, ['host', 'Hand']))
+    /*game.getState('host', true)
+    let c = game.getPlayer('host').getHand()[1]
+    game.findCard(c, ['host', 'Hand'])
+    game.card(game, 'play', 'host', c, ['host', 'Hand'] )
+    game.checkTapped(c, ['host', 'Stable'])
+
+    game.getState('host', true)*/
+    game.getState('host', true)
+    let c = game.getPlayer('host').getHand()[1]
+    game.getPlayer('host').removeCard(c, 'Hand')
+    game.getState('host', true)
+
     //cardTest()
 }
 
