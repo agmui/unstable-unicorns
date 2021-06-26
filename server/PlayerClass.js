@@ -18,12 +18,13 @@ const cardAuto = require('./card.js');
 const { count } = require('console');
 
 class Card {
-    constructor(name, text, type, img) {
+    constructor(name, text, type, img, action) {
         this.name = name;
         this.text = text;
         this.type = type;
         this.img = img;
         this.tap = false;
+        this.action = action
     }
 }
 
@@ -131,7 +132,7 @@ class Board {
                 var x = getRandomInt(deck.length);
             } while (this.deckValue[x] == 0);
             //this.deckValue[x]--//will be subtracted in move function
-            final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img))
+            final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img, deck[x].action))
         }
         return final
     }

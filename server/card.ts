@@ -154,6 +154,8 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
             case 'special cards'://for cards the main function can't work with
                 break;
             default:
+                //add a check here to make sure there are the right num of affectedOvjects 
+                //use json file to check num
                 action(game, move, affectedObjects)
                 card.tap = null
         }
