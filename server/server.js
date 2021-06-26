@@ -132,6 +132,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('filledForm', function(name, card, affectedObjects, location){
+        if(affectedObjects === {}) return
         card = game.findCard(card, location)//to use the servers version of the card
         let output = game.card(game, 'tapped', name, card, affectedObjects);
         if (output===null||typeof output === 'string')return//card.js checks if valid input

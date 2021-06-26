@@ -154,7 +154,6 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
             case 'special cards'://for cards the main function can't work with
                 break;
             default:
-                console.log('ya',affectedObjects)//ts
                 action(game, move, affectedObjects)
                 card.tap = null
         }

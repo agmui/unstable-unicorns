@@ -156,7 +156,6 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
             case 'special cards': //for cards the main function can't work with
                 break;
             default:
-                console.log('ya', affectedObjects); //ts
                 action(game, move, affectedObjects);
                 card.tap = null;
         }

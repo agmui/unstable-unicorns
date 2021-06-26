@@ -80,6 +80,10 @@ body {
     font-size: medium;
 }
 
+#confirm {
+    display: none;
+}
+
 #overlay {
     position: fixed;
     opacity: 0;

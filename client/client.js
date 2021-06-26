@@ -198,12 +198,14 @@ socket.on("image", function (info, where, cardObject) {
   //updatePopup()// allowes new img that has been loaded in to have popup
 });
 
+let formObject = {}
 socket.on('recivedTapped', function(name, card, output, location) {
   if (username !== name ) return
   //console.log('client.js: (output):', output.send)
   //open gui and fill form ========
   let affectedObjects = []//optimize
   document.getElementById('text').innerHTML = output.send.text
+  document.getElementById('confirm').style.display = 'block'
   for(let action of output.send.action){
     let text = document.createTextNode(action)
     document.getElementById('displayCards').appendChild(text)
@@ -219,6 +221,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
                 name:username, 
                 card:cloneImg.name
               })
+              formObject.affectedObjects = affectedObjects
           }
           document.getElementById('displayCards').appendChild(cloneImg)
         }
@@ -239,6 +242,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
                 name:opponateName, 
                 card:cloneImg.name
               })
+              formObject.affectedObjects = affectedObjects
             }
             document.getElementById('displayCards').appendChild(cloneImg)
           }
@@ -255,18 +259,15 @@ socket.on('recivedTapped', function(name, card, output, location) {
         break
     }
   }
-  document.getElementById('confirm').onclick = function () {//fix
-    socket.emit('filledForm', name, card, affectedObjects, location)
-  }
+  formObject = {card: card, location: location}
 })
 
 //================================Btns=============================================
 
 function confirm(){
-  /*console.log('ts',output)//ts
-  if (output.length === 0) return
-  socket.emit('filledForm', output[0], output[1], output[2], output[3])
-  output = []*/
+  if (formObject.affectedObjects === undefined) return
+  socket.emit('filledForm', username, formObject.card, formObject.affectedObjects, formObject.location)
+  formObject = {}
 }
 
 function ready() {
@@ -415,6 +416,8 @@ function closeModal(modal) {
   document.getElementById("interupt").style.display = "none"
   //clear card img and text in popup
   document.getElementById('displayCards').innerHTML = ''
+  //hide confrim btn
+  document.getElementById('confirm').style.display = 'none'
 }
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list
