@@ -498,7 +498,7 @@
   "quantity": "3",
   "deck": "Base",
   "action": [
-   "destroy"
+   ["destroy", "Basic  Unicorn", "Magical Unicorn", "Baby Unicorn", "Ultimate Unicorn", "Unicorns of Legend"]
   ]
  },
  {

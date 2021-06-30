@@ -142,7 +142,7 @@ socket.on('undo', function (action) {
   }
   //check's whos turn it is and makes them do the move fuction
   if (document.getElementById('whosTurn').innerHTML == 'Turn: ' + username) {// fix way of getting who's turn
-    move(username, action.card, action.to, action.from, true);
+    //move(username, action.card, action.to, action.from, true);
   }
 })
 
@@ -172,12 +172,13 @@ socket.on("image", function (info, where, cardObject) {
 
       //====popup stuff===
       //checks if btn is in hand and if its player's turn
-      let turn = document.getElementById('whosTurn').innerHTML.slice(6)
-      if( !(turn === username && location === 'Hand' &&  who === username)){//optimize
+      let turn = document.getElementById('whosTurn').innerHTML.slice(6)//remove all slice
+      if( !(turn === username && location === 'Hand' &&  who === username) || cardObject.type === 'Magic'){//optimize
         document.getElementById('text').innerHTML = cardObject.text
         const modal = document.querySelector(img.dataset.modalTarget)
         openModal(modal)
       } 
+      //=================
     }
 
     img.src = 'data:image/jpeg;base64,' + info.buffer;
@@ -195,7 +196,6 @@ socket.on("image", function (info, where, cardObject) {
       document.getElementById(where[0] + where[1]).appendChild(img)
     }
   }
-  //updatePopup()// allowes new img that has been loaded in to have popup
 });
 
 let formObject = {}
@@ -204,26 +204,35 @@ socket.on('recivedTapped', function(name, card, output, location) {
   //console.log('client.js: (output):', output.send)
   //open gui and fill form ========
   let affectedObjects = []//optimize
+  let specific = []
   document.getElementById('text').innerHTML = output.send.text
   document.getElementById('confirm').style.display = 'block'
   for(let action of output.send.action){
-    let text = document.createTextNode(action)
+    if(action instanceof Array){
+      specific = action.slice(1, action.length)
+      action = action[0]
+    } 
+    let text = document.createTextNode(action)// fix let
     document.getElementById('displayCards').appendChild(text)
+
     switch(action){
       case 'sacrifice':
         //show player stable
         let img = document.getElementById(username+'Stable').childNodes
         for (let i = 1; i < img.length; i++) {
-          let cloneImg = img[i].cloneNode(true)
-          cloneImg.onclick = function() {
-              affectedObjects = affectedObjects.concat(
-                {action:action, 
-                name:username, 
-                card:cloneImg.name
-              })
-              formObject.affectedObjects = affectedObjects
+          if(specific.length == 0  || specific.includes(allCards[img[i].name].type)){//check if card type is specified
+            let cloneImg = img[i].cloneNode(true)
+            cloneImg.onclick = function() {
+                affectedObjects = affectedObjects.concat(
+                  {action:action, 
+                  specific: specific,
+                  name:username, 
+                  card:cloneImg.name
+                })
+                formObject.affectedObjects = affectedObjects
+            }
+            document.getElementById('displayCards').appendChild(cloneImg)
           }
-          document.getElementById('displayCards').appendChild(cloneImg)
         }
         break
       case 'destroy':
@@ -235,16 +244,19 @@ socket.on('recivedTapped', function(name, card, output, location) {
           document.getElementById('displayCards').appendChild(text) 
           let img = document.getElementById(opponateName+'Stable').childNodes
           for (let i = 1; i < img.length; i++) {
-            let cloneImg = img[i].cloneNode(true)
-            cloneImg.onclick = function() {
-              affectedObjects = affectedObjects.concat(
-                {action:action, 
-                name:opponateName, 
-                card:cloneImg.name
-              })
-              formObject.affectedObjects = affectedObjects
+            if(specific.length == 0 || specific.includes(allCards[img[i].name].type)){//check if card type is specified
+              let cloneImg = img[i].cloneNode(true)
+              cloneImg.onclick = function() {
+                affectedObjects = affectedObjects.concat(
+                  {action:action, 
+                  specific: specific,
+                  name:opponateName, 
+                  card:cloneImg.name
+                })
+                formObject.affectedObjects = affectedObjects
+              }
+              document.getElementById('displayCards').appendChild(cloneImg)
             }
-            document.getElementById('displayCards').appendChild(cloneImg)
           }
         }
         break
@@ -252,7 +264,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
         //show player hand
         break
       case 'steal':
-        //show oppponate's stable
+        //show opponate's stable
         break
       case 'draw':
         //show deck
@@ -315,54 +327,6 @@ function endTurn() {
 //=======================popup==========================================
 // in gui have a way to look at any other domain like discard, hand, deck, etc
 
-//make pop up gui when choosing spesifucly who or amound or what goes to
-//also spesify to which players or how many players stuff cuz it could be all players or just one
-//make it so it cant movve to the same place (exseption like in deck move to top of deck)
-//move functions
-let from, to, card
-function recivedClick(btnId, where) {//could have error with btn Id if multiple of the same cards are on screen
-  switch (where) {
-    case 1:
-      from = btnId
-      document.getElementById('confirm').innerHTML += 'from: ' + from + ' '
-      break
-    case 2:
-      to = btnId
-      document.getElementById('confirm').innerHTML += 'to: ' + to + ' '
-      break
-    case 3:
-      document.getElementById('confirm').innerHTML = ''
-      card = (btnId != 'random') ? allCards[btnId] : 'random';
-      document.getElementById('confirm').innerHTML += 'card: ' + card + ' '
-      break
-  }
-}
-
-// card should be a object, fix accepting list changes in from and to
-function move(name_, card_, from_, to_, undo) {// fix
-  if (name_) {//so far only undo functhion uses this
-    socket.emit('move', name_, card_, from_, to_, undo);
-    console.log(name_ + ' moved ' + card_.name + ' from ' + from_ + ' to ' + to_)
-    updateBoard(name_, card_, from_, to_)
-  } else {
-    socket.emit('move', username, card, from, to);
-    console.log(username + ' moved ' + card.name + ' from ' + from + ' to ' + to)
-    //updateBoard(username, card, from, to)
-  }
-  document.getElementById('confirm').innerHTML = ''
-  document.getElementById("display").style.display = "none"
-  document.getElementById("interupt").style.display = "none"
-}
-
-//make some sourt of intuerupt or cut in line when reqiring other player's actions
-//ts
-/*function updatePopup(button) {
-  button.addEventListener('click', () => {
-    //checks if btn is in hand and if its player's turn
-    const modal = document.querySelector(button.dataset.modalTarget)
-    openModal(modal)
-  })
-}*/
 let openModalButtons = document.querySelectorAll('[data-modal-target')
 let closeModalButtons = document.querySelectorAll('[data-close-button')
 let overlay = document.getElementById('overlay')
@@ -394,11 +358,6 @@ function visabile() {//spesify visabilaty for deck and discard
   socket.emit('getDeckOrDis', username, where);
   document.getElementById("show").style.display = 'none'
   document.getElementById("hidden").style.display = 'none'
-}
-function random() { // may need to say how many random cards get sent over
-  //draw random from deck or discard
-  recivedClick("random", 3)
-  document.getElementById("display").style.display = 'none'
 }
 
 function openModal(modal) {

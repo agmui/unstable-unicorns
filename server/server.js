@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
 
         let output = game.card(game, 'play', name, card, location);
         if(output === null) return//if card.js throws an error
-        
+
         //game.card might move card so location needs to be updated
         if (output.move[0]) location[1] = output.move[0].to[1]//could have prob cuz of list
 

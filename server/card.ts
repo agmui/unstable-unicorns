@@ -50,6 +50,14 @@ function draw(game, moveList, name:string|Object, card){//deck > Hand
 
 function action(game, moveList, affectedObjects){
     for(let i of affectedObjects){
+        //specific card type check
+        if(i.specific.length != 0){//check if it works
+            if(!i.specific.includes(i.card.type)){
+                console.log('card.js: error not correct card type')
+                return null
+            }
+        }
+
         switch(i.action){
             case 'sacrifice':
                 i.card = game.findCard(i.card, [i.name, 'Stable'])
@@ -97,19 +105,20 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
             move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
         }*/
         if (affectedObjects[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
-            let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
-            if (test === false) return null//if class.js throws and error
-            //tells client something moved
-            move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
+            if(card.type !== 'Magic'){
+                let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
+                if (test === false) return null//if class.js throws and error
+                //tells client something moved
+                move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
+            }
         } else {
-            if (card.type === 'Upgrade' || card.type === 'Downgrade') {//fix
-            } else {
+            if (!(card.type === 'Upgrade' || card.type === 'Downgrade')) {
                 console.log('error: card has no effect')
                 return null
             }
         }
         switch(card.name){
-            case "Basic Unicorn (Red)":
+            /*case "Basic Unicorn (Red)":
                 phase = game.rotatePhase()
                 break;
             //==========Magic==========
@@ -126,7 +135,7 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
                     text: card.text,
                     action: ['destroy']
                 }
-                break;
+                break;*/
             //==========up,down grade==========
             case 'Glitter Bomb':
                 //If this card is in your Stable at the beginning of your turn,
@@ -146,6 +155,14 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
                     return null
                 }
                 break;
+            default:
+                phase = game.rotatePhase()
+                if(card.action.length){
+                    send = {
+                        text: card.text,
+                        action: card.action,
+                    }
+                }
         }
         return {send: send, move: move, phase: phase};
         //send is ment for the client.js gui, all the checks to see if recived vailid input is in reply (the code below)
@@ -156,6 +173,11 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
             default:
                 //add a check here to make sure there are the right num of affectedOvjects 
                 //use json file to check num
+                if(affectedObjects.length !== card.action.length) {
+                    console.log('card.js: error did not fill form completely')
+                    return null
+                }
+
                 action(game, move, affectedObjects)
                 card.tap = null
         }

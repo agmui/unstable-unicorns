@@ -24,7 +24,7 @@ class Card {
         this.type = type;
         this.img = img;
         this.tap = false;
-        this.action = action
+        this.action = action;
     }
 }
 
@@ -147,9 +147,13 @@ class Board {
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
-            card = [deck[13]]
+            card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
+            card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
             this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
+            card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);//ts
         })
         console.log('=========setup over=========')
     }
@@ -199,7 +203,7 @@ class Board {
         }
         for (let i = 0; i < card.length; i++) { // check if objects inside list are cards
             if (card[i] instanceof Card == false) {
-                card[i] = new Card(card[i].name, card[i].text, card[i].type, card[i].img)
+                card[i] = new Card(card[i].name, card[i].text, card[i].type, card[i].img, card[i].action)
             }
         }
         console.log('class.js: ' + name + " moved " + card[0].name + " from " + from + " to " + to, to[0].name, to[1])
@@ -302,6 +306,7 @@ class Board {
     }
     checkTapped(card, location){//maybe not used
         //name (str), card (Card obj), location [name, location]
+        if(card.type === 'Magic') return false
         let c = this.findCard(card, location)//this.getPlayer(name).findCardInPlayer(card, location[1])
         if(c === null) return null
         return c.tap
@@ -433,17 +438,10 @@ if (require.main === module) {
 
     //=====
     game.setup()
-    /*game.getState('host', true)
-    let c = game.getPlayer('host').getHand()[1]
-    game.findCard(c, ['host', 'Hand'])
-    game.card(game, 'play', 'host', c, ['host', 'Hand'] )
-    game.checkTapped(c, ['host', 'Stable'])
 
-    game.getState('host', true)*/
     game.getState('host', true)
-    let c = game.getPlayer('host').getHand()[1]
-    game.getPlayer('host').removeCard(c, 'Hand')
-    game.getState('host', true)
+    let affectedObjects = {}
+    game.card(game, 'tapped', name, card, affectedObjects)
 
     //cardTest()
 }
