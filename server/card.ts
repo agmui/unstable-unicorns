@@ -169,6 +169,7 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
                 //add a check here to make sure there are the right num of affectedOvjects 
                 //use json file to check num
                 if(affectedObjects.length !== card.action.length) {
+                    console.log('/ts',affectedObjects)
                     console.log('card.js: error did not fill form completely')
                     return null
                 }

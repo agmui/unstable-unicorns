@@ -222,9 +222,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
           if(i === removeIndex)continue
           if(action.cardType.length == 0  || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
             let cloneImg = img[i].cloneNode(true)
-            cloneImg.onclick = function () {// use super functions idk
-              format(affectedObjects, opponateName, cloneImg)
-            } 
+            cloneImg.onclick = () => {affectedObjects = format(affectedObjects, username, cloneImg)}
             document.getElementById('displayCards').appendChild(cloneImg)
           }
         }
@@ -238,12 +236,31 @@ socket.on('recivedTapped', function(name, card, output, location) {
           document.getElementById('displayCards').appendChild(text) 
           let img = document.getElementById(opponateName+'Stable').childNodes
           for (let i = 1; i < img.length; i++) {
-            console.log(allCards[img[i].name].type)//ts
+
+
+
+            //still needs to implment multiple of same request and test function
+            //add divs in popup for formating
+
+
+
+
+            console.log('/ts', action.amount)
             if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
               let cloneImg = img[i].cloneNode(true)
-              cloneImg.onclick = function () {
-                format(affectedObjects, opponateName, cloneImg)
-              } 
+              cloneImg.className = 'unselect'
+              cloneImg.onclick = () => {
+                imgInPopup = document.getElementsByClassName('highlight')
+                if(imgInPopup[0]) {
+                  imgInPopup[0].className = 'unselect'
+                  affectedObjects.splice(affectedObjects.length-1, 1)
+                  formObject.affectedObjects = affectedObjects
+                }
+                affectedObjects = format(affectedObjects, opponateName, cloneImg)
+
+                cloneImg.className = 'highlight'
+
+              }
               document.getElementById('displayCards').appendChild(cloneImg)
             }
           }
@@ -256,11 +273,27 @@ socket.on('recivedTapped', function(name, card, output, location) {
         removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
         for (let i = 1; i < img.length; i++) {
           if(i === removeIndex)continue
-          if(action.cardType.length == 0  || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
+          /*if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
             let cloneImg = img[i].cloneNode(true)
-            cloneImg.onclick = function () {
-              format(affectedObjects, opponateName, cloneImg)
-            } 
+            cloneImg.onclick = () => {affectedObjects = format(affectedObjects, username, cloneImg)}
+            document.getElementById('displayCards').appendChild(cloneImg)
+          }*/
+          console.log('/ts', action.amount)
+          if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
+            let cloneImg = img[i].cloneNode(true)
+            cloneImg.className = 'unselect'
+            cloneImg.onclick = () => {
+              imgInPopup = document.getElementsByClassName('highlight')
+              if(imgInPopup[0]) {
+                imgInPopup[0].className = 'unselect'
+                affectedObjects.splice(affectedObjects.length-1, 1)
+                formObject.affectedObjects = affectedObjects
+              }
+              affectedObjects = format(affectedObjects, username, cloneImg)
+
+              cloneImg.className = 'highlight'
+
+            }
             document.getElementById('displayCards').appendChild(cloneImg)
           }
         }
@@ -276,9 +309,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
           for (let i = 1; i < img.length; i++) {
             if(action.cardType.length == 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
               let cloneImg = img[i].cloneNode(true)
-              cloneImg.onclick = function () {
-                format(affectedObjects, opponateName, cloneImg)
-              } 
+              cloneImg.onclick = () => {affectedObjects = format(affectedObjects, opponateName, cloneImg)}
               document.getElementById('displayCards').appendChild(cloneImg)
             }
           }
@@ -300,9 +331,11 @@ function format(affectedObjects,username, cloneImg) {
     card:cloneImg.name
   })
   formObject.affectedObjects = affectedObjects
+  return affectedObjects
 }
 
 //to disable cards for next action that have already been selected above
+//ex: actions should be done one by one so if a card is selected in an action above the cards below cant use same card
 function test(action, cardName) {
   let test = document.getElementById('displayCards').childNodes
   for(let i of test){
