@@ -208,110 +208,76 @@ socket.on('recivedTapped', function(name, card, output, location) {
   let img, removeIndex, opponates
   document.getElementById('text').innerHTML = output.send.text
   document.getElementById('confirm').style.display = 'block'
-  for(let action of output.send.action){
-    let text = document.createTextNode(action.type)// fix let
-    document.getElementById('displayCards').appendChild(text)
 
+  //formats the cards that show up on the popup
+  const cardAction = (action, img, i, player, actionElement) => {//optimize
+    if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
+      let cloneImg = img[i].cloneNode(true)
+      cloneImg.className = 'unselect'
+      cloneImg.onclick = () => {//optimize
+        if(cloneImg.className === 'highlight') {
+          cloneImg.className = 'unselect'
+          affectedObjects.splice(affectedObjects.indexOf(cloneImg.name), 1)
+          formObject.affectedObjects = affectedObjects
+          return
+        }
+        let imgInPopup = actionElement.getElementsByClassName('highlight')
+        if(action.amount === imgInPopup.length) {
+          imgInPopup[imgInPopup.length-1].className = 'unselect'
+          affectedObjects.splice(affectedObjects.length-1, 1)
+          formObject.affectedObjects = affectedObjects
+        }
+        affectedObjects = affectedObjects.concat(
+          {name:player, 
+          card:cloneImg.name
+        })
+        formObject.affectedObjects = affectedObjects
+
+        cloneImg.className = 'highlight'
+
+      }
+      actionElement.appendChild(cloneImg)
+    }
+  }
+
+  for(let action of output.send.action){
     switch(action.type){
       case 'sacrifice':
-        //show player stable
-        img = document.getElementById(username+'Stable').childNodes
-        //remove activated card from menu selection
-        removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
-        for (let i = 1; i < img.length; i++) {
-          if(i === removeIndex)continue
-          if(action.cardType.length == 0  || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
-            let cloneImg = img[i].cloneNode(true)
-            cloneImg.onclick = () => {affectedObjects = format(affectedObjects, username, cloneImg)}
-            document.getElementById('displayCards').appendChild(cloneImg)
-          }
-        }
-        break
-      case 'destroy':
-        //show opponate stable
-        opponates = document.getElementById('score board').childNodes
-        for(let j=1; j < opponates.length; j++ ){
-          let opponateName = opponates[j].innerHTML
-          let text = document.createTextNode(opponateName)
-          document.getElementById('displayCards').appendChild(text) 
-          let img = document.getElementById(opponateName+'Stable').childNodes
-          for (let i = 1; i < img.length; i++) {
-
-
-
-            //still needs to implment multiple of same request and test function
-            //add divs in popup for formating
-
-
-
-
-            console.log('/ts', action.amount)
-            if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
-              let cloneImg = img[i].cloneNode(true)
-              cloneImg.className = 'unselect'
-              cloneImg.onclick = () => {
-                imgInPopup = document.getElementsByClassName('highlight')
-                if(imgInPopup[0]) {
-                  imgInPopup[0].className = 'unselect'
-                  affectedObjects.splice(affectedObjects.length-1, 1)
-                  formObject.affectedObjects = affectedObjects
-                }
-                affectedObjects = format(affectedObjects, opponateName, cloneImg)
-
-                cloneImg.className = 'highlight'
-
-              }
-              document.getElementById('displayCards').appendChild(cloneImg)
-            }
-          }
-        }
-        break
       case 'discard':
         //show player hand
-        img = document.getElementById(username+'Hand').childNodes
-        //remove activated card from menu selection
+        let actionElement = document.createElement(action.type)
+        actionElement.id = action.type
+        actionElement.innerHTML = action.type
+        document.getElementById('displayCards').appendChild(actionElement)
+
+        img = document.getElementById(username+(('discard')? 'Hand':'Stable')).childNodes
+        //remove activated card from popup
         removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
         for (let i = 1; i < img.length; i++) {
           if(i === removeIndex)continue
-          /*if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
-            let cloneImg = img[i].cloneNode(true)
-            cloneImg.onclick = () => {affectedObjects = format(affectedObjects, username, cloneImg)}
-            document.getElementById('displayCards').appendChild(cloneImg)
-          }*/
-          console.log('/ts', action.amount)
-          if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
-            let cloneImg = img[i].cloneNode(true)
-            cloneImg.className = 'unselect'
-            cloneImg.onclick = () => {
-              imgInPopup = document.getElementsByClassName('highlight')
-              if(imgInPopup[0]) {
-                imgInPopup[0].className = 'unselect'
-                affectedObjects.splice(affectedObjects.length-1, 1)
-                formObject.affectedObjects = affectedObjects
-              }
-              affectedObjects = format(affectedObjects, username, cloneImg)
-
-              cloneImg.className = 'highlight'
-
-            }
-            document.getElementById('displayCards').appendChild(cloneImg)
-          }
+          cardAction(action, img, i, username, actionElement)
         }
         break
+
+      case 'destroy':
       case 'steal':
+        //still needs to implment test function
+        //fix multiple of the same action or diffrent actions
+
         //show opponate's stable
         opponates = document.getElementById('score board').childNodes
         for(let j=1; j < opponates.length; j++ ){
+
+          let actionElement = document.createElement(action.type)
+          actionElement.id = action.type
+          actionElement.innerHTML = action.type
+          document.getElementById('displayCards').appendChild(actionElement)
           let opponateName = opponates[j].innerHTML
-          let text = document.createTextNode(opponateName)
-          document.getElementById('displayCards').appendChild(text) 
+          actionElement.innerHTML += opponateName
+
           let img = document.getElementById(opponateName+'Stable').childNodes
           for (let i = 1; i < img.length; i++) {
-            if(action.cardType.length == 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
-              let cloneImg = img[i].cloneNode(true)
-              cloneImg.onclick = () => {affectedObjects = format(affectedObjects, opponateName, cloneImg)}
-              document.getElementById('displayCards').appendChild(cloneImg)
-            }
+            cardAction(action, img, i, opponateName, actionElement)
           }
         }
         break
@@ -325,14 +291,6 @@ socket.on('recivedTapped', function(name, card, output, location) {
   formObject = {card: card, location: location}
 })
 
-function format(affectedObjects,username, cloneImg) {
-  affectedObjects = affectedObjects.concat(
-    {name:username, 
-    card:cloneImg.name
-  })
-  formObject.affectedObjects = affectedObjects
-  return affectedObjects
-}
 
 //to disable cards for next action that have already been selected above
 //ex: actions should be done one by one so if a card is selected in an action above the cards below cant use same card
