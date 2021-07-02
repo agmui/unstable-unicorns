@@ -196,7 +196,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -207,7 +211,11 @@
   "quantity": "1",
   "deck": "Base, Rainbow Apocalypse, Apocalypse",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -227,7 +235,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -265,7 +277,11 @@
   "quantity": "1",
   "deck": "Base, Apocalypse, Rainbow Apocalypse",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -276,8 +292,16 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -288,7 +312,11 @@
   "quantity": "1",
   "deck": "Base, Rainbow Apocalypse, Apocalypse",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -326,7 +354,11 @@
   "quantity": "1",
   "deck": "Base, Rainbow Apocalypse, Apocalypse",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -346,7 +378,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -357,7 +393,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -395,8 +435,16 @@
   "quantity": "1",
   "deck": "Base, Rainbow Apocalypse, Apocalypse",
   "action": [
-   "discard",
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -407,8 +455,16 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "draw",
-   "discard"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -419,7 +475,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -430,8 +490,16 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "destroy",
-   "sacrifice"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -451,7 +519,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -498,7 +570,17 @@
   "quantity": "3",
   "deck": "Base",
   "action": [
-   ["destroy", "Basic  Unicorn", "Magical Unicorn", "Baby Unicorn", "Ultimate Unicorn", "Unicorns of Legend"]
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": [
+     "Basic Unicorn",
+     "Magical Unicorn",
+     "Baby Unicorn",
+     "Ultimate Unicorn",
+     "Unicorns of Legend"
+    ]
+   }
   ]
  },
  {
@@ -509,7 +591,11 @@
   "quantity": "3",
   "deck": "Base",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -520,8 +606,16 @@
   "quantity": "2",
   "deck": "Base",
   "action": [
-   "draw",
-   "discard"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -568,8 +662,16 @@
   "quantity": "2",
   "deck": "Base",
   "action": [
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -589,8 +691,16 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -601,7 +711,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -612,8 +726,16 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "draw",
-   "discard"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -624,7 +746,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -644,7 +770,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -664,7 +794,11 @@
   "quantity": "3",
   "deck": "Base",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -675,8 +809,16 @@
   "quantity": "2",
   "deck": "Base",
   "action": [
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -723,7 +865,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -734,7 +880,11 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -745,8 +895,16 @@
   "quantity": "1",
   "deck": "Base",
   "action": [
-   "sacrifice",
-   "draw"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -883,8 +1041,16 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "destroy",
-   "sacrifice"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -895,8 +1061,16 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "steal",
-   "draw"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -907,7 +1081,11 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -918,7 +1096,11 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -929,8 +1111,16 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -950,8 +1140,16 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "discard",
-   "steal"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -962,8 +1160,16 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "destroy",
-   "steal"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -974,7 +1180,11 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -985,7 +1195,11 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1005,8 +1219,16 @@
   "quantity": "3",
   "deck": "Unicorns of Legend",
   "action": [
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1017,8 +1239,16 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "discard",
-   "steal"
+   {
+    "type": "discard",
+    "amount": 2,
+    "cardType": []
+   },
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1029,8 +1259,16 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "discard",
-   "sacrifice"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1041,7 +1279,11 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1052,8 +1294,16 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "destroy",
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1064,7 +1314,11 @@
   "quantity": "1",
   "deck": "Unicorns of Legend",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1084,7 +1338,11 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1104,7 +1362,11 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1133,7 +1395,11 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1144,7 +1410,11 @@
   "quantity": "2",
   "deck": "Unicorns of Legend",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1164,9 +1434,21 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "discard",
-   "draw"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1330,7 +1612,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1341,7 +1627,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1352,7 +1642,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1363,8 +1657,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1375,8 +1677,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "discard"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1387,8 +1697,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "draw"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1399,7 +1717,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1410,7 +1732,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1421,7 +1747,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1432,7 +1762,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1443,8 +1777,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1455,7 +1797,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1466,7 +1812,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1486,7 +1836,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1506,7 +1860,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1526,7 +1884,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1546,9 +1908,21 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "discard",
-   "draw"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1568,7 +1942,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1579,7 +1957,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1590,7 +1972,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1601,7 +1987,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1630,7 +2020,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1650,7 +2044,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1661,8 +2059,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1673,8 +2079,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "draw"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1685,8 +2099,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1706,8 +2128,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "steal"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1736,8 +2166,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1748,7 +2186,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1759,7 +2201,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1770,7 +2216,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1781,8 +2231,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "destroy"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1793,7 +2251,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1822,8 +2284,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard",
-   "draw"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1834,7 +2304,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1845,7 +2319,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1856,7 +2334,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1867,7 +2349,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1887,8 +2373,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1908,8 +2402,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "destroy",
-   "draw"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1920,7 +2422,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1931,8 +2437,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "discard"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1943,7 +2457,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1954,8 +2472,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1966,8 +2492,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -1996,8 +2530,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "sacrifice"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2008,8 +2550,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "sacrifice"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2029,7 +2579,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2040,7 +2594,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2060,7 +2618,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2071,9 +2633,21 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard",
-   "sacrifice",
-   "destroy"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2084,7 +2658,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2113,7 +2691,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2124,8 +2706,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "destroy"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2154,8 +2744,16 @@
   "quantity": "3",
   "deck": "Control",
   "action": [
-   "destroy",
-   "draw"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2202,7 +2800,11 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2366,8 +2968,16 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2378,8 +2988,16 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice",
-   "discard"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2390,9 +3008,21 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice",
-   "destroy",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2403,8 +3033,16 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "discard",
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2415,7 +3053,11 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2426,10 +3068,26 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice",
-   "discard",
-   "discard",
-   "discard"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2440,9 +3098,21 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "discard",
-   "discard",
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2453,8 +3123,16 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "discard",
-   "sacrifice"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2465,9 +3143,21 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "sacrifice",
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2478,8 +3168,16 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "destroy",
-   "steal"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2490,7 +3188,11 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2501,7 +3203,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2512,7 +3218,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2532,7 +3242,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2552,7 +3266,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2572,7 +3290,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2592,9 +3314,21 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "discard",
-   "draw"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2614,7 +3348,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2625,7 +3363,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2636,7 +3378,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2647,7 +3393,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2676,7 +3426,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2696,7 +3450,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2707,8 +3465,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2719,8 +3485,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "draw"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2731,8 +3505,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2752,8 +3534,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "steal"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2782,7 +3572,11 @@
   "quantity": "2",
   "deck": "Chaos",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2793,7 +3587,11 @@
   "quantity": "2",
   "deck": "Chaos",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2804,7 +3602,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2815,7 +3617,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2826,8 +3632,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "destroy"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2838,7 +3652,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2867,8 +3685,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard",
-   "draw"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2879,7 +3705,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2890,7 +3720,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2901,7 +3735,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "steal"
+   {
+    "type": "steal",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2912,7 +3750,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2932,8 +3774,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2953,8 +3803,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "destroy",
-   "draw"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2965,7 +3823,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "draw"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2976,7 +3838,11 @@
   "quantity": "1",
   "deck": "Chaos",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2987,7 +3853,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -2998,8 +3868,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3010,8 +3888,16 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "sacrifice",
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3040,8 +3926,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "draw",
-   "sacrifice"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3052,8 +3946,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "sacrifice"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3082,7 +3984,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3102,7 +4008,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3113,9 +4023,21 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "discard",
-   "sacrifice",
-   "destroy"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3126,7 +4048,11 @@
   "quantity": "2",
   "deck": "Control",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3155,7 +4081,11 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "sacrifice"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3166,8 +4096,16 @@
   "quantity": "1",
   "deck": "Control",
   "action": [
-   "discard",
-   "destroy"
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3178,7 +4116,11 @@
   "quantity": "3",
   "deck": "Chaos",
   "action": [
-   "destroy"
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3189,9 +4131,21 @@
   "quantity": "3",
   "deck": "Chaos",
   "action": [
-   "sacrifice",
-   "sacrifice",
-   "destroy"
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "sacrifice",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "destroy",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {
@@ -3202,8 +4156,16 @@
   "quantity": "3",
   "deck": "Chaos",
   "action": [
-   "draw",
-   "discard"
+   {
+    "type": "draw",
+    "amount": 1,
+    "cardType": []
+   },
+   {
+    "type": "discard",
+    "amount": 1,
+    "cardType": []
+   }
   ]
  },
  {

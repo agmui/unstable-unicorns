@@ -144,16 +144,19 @@ class Board {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
             //let card = new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
+            //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
-            card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            card = this.findCard('Alignment Change', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);//ts
-            this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            //*/
+            //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
             card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);//ts
+            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
         })
         console.log('=========setup over=========')
     }
@@ -440,8 +443,18 @@ if (require.main === module) {
     game.setup()
 
     game.getState('host', true)
-    let affectedObjects = {}
+    let affectedObjects =[]
+    affectedObjects = affectedObjects.concat({
+        action:"discard",
+        specific:[],
+        name:'host',
+        card:'Glitter Bomb'
+    })
+    let name = 'host'
+    let card = game.getPlayer('host').getHand()[1]
     game.card(game, 'tapped', name, card, affectedObjects)
+
+    game.getState('host', true)
 
     //cardTest()
 }

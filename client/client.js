@@ -122,7 +122,7 @@ socket.on("phase", function (phase, name) {
 // when another player moves a card recives action here
 socket.on("move", function (name, card, from, to, winner) {
   console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
-  updateBoard(name, card, from, to)
+  updateBoard(card, from, to)
   if (winner) {//game over sequence
     console.log('winner:', winner);
     document.getElementById('btn').style.display = 'none'
@@ -198,63 +198,52 @@ socket.on("image", function (info, where, cardObject) {
   }
 });
 
+//fix problem when option above chooses a card the bottem option cant choose the same card
 let formObject = {}
 socket.on('recivedTapped', function(name, card, output, location) {
   if (username !== name ) return
   //console.log('client.js: (output):', output.send)
   //open gui and fill form ========
   let affectedObjects = []//optimize
-  let specific = []
+  let img, removeIndex, opponates
   document.getElementById('text').innerHTML = output.send.text
   document.getElementById('confirm').style.display = 'block'
   for(let action of output.send.action){
-    if(action instanceof Array){
-      specific = action.slice(1, action.length)
-      action = action[0]
-    } 
-    let text = document.createTextNode(action)// fix let
+    let text = document.createTextNode(action.type)// fix let
     document.getElementById('displayCards').appendChild(text)
 
-    switch(action){
+    switch(action.type){
       case 'sacrifice':
         //show player stable
-        let img = document.getElementById(username+'Stable').childNodes
+        img = document.getElementById(username+'Stable').childNodes
+        //remove activated card from menu selection
+        removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
         for (let i = 1; i < img.length; i++) {
-          if(specific.length == 0  || specific.includes(allCards[img[i].name].type)){//check if card type is specified
+          if(i === removeIndex)continue
+          if(action.cardType.length == 0  || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
             let cloneImg = img[i].cloneNode(true)
-            cloneImg.onclick = function() {
-                affectedObjects = affectedObjects.concat(
-                  {action:action, 
-                  specific: specific,
-                  name:username, 
-                  card:cloneImg.name
-                })
-                formObject.affectedObjects = affectedObjects
-            }
+            cloneImg.onclick = function () {// use super functions idk
+              format(affectedObjects, opponateName, cloneImg)
+            } 
             document.getElementById('displayCards').appendChild(cloneImg)
           }
         }
         break
       case 'destroy':
         //show opponate stable
-        let opponates = document.getElementById('score board').childNodes
+        opponates = document.getElementById('score board').childNodes
         for(let j=1; j < opponates.length; j++ ){
           let opponateName = opponates[j].innerHTML
           let text = document.createTextNode(opponateName)
           document.getElementById('displayCards').appendChild(text) 
           let img = document.getElementById(opponateName+'Stable').childNodes
           for (let i = 1; i < img.length; i++) {
-            if(specific.length == 0 || specific.includes(allCards[img[i].name].type)){//check if card type is specified
+            console.log(allCards[img[i].name].type)//ts
+            if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
               let cloneImg = img[i].cloneNode(true)
-              cloneImg.onclick = function() {
-                affectedObjects = affectedObjects.concat(
-                  {action:action, 
-                  specific: specific,
-                  name:opponateName, 
-                  card:cloneImg.name
-                })
-                formObject.affectedObjects = affectedObjects
-              }
+              cloneImg.onclick = function () {
+                format(affectedObjects, opponateName, cloneImg)
+              } 
               document.getElementById('displayCards').appendChild(cloneImg)
             }
           }
@@ -262,17 +251,64 @@ socket.on('recivedTapped', function(name, card, output, location) {
         break
       case 'discard':
         //show player hand
+        img = document.getElementById(username+'Hand').childNodes
+        //remove activated card from menu selection
+        removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
+        for (let i = 1; i < img.length; i++) {
+          if(i === removeIndex)continue
+          if(action.cardType.length == 0  || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
+            let cloneImg = img[i].cloneNode(true)
+            cloneImg.onclick = function () {
+              format(affectedObjects, opponateName, cloneImg)
+            } 
+            document.getElementById('displayCards').appendChild(cloneImg)
+          }
+        }
         break
       case 'steal':
         //show opponate's stable
+        opponates = document.getElementById('score board').childNodes
+        for(let j=1; j < opponates.length; j++ ){
+          let opponateName = opponates[j].innerHTML
+          let text = document.createTextNode(opponateName)
+          document.getElementById('displayCards').appendChild(text) 
+          let img = document.getElementById(opponateName+'Stable').childNodes
+          for (let i = 1; i < img.length; i++) {
+            if(action.cardType.length == 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
+              let cloneImg = img[i].cloneNode(true)
+              cloneImg.onclick = function () {
+                format(affectedObjects, opponateName, cloneImg)
+              } 
+              document.getElementById('displayCards').appendChild(cloneImg)
+            }
+          }
+        }
         break
-      case 'draw':
+      case 'draw'://test
         //show deck
+        document.getElementById('displayCards').innerHTML += 'draw from deck?'
+        affectedObjects = affectedObjects.concat({card: 'random'})
         break
     }
   }
   formObject = {card: card, location: location}
 })
+
+function format(affectedObjects,username, cloneImg) {
+  affectedObjects = affectedObjects.concat(
+    {name:username, 
+    card:cloneImg.name
+  })
+  formObject.affectedObjects = affectedObjects
+}
+
+//to disable cards for next action that have already been selected above
+function test(action, cardName) {
+  let test = document.getElementById('displayCards').childNodes
+  for(let i of test){
+    if (test.innerHTML !== action) console.log('/ts')
+  }
+}
 
 //================================Btns=============================================
 
@@ -381,10 +417,8 @@ function closeModal(modal) {
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list
 //could have multiplay card moves
-function updateBoard(name, card, from, to) {//fix array thing with to
-  if (card instanceof Array) {
-    card = card[0];//fix
-  }
+function updateBoard(card, from, to) {//fix array thing with to
+  if (card instanceof Array) card = card[0];//fix
   //have a checks if it is player's turn
   if (from == "deck" || from == "discard") {
     return

@@ -38,43 +38,56 @@ function discard(game, moveList, name, card) {
     game.move(name, card, 'Hand', 'discard', false, true);
     moveList.push({ name: name, card: card, from: [name, 'Hand'], to: 'discard' });
 }
-function steal(game, moveList, name, card) {
+function steal(game, moveList, name, username, card) {
     game.move(name, card, [name, 'Stable'], 'Stable', false, true);
-    moveList.push({ name: name, card: card, from: [name, 'Stable'], to: 'Stable' });
+    moveList.push({ name: name, card: card, from: [name, 'Stable'], to: [username, 'Stable'] });
 }
-function draw(game, moveList, name, card) {
+function draw(game, moveList, name, username, card) {
     game.move(name, card, 'deck', 'Hand', false, true);
-    moveList.push({ name: name, card: card, from: [name, 'deck'], to: 'Hand' });
+    moveList.push({ name: name, card: card, from: [name, 'deck'], to: [username, 'Hand'] });
 }
-function action(game, moveList, affectedObjects) {
-    for (let i of affectedObjects) {
-        //specific card type check
-        if (i.specific.length != 0) { //check if it works
-            if (!i.specific.includes(i.card.type)) {
-                console.log('card.js: error not correct card type');
-                return null;
-            }
+//specific card type check
+function checkType(affectedCard, mainCard) {
+    if (mainCard.cardType.length != 0) { //check if it works
+        if (!mainCard.cardType.includes(affectedCard.type)) {
+            console.log('card.js: error not correct card type');
+            return null;
         }
-        switch (i.action) {
+        return true;
+    }
+}
+function action(game, moveList, username, mainCard, affectedObj) {
+    for (let i = 0; i < affectedObj.length; i++) {
+        switch (mainCard[i].type) {
             case 'sacrifice':
-                i.card = game.findCard(i.card, [i.name, 'Stable']);
-                sacrifice(game, moveList, i.name, i.card);
+                affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable']);
+                if (checkType(affectedObj[i].card, mainCard[i]) === null)
+                    return null;
+                sacrifice(game, moveList, affectedObj[i].name, affectedObj[i].card);
                 break;
             case 'destroy':
-                i.card = game.findCard(i.card, [i.name, 'Stable']);
-                destroy(game, moveList, i.name, i.card);
+                affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable']);
+                if (checkType(affectedObj[i].card, mainCard[i]) === null)
+                    return null;
+                destroy(game, moveList, affectedObj[i].name, affectedObj[i].card);
                 break;
             case 'discard':
-                i.card = game.findCard(i.card, [i.name, 'Hand']);
-                discard(game, moveList, i.name, i.card);
+                affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Hand']);
+                if (checkType(affectedObj[i].card, mainCard[i]) === null)
+                    return null;
+                discard(game, moveList, affectedObj[i].name, affectedObj[i].card);
                 break;
             case 'steal':
-                i.card = game.findCard(i.card, [i.name, 'Stable']);
-                steal(game, moveList, i.name, i.card);
+                affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable']);
+                if (checkType(affectedObj[i].card, mainCard[i]) === null)
+                    return null;
+                steal(game, moveList, affectedObj[i].name, username, affectedObj[i].card);
                 break;
             case 'draw':
-                i.card = game.findCard(i.card, 'deck');
-                draw(game, moveList, i.name, i.card);
+                affectedObj[i].card = game.findCard(affectedObj[i].card, 'deck');
+                if (checkType(affectedObj[i].card, mainCard[i]) === null)
+                    return null;
+                draw(game, moveList, affectedObj[i].name, username, affectedObj[i].card);
                 break;
         }
     }
@@ -117,23 +130,10 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
         }
         switch (card.name) {
             /*case "Basic Unicorn (Red)":
-                phase = game.rotatePhase()
-                break;
             //==========Magic==========
-            case 'Controlled Destruction':
-                phase = game.rotatePhase()
-                send = {
-                    text: card.text,
-                    action: ['destroy']
-                }
-                break;
-            case 'Unicorn Poison':// DESTROY a Unicorn
-                phase = game.rotatePhase()
-                send = {
-                    text: card.text,
-                    action: ['destroy']
-                }
-                break;*/
+            'Controlled Destruction':
+            'Unicorn Poison':// DESTROY a Unicorn
+            Alignment Change Discard 2, then steal a unicorn card*/
             //==========up,down grade==========
             case 'Glitter Bomb':
                 //If this card is in your Stable at the beginning of your turn,
@@ -146,7 +146,7 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
                     card.tap = true;
                     send = {
                         text: card.text,
-                        action: ['sacrifice', 'destroy']
+                        action: card.action
                     };
                 }
                 else {
@@ -177,7 +177,11 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
                     console.log('card.js: error did not fill form completely');
                     return null;
                 }
-                action(game, move, affectedObjects);
+                action(game, move, name, card.action, affectedObjects);
+                if (card.type === 'Magic') { //fix
+                    affectedObjects = [{ name: name, card: card.name }];
+                    action(game, move, name, [{ type: "discard", cardType: [] }], affectedObjects);
+                }
                 card.tap = null;
         }
         return { move: move, phase: phase };
