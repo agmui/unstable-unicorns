@@ -27,6 +27,8 @@ Upgrade/Downgrade
 | game play
 */
 
+import { indexOf } from "lodash";
+
 function sacrifice(game, moveList, name:string|Object, card){//Stable > discard
     game.move(name, card, 'Stable', 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:'discard'})
@@ -47,6 +49,13 @@ function draw(game, moveList, name:string|Object, username, card){//deck > Hand
     game.move(name, card, 'deck', 'Hand', false, true);
     moveList.push({name:name, card:card, from:[name,'deck'], to:[username, 'Hand']})
 }
+function stableHand(game, moveList, name:string|Object, username, card){//
+    game.move(name, card, 'Stable', 'Hand', false, true);
+    moveList.push({name:name, card:card, from:[username,'Stable'], to:[username, 'Hand']})
+}
+function trade(game, moveList, name:string|Object, username, card){//
+}
+//make a coustem one
 
 //specific card type check
 function checkType(affectedCard, mainCard){
@@ -92,7 +101,6 @@ function action(game, moveList, username, mainCard, affectedObj){
 }
 
 function main(game:any, request:string, name:string, card, affectedObjects:any, bypass=false) {
-    //console.log('ts',card)//ts
     let send, phase;
     let move: Array<any> = [];
     console.log('card.js: card', card.name, 'request', request)
@@ -168,8 +176,18 @@ function main(game:any, request:string, name:string, card, affectedObjects:any, 
             default:
                 //add a check here to make sure there are the right num of affectedOvjects 
                 //use json file to check num
-                if(affectedObjects.length !== card.action.length) {
-                    console.log('/ts',affectedObjects)
+                let add= []
+                for(let i of card.action){
+                    for(let j=1; j < i.amount; j++){
+                        i.amount = 1
+                        add = add.concat(i)
+                    }
+                }
+                for(let i of add){
+                    card.action.splice(card.action.indexOf(i),0, i)
+                }
+
+                if(card.action.length !== affectedObjects.length) {
                     console.log('card.js: error did not fill form completely')
                     return null
                 }

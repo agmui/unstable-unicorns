@@ -243,14 +243,15 @@ socket.on('recivedTapped', function(name, card, output, location) {
   for(let action of output.send.action){
     switch(action.type){
       case 'sacrifice':
+        //show player stable
       case 'discard':
         //show player hand
         let actionElement = document.createElement(action.type)
         actionElement.id = action.type
         actionElement.innerHTML = action.type
         document.getElementById('displayCards').appendChild(actionElement)
-
-        img = document.getElementById(username+(('discard')? 'Hand':'Stable')).childNodes
+        let location = (action.type==='discard')? 'Hand':'Stable'
+        img = document.getElementById(username+location).childNodes
         //remove activated card from popup
         removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
         for (let i = 1; i < img.length; i++) {

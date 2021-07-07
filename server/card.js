@@ -46,6 +46,13 @@ function draw(game, moveList, name, username, card) {
     game.move(name, card, 'deck', 'Hand', false, true);
     moveList.push({ name: name, card: card, from: [name, 'deck'], to: [username, 'Hand'] });
 }
+function stableHand(game, moveList, name, username, card) {
+    game.move(name, card, 'Stable', 'Hand', false, true);
+    moveList.push({ name: name, card: card, from: [username, 'Stable'], to: [username, 'Hand'] });
+}
+function trade(game, moveList, name, username, card) {
+}
+//make a coustem one
 //specific card type check
 function checkType(affectedCard, mainCard) {
     if (mainCard.cardType.length != 0) { //check if it works
@@ -93,7 +100,6 @@ function action(game, moveList, username, mainCard, affectedObj) {
     }
 }
 function main(game, request, name, card, affectedObjects, bypass = false) {
-    //console.log('ts',card)//ts
     let send, phase;
     let move = [];
     console.log('card.js: card', card.name, 'request', request);
@@ -173,8 +179,17 @@ function main(game, request, name, card, affectedObjects, bypass = false) {
             default:
                 //add a check here to make sure there are the right num of affectedOvjects 
                 //use json file to check num
-                if (affectedObjects.length !== card.action.length) {
-                    console.log('/ts', affectedObjects);
+                let add = [];
+                for (let i of card.action) {
+                    for (let j = 1; j < i.amount; j++) {
+                        i.amount = 1;
+                        add = add.concat(i);
+                    }
+                }
+                for (let i of add) {
+                    card.action.splice(card.action.indexOf(i), 0, i);
+                }
+                if (card.action.length !== affectedObjects.length) {
                     console.log('card.js: error did not fill form completely');
                     return null;
                 }

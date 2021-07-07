@@ -608,12 +608,12 @@
   "action": [
    {
     "type": "draw",
-    "amount": 1,
+    "amount": 2,
     "cardType": []
    },
    {
     "type": "discard",
-    "amount": 1,
+    "amount": 3,
     "cardType": []
    }
   ]
@@ -669,7 +669,7 @@
    },
    {
     "type": "destroy",
-    "amount": 1,
+    "amount": 2,
     "cardType": []
    }
   ]
@@ -728,7 +728,7 @@
   "action": [
    {
     "type": "draw",
-    "amount": 1,
+    "amount": 3,
     "cardType": []
    },
    {
@@ -2291,7 +2291,7 @@
    },
    {
     "type": "draw",
-    "amount": 1,
+    "amount": 3,
     "cardType": []
    }
   ]
@@ -2305,8 +2305,13 @@
   "deck": "Control",
   "action": [
    {
+    "type": "draw",
+    "amount": 4,
+    "cardType": []
+   },
+   {
     "type": "discard",
-    "amount": 1,
+    "amount": 4,
     "cardType": []
    }
   ]
@@ -2337,7 +2342,7 @@
    {
     "type": "steal",
     "amount": 1,
-    "cardType": []
+    "cardType": ["Upgrade", "Downgrade"]
    }
   ]
  },
