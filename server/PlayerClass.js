@@ -147,15 +147,15 @@ class Board {
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            card = this.findCard('Unfair Bargain', 'deck')
+            card = this.findCard('Back Kick', 'deck')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
-            card = this.findCard('Alignment Change', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            /*card = this.findCard('Alignment Change', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
-
+*/
             /*card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //*/
