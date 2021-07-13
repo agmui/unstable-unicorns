@@ -592,7 +592,7 @@
   "deck": "Base",
   "action": [
    {
-    "type": "discard",
+    "type": "bringBack",
     "amount": 1,
     "cardType": []
    }
@@ -608,12 +608,12 @@
   "action": [
    {
     "type": "draw",
-    "amount": 2,
+    "amount": 1,
     "cardType": []
    },
    {
     "type": "discard",
-    "amount": 3,
+    "amount": 1,
     "cardType": []
    }
   ]
@@ -652,7 +652,14 @@
   "type": "Magic",
   "quantity": "2",
   "deck": "Base",
-  "action": []
+  "action": [
+    {
+      "type": "trade",
+      "amount": 1,
+      "cardType": [],
+      "location": "Hand"
+    }
+ ]
  },
  {
   "name": "Two-For-One",
@@ -669,7 +676,7 @@
    },
    {
     "type": "destroy",
-    "amount": 2,
+    "amount": 1,
     "cardType": []
    }
   ]
@@ -728,7 +735,7 @@
   "action": [
    {
     "type": "draw",
-    "amount": 3,
+    "amount": 1,
     "cardType": []
    },
    {
@@ -2291,7 +2298,7 @@
    },
    {
     "type": "draw",
-    "amount": 3,
+    "amount": 1,
     "cardType": []
    }
   ]
@@ -2305,13 +2312,8 @@
   "deck": "Control",
   "action": [
    {
-    "type": "draw",
-    "amount": 4,
-    "cardType": []
-   },
-   {
     "type": "discard",
-    "amount": 4,
+    "amount": 1,
     "cardType": []
    }
   ]
@@ -2342,7 +2344,7 @@
    {
     "type": "steal",
     "amount": 1,
-    "cardType": ["Upgrade", "Downgrade"]
+    "cardType": []
    }
   ]
  },

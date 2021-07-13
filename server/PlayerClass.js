@@ -147,13 +147,15 @@ class Board {
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            card = this.findCard('Unfair Bargain', 'deck')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             card = this.findCard('Alignment Change', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+
+            /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
-            card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             /*card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //*/
@@ -442,24 +444,26 @@ if (require.main === module) {
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
 
-    //=====
-    game.setup()
+    //=====template
+    /*game.setup()
 
     game.getState('host', true)
     let affectedObjects =[]
-    affectedObjects = affectedObjects.concat({
-        action:"discard",
-        specific:[],
+    affectedObjects = affectedObjects.concat(
+    {
+        name:'a',
+        card:'The Great Narwhal'
+    },
+    {
         name:'host',
-        card:'Glitter Bomb'
+        card:'The Great Narwhal'
     })
-    let name = 'host'
-    let card = game.getPlayer('host').getHand()[1]
-    game.card(game, 'tapped', name, card, affectedObjects)
+    let card = game.findCard('Glitter Bomb', ['host', 'hand'])
+    game.card(game, 'tapped', 'host', card, affectedObjects)
 
-    game.getState('host', true)
+    game.getState('host', true)*/
 
-    //cardTest()
+    cardTest()
 }
 
 
@@ -472,41 +476,22 @@ if (require.main === module) {
 function cardTest(){
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
+    let affectedObjects =[]
     game.setup()
     game.getState('host',true)
+    affectedObjects = affectedObjects.concat(
+    {
+        name1:'a',
+        card1:'The Great Narwhal',
+        location1: 'Stable',
+        name2:'host',
+        card2:'Alignment Change',
+        location2: 'Stable'
+    })
 
-    let output = game.card(game, 'play', 'host', game.getPlayer('host').getHand()[0], ['host', 'Hand'])
-    if (output===null) console.log('NULL'.bgRed)
-
-    game.getState('host',true)
-    game.rotatePhase()
-    game.rotatePhase()
-    game.rotateTurn()
-
-    game.getState('host',true)
-    output = game.card(game, 'play', 'a', game.getPlayer('a').getHand()[1], ['a', 'Hand'])
-    if (output===null) console.log('NULL'.bgRed)
-
-    game.getState('host',true)
-
-    console.log(game.getPlayer('a').getHandStr())
-
-    game.rotatePhase()
-    game.rotatePhase()
-    game.rotateTurn()
+    let card = game.findCard('Unfair Bargain', ['host', 'hand'])
+    game.card(game, 'tapped', 'host', card, affectedObjects)
 
     game.getState('host',true)
-    output = game.card(game, 'play', 'host', game.getPlayer('host').getStable()[1], ['host', 'Stable'])
-    console.log('output from Glitter Bomb:',output.send.text.bold)
-    let tap = game.checkTapped(game.getPlayer('host').getStable()[1], ['host', 'Stable'])
-    console.log('tap:', tap)
-    if(tap === false) return
-    //fill form section?
-    let affectedObjects = [
-        {action:'sacrifice', name:'host', card:game.getPlayer('host').getStable()[0]},
-        {action:'destroy', name:'a', card:game.getPlayer('a').getStable()[0]}]
-    output = game.card(game, 'tapped', 'host', game.getPlayer('host').getStable()[1], affectedObjects)
-    //console.log('output:', output)
 
-    game.getState('host',true)//might needs to move output stuff first
 }
