@@ -147,11 +147,11 @@ class Board {
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            card = this.findCard('Back Kick', 'deck')
+            card = this.findCard('Unfair Bargain', 'deck')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
-            /*card = this.findCard('Alignment Change', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            card = this.findCard('Back Kick', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
@@ -476,18 +476,15 @@ if (require.main === module) {
 function cardTest(){
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
-    let affectedObjects =[]
+    let affectedObjects 
     game.setup()
     game.getState('host',true)
-    affectedObjects = affectedObjects.concat(
-    {
-        name1:'a',
-        card1:'The Great Narwhal',
-        location1: 'Stable',
-        name2:'host',
-        card2:'Alignment Change',
-        location2: 'Stable'
-    })
+    affectedObjects = [
+        {
+            player:{name:'host',card:'Back Kick'},
+            opp:{name:'a',card:'Unfair Bargain'}
+        }
+    ]
 
     let card = game.findCard('Unfair Bargain', ['host', 'hand'])
     game.card(game, 'tapped', 'host', card, affectedObjects)

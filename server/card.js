@@ -83,35 +83,42 @@ Skip or adds some turn
 
 Look at player hand 
 */
+//glitter bomb
 function sacrifice(game, moveList, name, card){//Stable > discard
     game.move(name, card, 'Stable', 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:'discard'})
 }
+//unicorn poison
 function destroy(game, moveList, name, card){//opponate Stable > discard
     game.move(name, card, [name, 'Stable'], 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:'discard'})
 }
+//glitter bomb
 function discard(game, moveList, name, card){//hand > discard
     game.move(name, card, 'Hand', 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Hand'], to:'discard'})
 }
+//unicorn trap
 function steal(game, moveList, name, username, card){//opponate Stable > Stable
     game.move(name, card, [name, 'Stable'], 'Stable', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:[username, 'Stable']})
 }
+//wishing well
 function draw(game, moveList, name, username, card){//deck > Hand
     game.move(name, card, 'deck', 'Hand', false, true);
     moveList.push({name:name, card:card, from:[name,'deck'], to:[username, 'Hand']})
 }
+//back kick
 function bringBack(game, moveList, name, card){//Stable > Hand
     game.move(name, card, 'Stable', 'Hand', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:[name, 'Hand']})
 }
-function trade(game, moveList, affObj){//Hand > oppHand OR Stable > oppStable
-    game.move(affObj.name1, affObj.card1, affObj.location1, [affObj.name2, affObj.location1], false, true)
-    game.move(affObj.name2, affObj.card2, affObj.location2, [affObj.name1, affObj.location2], false, true)
-    moveList.push({name:affObj.name1, card:affObj.card1, from:[affObj.name1,affObj.location1], to:[affObj.name2, affObj.location1]})
-    moveList.push({name:affObj.name2, card:affObj.card2, from:[affObj.name2,affObj.location2], to:[affObj.name1, affObj.location2]})
+//unfair bargain
+function trade(game, moveList, affObj, where){//Hand > oppHand OR Stable > oppStable
+    game.move(affObj.player.name, affObj.player.card, where, [affObj.opp.name, where], false, true)
+    game.move(affObj.opp.name, affObj.opp.card, where, [affObj.player.name, where], false, true)
+    moveList.push({name:affObj.player.name, card:affObj.player.card, from:[affObj.player.name,where], to:[affObj.opp.name, where]})
+    moveList.push({name:affObj.opp.name, card:affObj.opp.card, from:[affObj.opp.name,where], to:[affObj.player.name, where]})
 }
 
 //specific card type check
@@ -159,10 +166,10 @@ function action(game, moveList, username, mainCard, affectedObj){
                 bringBack(game, moveList, affectedObj[i].name, affectedObj[i].card)
                 break;
             case 'trade':
-                affectedObj[i].card1 = game.findCard(affectedObj[i].card1, [affectedObj[i].name1, affectedObj[i].location1])
-                affectedObj[i].card2 = game.findCard(affectedObj[i].card2, [affectedObj[i].name2, affectedObj[i].location2])
-                if (checkType(affectedObj[i].card2, mainCard[i]) === null) return null
-                trade(game, moveList, affectedObj[i])
+                affectedObj[i].player.card = game.findCard(affectedObj[i].player.card, [affectedObj[i].player.name, mainCard[i].location])
+                affectedObj[i].opp.card = game.findCard(affectedObj[i].opp.card, [affectedObj[i].opp.name, mainCard[i].location])
+                if (checkType(affectedObj[i].opp.card, mainCard[i]) === null) return null
+                trade(game, moveList, affectedObj[i], mainCard[i].location)
                 break;
         }
     }

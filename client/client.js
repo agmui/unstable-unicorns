@@ -202,17 +202,17 @@ socket.on("image", function (info, where, cardObject) {
 let formObject = {}
 socket.on('recivedTapped', function(name, card, output, location) {
   if (username !== name ) return
-  //console.log('client.js: (output):', output.send)
   //open gui and fill form ========
   let affectedObjects = []//optimize
-  let removeIndex, opponates
+  let removeIndex, opponates, actionElement, img, playerNames
+
   document.getElementById('text').innerHTML = output.send.text
   document.getElementById('confirm').style.display = 'block'
 
   //formats the cards that show up on the popup
   const cardAction = (action, img, player, actionElement) => {//optimize
     //remove activated card from popup
-    removeIndex = Array.from(img).findIndex((img) => img.name === card.name)
+    removeIndex = Array.from(img).findIndex((img) => img.name === card.name && player === name)
     for (let i = 1; i < img.length; i++) {//starts on 1 cause node list has text as first elemt
       if(i === removeIndex)continue
       if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
@@ -231,11 +231,20 @@ socket.on('recivedTapped', function(name, card, output, location) {
             affectedObjects.splice(affectedObjects.length-1, 1)
             formObject.affectedObjects = affectedObjects
           }
-          affectedObjects = affectedObjects.concat(
-            //if statment is for showing all players case
-            {name:(player instanceof Array)? player[i] : player, 
-            card:cloneImg.name
-          })
+          if(action.type === 'trade'){//fix for multiple people
+            if(player === username){
+              affectedObjects[affectedObjects.length-1].player = {name:player, card:cloneImg.name}
+            }else {
+              affectedObjects[affectedObjects.length-1].opp = {name:player, card:cloneImg.name}
+            }
+            console.log('help', affectedObjects)
+          }else{
+            affectedObjects = affectedObjects.concat(
+              //if statment is for showing all players case
+              {name:(player instanceof Array)? player[i] : player, 
+              card:cloneImg.name
+            })
+          }
           formObject.affectedObjects = affectedObjects
 
           cloneImg.className = 'highlight'
@@ -256,17 +265,16 @@ socket.on('recivedTapped', function(name, card, output, location) {
         //show player stable
       case 'discard':{
         //show player hand
-        let actionElement = document.createElement(action.type)
+        actionElement = document.createElement(action.type)
         actionElement.id = action.type
         actionElement.innerHTML = action.type
         document.getElementById('displayCards').appendChild(actionElement)
         let location = (action.type==='discard')? 'Hand':'Stable'
 
-        let img = document.getElementById(username+location).childNodes
+        img = document.getElementById(username+location).childNodes
         cardAction(action, img, username, actionElement)
         break
       }
-
       case 'destroy':
       case 'steal':
         //still needs to implment test function
@@ -280,7 +288,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
           let opponateName = opponates[j].innerHTML
           actionElement.innerHTML += opponateName
 
-          let img = document.getElementById(opponateName+'Stable').childNodes
+          img = document.getElementById(opponateName+'Stable').childNodes
           cardAction(action, img, opponateName, actionElement)
         }
         break
@@ -291,23 +299,43 @@ socket.on('recivedTapped', function(name, card, output, location) {
         break
       case 'bringBack':
         //shows everyones stable
-        let img = ['_']//needs '_' for cardAction function
-        let names = ['_']
-        let actionElement = document.createElement(action.type)
+        img = ['_']//needs '_' for cardAction function
+        playerNames = ['_']
+        actionElement = document.createElement(action.type)
         actionElement.id = action.type
         actionElement.innerHTML = action.type
         document.getElementById('displayCards').appendChild(actionElement)
+
         for(let i of document.getElementById('board').childNodes){
           if(i instanceof Element){//don't use html
-
             document.getElementById(i.id+'Stable').childNodes.forEach(
               function (currentValue) {
                 if(currentValue instanceof Element) img = img.concat(currentValue) 
             })
-            names = names.concat(i.id)
+            playerNames = playerNames.concat(i.id)
           }
         }
-        cardAction(action, img, names, actionElement)
+        cardAction(action, img, playerNames, actionElement)
+        break
+      case 'trade':
+        //could show everyones hand or stable
+
+        affectedObjects = affectedObjects.concat({player:'', opp:''})//to preset format for trade
+        for(let i of document.getElementById('board').childNodes){
+          if(i instanceof Element){//don't use html
+            img = ['_']//needs '_' for cardAction function
+            playerNames = ['_']
+            actionElement = document.createElement(action.type)
+            actionElement.id = action.type
+            actionElement.innerHTML = action.type+' '+i.id//fix
+            document.getElementById('displayCards').appendChild(actionElement)
+            document.getElementById(i.id+action.location).childNodes.forEach(
+              function (currentValue) {
+                if(currentValue instanceof Element) img = img.concat(currentValue) 
+            })
+            cardAction(action, img, i.id, actionElement)
+          }
+        }
         break
     }
   }
