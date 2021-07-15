@@ -121,8 +121,12 @@ io.on('connection', (socket) => {
             if(output.phase) io.emit('phase', output.phase, game.getTurn());
             boardUpdate()
             
-            if(card.type === 'Magic'){
+            if(card.type === 'Magic'){//test
                 //ping back to player options
+                io.emit('recivedTapped', name, card, output, location)
+            } else if(output.startCondition){
+                //maybe del startCOndition?
+                //======fix problem with open multiple popups========
                 io.emit('recivedTapped', name, card, output, location)
             }
         } else if (tap===true){
@@ -137,7 +141,12 @@ io.on('connection', (socket) => {
         console.log('/ts',affectedObjects)
         let output = game.card(game, 'tapped', name, card, affectedObjects);
         if (output===null||typeof output === 'string')return//card.js checks if valid input
-        //if input is invalid should emit recivedTapped again with error text
+        if(output.startCondition) {
+            for(let card of output.startCondition){
+                io.emit('play', name, card, /*location*/)//test============
+            }
+        }
+
         for (let i of output.move){
             io.emit('move', i.name, i.card, i.from, i.to);
         }
@@ -147,7 +156,7 @@ io.on('connection', (socket) => {
     })
 
     //move functions
-    socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
+    /*socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         console.log("server.js: recived move function", username, card.name, from, to)
         console.log('wtf======')//ts
         let state = game.move(username, card, from, to, undo)
@@ -165,7 +174,7 @@ io.on('connection', (socket) => {
     socket.on('interupt', function (toWho) {
         console.log('server.js: interupt recived');
         game.interupt(toWho);
-    });
+    });*/
     //sending pic over given card class in a list and where it is suppose to go
     function sendPic(picDir, where) {
         let imgFile;

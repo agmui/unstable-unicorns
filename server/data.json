@@ -1067,14 +1067,10 @@
   "type": "Magical Unicorn",
   "quantity": "1",
   "deck": "Unicorns of Legend",
+  "effect": "enter",
   "action": [
    {
     "type": "steal",
-    "amount": 1,
-    "cardType": []
-   },
-   {
-    "type": "draw",
     "amount": 1,
     "cardType": []
    }

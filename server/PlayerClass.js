@@ -18,12 +18,13 @@ const cardAuto = require('./card.js');
 const { count } = require('console');
 
 class Card {
-    constructor(name, text, type, img, action) {
+    constructor(name, text, type, img, effect, action) {
         this.name = name;
         this.text = text;
         this.type = type;
         this.img = img;
         this.tap = false;
+        this.effect = effect
         this.action = action;
     }
 }
@@ -132,7 +133,7 @@ class Board {
                 var x = getRandomInt(deck.length);
             } while (this.deckValue[x] == 0);
             //this.deckValue[x]--//will be subtracted in move function
-            final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img, deck[x].action))
+            final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img, deck[x].effect, deck[x].action))
         }
         return final
     }
@@ -147,21 +148,22 @@ class Board {
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            card = this.findCard('Unfair Bargain', 'deck')
+            card = this.findCard('Unicorn Trap', 'deck')
+            card = this.findCard('Charming Bardicorn', 'deck')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
-            card = this.findCard('Back Kick', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+            /*card = this.findCard('Charming Bardicorn', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
-*/
+            */
             /*card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //*/
             //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
             card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
         })
         console.log('=========setup over=========')
     }
@@ -211,9 +213,10 @@ class Board {
         }
         for (let i = 0; i < card.length; i++) { // check if objects inside list are cards
             if (card[i] instanceof Card == false) {
-                card[i] = new Card(card[i].name, card[i].text, card[i].type, card[i].img, card[i].action)
+                card[i] = new Card(card[i].name, card[i].text, card[i].type, card[i].img, card[i].effect, card[i].action)
             }
         }
+        let output = null
         console.log('class.js: ' + name + " moved " + card[0].name + " from " + from + " to " + to, to[0].name, to[1])
         switch (from) {
             case "deck":
@@ -243,12 +246,28 @@ class Board {
             case "discard":
                 this.addCard(card, to)
                 break
-            case "Hand":
             case "Stable":
+                //when Unicorn cards enter the stable
+                output = []
+                for(let i of card){
+                    console.log('Class.js:',i.effect)//ts
+                    if(i.effect === 'enter') output = output.concat(['hi'])////==================
+                }
+
+            case "Hand":
                 this.getPlayer(name).addCard(card, to)
                 break
             default://if opponate is returned
                 this.getPlayer(to[0]).addCard(card, to[1])
+                    
+                //when Unicorn cards enter the stable
+                if(to[1] === 'Stable'){
+                    output = []
+                    for(let i of card){
+                        console.log('Class.js:',i.effect)//ts
+                        if(i.effect === 'enter') output = output.concat(['hi'])
+                    }
+                }
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
@@ -256,7 +275,8 @@ class Board {
                 return i;
             }
         }
-        if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
+        if (output !== null)return output
+        //if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
     //card should be a Card obj or string
@@ -441,24 +461,25 @@ function getRandomInt(max) { // merge with the drawFromDeck function
 module.exports = { Board }
 
 if (require.main === module) {
-    let list = {'longString1':'host','longString2':'a'};
+    /*let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
 
-    //=====template
-    /*game.setup()
+    let cardName = 'Unicorn Trap'
+
+    game.setup()
+    let card = game.findCard(cardName, 'deck')
+    game.move('host', card, "deck", ['host',"Hand"], false, true);
+
+    card = game.findCard('Charming Bardicorn', 'deck')
+    let output = game.move('host', card, "deck", ['a',"Stable"], false, true);
+    //console.log('help------', output)
 
     game.getState('host', true)
-    let affectedObjects =[]
-    affectedObjects = affectedObjects.concat(
-    {
-        name:'a',
-        card:'The Great Narwhal'
-    },
-    {
-        name:'host',
-        card:'The Great Narwhal'
-    })
-    let card = game.findCard('Glitter Bomb', ['host', 'hand'])
+    let affectedObjects =[{
+        name: 'a',
+        card: 'Charming Bardicorn' 
+    }]
+    card = game.findCard(cardName, ['host', 'hand'])
     game.card(game, 'tapped', 'host', card, affectedObjects)
 
     game.getState('host', true)*/
@@ -476,18 +497,14 @@ if (require.main === module) {
 function cardTest(){
     let list = {'longString1':'host','longString2':'a'};
     let game = new Board(list);
-    let affectedObjects 
     game.setup()
-    game.getState('host',true)
-    affectedObjects = [
-        {
-            player:{name:'host',card:'Back Kick'},
-            opp:{name:'a',card:'Unfair Bargain'}
-        }
-    ]
 
-    let card = game.findCard('Unfair Bargain', ['host', 'hand'])
-    game.card(game, 'tapped', 'host', card, affectedObjects)
+    game.getState('host',true)
+
+    game.rotatePhase()
+    console.log('======\n')
+    let card = game.findCard('Charming Bardicorn', ['host', 'hand'])
+    game.card(game, 'play', 'host', card, 'bypass')
 
     game.getState('host',true)
 

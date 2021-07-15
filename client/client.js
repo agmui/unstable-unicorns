@@ -66,14 +66,6 @@ socket.on("num of players", function (playerList) {
       document.getElementById('Player').id = username
       document.getElementById('Hand').id = username+'Hand'
       document.getElementById('Stable').id = username+'Stable'
-
-      //creating interupt gui
-      opponate = document.createElement("button")
-      opponate.id = name
-      opponate.onclick = function () { interupt(name) }
-      opponate.innerHTML = name
-      document.getElementById('interupt').append(opponate)
-      document.getElementById('interupt').style.display = 'none'
     }
   }
 });
@@ -122,6 +114,13 @@ socket.on("phase", function (phase, name) {
 // when another player moves a card recives action here
 socket.on("move", function (name, card, from, to, winner) {
   console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
+  // when Unicorn card enters somones stable
+  console.log('card',card)//ts
+  if(card.effect === 'enter'){
+    document.getElementById('text').innerHTML = cardObject.text
+    const modal = document.querySelector(img.dataset.modalTarget)
+    openModal(modal)
+  }
   updateBoard(card, from, to)
   if (winner) {//game over sequence
     console.log('winner:', winner);
@@ -132,7 +131,7 @@ socket.on("move", function (name, card, from, to, winner) {
 });
 
 // recives ping form server when someone udoes a move
-socket.on('undo', function (action) {
+/*socket.on('undo', function (action) {
   if (action == false) {
     return;
   }
@@ -144,7 +143,7 @@ socket.on('undo', function (action) {
   if (document.getElementById('whosTurn').innerHTML == 'Turn: ' + username) {// fix way of getting who's turn
     //move(username, action.card, action.to, action.from, true);
   }
-})
+})*/
 
 //reciving random card from deck or discard
 socket.on('random card', function (card) {
@@ -173,7 +172,7 @@ socket.on("image", function (info, where, cardObject) {
       //====popup stuff===
       //checks if btn is in hand and if its player's turn
       let turn = document.getElementById('whosTurn').innerHTML.slice(6)//remove all slice
-      if( !(turn === username && location === 'Hand' &&  who === username) || cardObject.type === 'Magic'){//optimize
+      if( !(turn === username && location === 'Hand' &&  who === username) || cardObject.type === 'Magic' ){//optimize
         document.getElementById('text').innerHTML = cardObject.text
         const modal = document.querySelector(img.dataset.modalTarget)
         openModal(modal)
@@ -282,6 +281,7 @@ socket.on('recivedTapped', function(name, card, output, location) {
         //show opponate's stable
         opponates = document.getElementById('score board').childNodes
         for(let j=1; j < opponates.length; j++ ){
+          actionElement = document.createElement(action.type)
           actionElement.id = action.type
           actionElement.innerHTML = action.type
           document.getElementById('displayCards').appendChild(actionElement)
@@ -380,7 +380,7 @@ function pass() {
   console.log(username + " passed phase")
 }
 //have the undo button be able to undo phases if nessisary
-function undo() { // try to make it so they cant undo when no moves have been done
+/*function undo() { // try to make it so they cant undo when no moves have been done
   socket.emit('undo', username);
   console.log(username + " undo action")
 }
@@ -390,7 +390,7 @@ function interupt(toWho) {
   document.getElementById('to').style.display = 'none'
   if (toWho) socket.emit('interupt', toWho);
   console.log(username, 'interupted', toWho)
-}
+}*/
 function endPhase() {
   socket.emit('endPhase', username);
   console.log(username + " ends phase")
@@ -450,7 +450,6 @@ function closeModal(modal) {
   modal.classList.remove('active')
   overlay.classList.remove('active')
   document.getElementById("display").style.display = "none"
-  document.getElementById("interupt").style.display = "none"
   //clear card img and text in popup
   document.getElementById('displayCards').innerHTML = ''
   //hide confrim btn

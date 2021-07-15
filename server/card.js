@@ -85,40 +85,41 @@ Look at player hand
 */
 //glitter bomb
 function sacrifice(game, moveList, name, card){//Stable > discard
-    game.move(name, card, 'Stable', 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:'discard'})
+    return game.move(name, card, 'Stable', 'discard', false, true);
 }
 //unicorn poison
 function destroy(game, moveList, name, card){//opponate Stable > discard
-    game.move(name, card, [name, 'Stable'], 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:'discard'})
+    return game.move(name, card, [name, 'Stable'], 'discard', false, true);
 }
 //glitter bomb
 function discard(game, moveList, name, card){//hand > discard
-    game.move(name, card, 'Hand', 'discard', false, true);
     moveList.push({name:name, card:card, from:[name,'Hand'], to:'discard'})
+    return game.move(name, card, 'Hand', 'discard', false, true);
 }
 //unicorn trap
 function steal(game, moveList, name, username, card){//opponate Stable > Stable
-    game.move(name, card, [name, 'Stable'], 'Stable', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:[username, 'Stable']})
+    return game.move(name, card, [name, 'Stable'], 'Stable', false, true);
 }
 //wishing well
 function draw(game, moveList, name, username, card){//deck > Hand
-    game.move(name, card, 'deck', 'Hand', false, true);
     moveList.push({name:name, card:card, from:[name,'deck'], to:[username, 'Hand']})
+    return game.move(name, card, 'deck', 'Hand', false, true);
 }
 //back kick
 function bringBack(game, moveList, name, card){//Stable > Hand
-    game.move(name, card, 'Stable', 'Hand', false, true);
     moveList.push({name:name, card:card, from:[name,'Stable'], to:[name, 'Hand']})
+    return game.move(name, card, 'Stable', 'Hand', false, true);
 }
 //unfair bargain
 function trade(game, moveList, affObj, where){//Hand > oppHand OR Stable > oppStable
-    game.move(affObj.player.name, affObj.player.card, where, [affObj.opp.name, where], false, true)
-    game.move(affObj.opp.name, affObj.opp.card, where, [affObj.player.name, where], false, true)
     moveList.push({name:affObj.player.name, card:affObj.player.card, from:[affObj.player.name,where], to:[affObj.opp.name, where]})
     moveList.push({name:affObj.opp.name, card:affObj.opp.card, from:[affObj.opp.name,where], to:[affObj.player.name, where]})
+    let test = game.move(affObj.player.name, affObj.player.card, where, [affObj.opp.name, where], false, true)
+    game.move(affObj.opp.name, affObj.opp.card, where, [affObj.player.name, where], false, true)
+    return test//fix
 }
 
 //specific card type check
@@ -138,45 +139,38 @@ function action(game, moveList, username, mainCard, affectedObj){
             case 'sacrifice':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                sacrifice(game, moveList, affectedObj[i].name, affectedObj[i].card)
-                break;
+                return sacrifice(game, moveList, affectedObj[i].name, affectedObj[i].card)
             case 'destroy':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                destroy(game, moveList, affectedObj[i].name, affectedObj[i].card)
-                break;
+                return destroy(game, moveList, affectedObj[i].name, affectedObj[i].card)
             case 'discard':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Hand'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                discard(game, moveList, affectedObj[i].name, affectedObj[i].card)
-                break;
+                return discard(game, moveList, affectedObj[i].name, affectedObj[i].card)
             case 'steal':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                steal(game, moveList, affectedObj[i].name, username, affectedObj[i].card)
-                break;
+                return steal(game, moveList, affectedObj[i].name, username, affectedObj[i].card)
             case 'draw':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, 'deck')
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                draw(game, moveList, affectedObj[i].name, username, affectedObj[i].card)
-                break;
+                return draw(game, moveList, affectedObj[i].name, username, affectedObj[i].card)
             case 'bringBack':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name,'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                bringBack(game, moveList, affectedObj[i].name, affectedObj[i].card)
-                break;
+                return bringBack(game, moveList, affectedObj[i].name, affectedObj[i].card)
             case 'trade':
                 affectedObj[i].player.card = game.findCard(affectedObj[i].player.card, [affectedObj[i].player.name, mainCard[i].location])
                 affectedObj[i].opp.card = game.findCard(affectedObj[i].opp.card, [affectedObj[i].opp.name, mainCard[i].location])
                 if (checkType(affectedObj[i].opp.card, mainCard[i]) === null) return null
-                trade(game, moveList, affectedObj[i], mainCard[i].location)
-                break;
+                return trade(game, moveList, affectedObj[i], mainCard[i].location)
         }
     }
 }
 
 function main(game, request, name, card, affectedObjects, bypass=false) {
-    let send, phase;
+    let send, phase, output;
     let move = [];
     console.log('card.js: card', card.name, 'request', request)
     if (request=='play') {
@@ -189,16 +183,12 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
             return null
         }
         //all checks below could have vonabilaty if user were to change request on client side
-        /*if (card.type !== 'Upgrade', 'Downgrade' && affectedCard[1] !== 'Stable'){//check applys for upgrade and downgrade cards
-            let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
-            if (test === false) return null//if class.js throws and error
-            //tells client something moved
-            move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
-        }*/
         if (affectedObjects[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
             if(card.type !== 'Magic'){
                 let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
                 if (test === false) return null//if class.js throws and error
+                if(test instanceof Array)output = test
+
                 //tells client something moved
                 move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
             }
@@ -236,7 +226,7 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
                     }
                 }
         }
-        return {send: send, move: move, phase: phase};
+        return {send: send, move: move, phase: phase, startCondition: output};
         //send is ment for the client.js gui, all the checks to see if recived vailid input is in reply (the code below)
     } else if (request == 'tapped'){
         switch(card.name){
@@ -261,14 +251,14 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
                     return null
                 }
                 
-                action(game, move, name, card.action, affectedObjects)
+                output = action(game, move, name, card.action, affectedObjects)
                 if(card.type === 'Magic') {//fix
                     affectedObjects = [{name:name, card:card.name}]
                     action(game, move, name, [{type:"discard", cardType:[]}], affectedObjects)
                 }
                 card.tap = null
         }
-        return {move: move, phase:phase}
+        return {move: move, phase:phase, startCondition: output}
     }
 }
 
