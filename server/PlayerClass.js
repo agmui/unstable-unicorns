@@ -149,15 +149,14 @@ class Board {
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             card = this.findCard('Unicorn Trap', 'deck')
-            card = this.findCard('Charming Bardicorn', 'deck')
+            //card = this.findCard('Charming Bardicorn', 'deck')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
-            /*card = this.findCard('Charming Bardicorn', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            card = this.findCard('Charming Bardicorn', 'deck')
+            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
-            */
             /*card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //*/
@@ -248,12 +247,7 @@ class Board {
                 break
             case "Stable":
                 //when Unicorn cards enter the stable
-                output = []
-                for(let i of card){
-                    console.log('Class.js:',i.effect)//ts
-                    if(i.effect === 'enter') output = output.concat(['hi'])////==================
-                }
-
+                output = card
             case "Hand":
                 this.getPlayer(name).addCard(card, to)
                 break
@@ -261,13 +255,7 @@ class Board {
                 this.getPlayer(to[0]).addCard(card, to[1])
                     
                 //when Unicorn cards enter the stable
-                if(to[1] === 'Stable'){
-                    output = []
-                    for(let i of card){
-                        console.log('Class.js:',i.effect)//ts
-                        if(i.effect === 'enter') output = output.concat(['hi'])
-                    }
-                }
+                if(to[1] === 'Stable')output = card
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
@@ -275,7 +263,7 @@ class Board {
                 return i;
             }
         }
-        if (output !== null)return output
+        if (output)return output
         //if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
@@ -504,7 +492,8 @@ function cardTest(){
     game.rotatePhase()
     console.log('======\n')
     let card = game.findCard('Charming Bardicorn', ['host', 'hand'])
-    game.card(game, 'play', 'host', card, 'bypass')
+    let help=game.card(game, 'play', 'host', card, 'bypass')
+    console.log(help.startCondition)
 
     game.getState('host',true)
 

@@ -120,6 +120,7 @@ function trade(game, moveList, affObj, where){//Hand > oppHand OR Stable > oppSt
     let test = game.move(affObj.player.name, affObj.player.card, where, [affObj.opp.name, where], false, true)
     game.move(affObj.opp.name, affObj.opp.card, where, [affObj.player.name, where], false, true)
     return test//fix
+    //if uni card activates have popup appeir in opp or player
 }
 
 //specific card type check
@@ -134,60 +135,77 @@ function checkType(affectedCard, mainCard){
 }
 
 function action(game, moveList, username, mainCard, affectedObj){
+    let output = []
     for(let i=0; i < affectedObj.length; i++ ){
         switch(mainCard[i].type){
             case 'sacrifice':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                return sacrifice(game, moveList, affectedObj[i].name, affectedObj[i].card)
+                output = output.concat(sacrifice(game, moveList, affectedObj[i].name, affectedObj[i].card))
+                break
             case 'destroy':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                return destroy(game, moveList, affectedObj[i].name, affectedObj[i].card)
+                output = output.concat(destroy(game, moveList, affectedObj[i].name, affectedObj[i].card))
+                break
             case 'discard':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Hand'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                return discard(game, moveList, affectedObj[i].name, affectedObj[i].card)
+                output = output.concat(discard(game, moveList, affectedObj[i].name, affectedObj[i].card))
+                break
             case 'steal':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                return steal(game, moveList, affectedObj[i].name, username, affectedObj[i].card)
+                output = output.concat(steal(game, moveList, affectedObj[i].name, username, affectedObj[i].card))
+                break
             case 'draw':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, 'deck')
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                return draw(game, moveList, affectedObj[i].name, username, affectedObj[i].card)
+                output = output.concat(draw(game, moveList, affectedObj[i].name, username, affectedObj[i].card))
+                break
             case 'bringBack':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name,'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                return bringBack(game, moveList, affectedObj[i].name, affectedObj[i].card)
+                output = output.concat(bringBack(game, moveList, affectedObj[i].name, affectedObj[i].card))
+                break
             case 'trade':
                 affectedObj[i].player.card = game.findCard(affectedObj[i].player.card, [affectedObj[i].player.name, mainCard[i].location])
                 affectedObj[i].opp.card = game.findCard(affectedObj[i].opp.card, [affectedObj[i].opp.name, mainCard[i].location])
                 if (checkType(affectedObj[i].opp.card, mainCard[i]) === null) return null
-                return trade(game, moveList, affectedObj[i], mainCard[i].location)
+                output = output.concat(trade(game, moveList, affectedObj[i], mainCard[i].location))
+                break
         }
     }
+    return output
 }
 
 function main(game, request, name, card, affectedObjects, bypass=false) {
-    let send, phase, output;
+    let send, phase;
     let move = [];
     console.log('card.js: card', card.name, 'request', request)
     if (request=='play') {
         //check if clicked on card location is correct
         //affectedCard means soemthing else when it is a get request
-        if(affectedObjects === name || affectedObjects[0] === name|| affectedObjects ==='bypass') {//fix
+        let location = affectedObjects
+        if(location === name || location[0] === name|| location ==='bypass') {//fix
 
         } else {
             console.log('card.js: not users hand')
             return null
         }
         //all checks below could have vonabilaty if user were to change request on client side
-        if (affectedObjects[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
+        let output
+        //when Uni card enters stable
+        if(card.effect === 'enter'){//optimize
+                output = game.move(name, card, location, 'Stable')
+                if (output === false) return null//if class.js throws and error
+
+                //tells client something moved
+                move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
+        }else if (location[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
             if(card.type !== 'Magic'){
-                let test = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
-                if (test === false) return null//if class.js throws and error
-                if(test instanceof Array)output = test
+                output = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
+                if (output === false) return null//if class.js throws and error
 
                 //tells client something moved
                 move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
@@ -202,7 +220,7 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
             case 'Glitter Bomb':
                 //If this card is in your Stable at the beginning of your turn,
                 //you may SACRIFICE a card, then DESTROY a card
-                if(affectedObjects[1]==='Hand'){//inital play from hand to stable
+                if(location[1]==='Hand'){//inital play from hand to stable
                     phase = game.rotatePhase()
                 }else if (game.getPhase()===1){//when card is tapped durring beggining of turn phase
                     //switch mode to tapped
@@ -229,6 +247,7 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
         return {send: send, move: move, phase: phase, startCondition: output};
         //send is ment for the client.js gui, all the checks to see if recived vailid input is in reply (the code below)
     } else if (request == 'tapped'){
+        let output
         switch(card.name){
             case 'special cards'://for cards the main function can't work with
                 break;

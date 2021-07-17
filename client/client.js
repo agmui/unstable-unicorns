@@ -114,13 +114,18 @@ socket.on("phase", function (phase, name) {
 // when another player moves a card recives action here
 socket.on("move", function (name, card, from, to, winner) {
   console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
+
   // when Unicorn card enters somones stable
-  console.log('card',card)//ts
-  if(card.effect === 'enter'){
-    document.getElementById('text').innerHTML = cardObject.text
-    const modal = document.querySelector(img.dataset.modalTarget)
+  if(name === username && card.effect === 'enter' && to[1] === 'Stable' ){//optimize
+    let img
+    for(let i of document.getElementById(from[0]+from[1]).childNodes){
+      if(i.id === card.name) {img = i; break}
+    }
+    document.getElementById('text').innerHTML = card.text
+    const modal = document.querySelector(img.dataset.modalTarget)//took code form line177 needs tweeking =================
     openModal(modal)
   }
+
   updateBoard(card, from, to)
   if (winner) {//game over sequence
     console.log('winner:', winner);

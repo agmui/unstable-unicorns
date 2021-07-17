@@ -99,11 +99,14 @@ io.on('connection', (socket) => {
     });
 
     //auto fill card functions
-    socket.on('play', function(name, card, location){//optimise
+    socket.on('play', (name, card, location) => {play(name, card, location)})
+    //needs to be seprate function to be used in Socket.on('filledForm')
+    function play(name, card, location){//optimise
         //check if card is in right location
         card = game.findCard(card, location)//to use the servers version of the card
         if(card === null) {console.log(card); return}
 
+        console.log('help'.bgGreen, card)
         let output = game.card(game, 'play', name, card, location);
         if(output === null) return//if card.js throws an error
 
@@ -126,14 +129,13 @@ io.on('connection', (socket) => {
                 io.emit('recivedTapped', name, card, output, location)
             } else if(output.startCondition){
                 //maybe del startCOndition?
-                //======fix problem with open multiple popups========
                 io.emit('recivedTapped', name, card, output, location)
             }
         } else if (tap===true){
             //ping back to player options
             io.emit('recivedTapped', name, card, output, location)
         }
-    })
+    }
 
     socket.on('filledForm', function(name, card, affectedObjects, location){
         if(affectedObjects === {}) return
@@ -142,8 +144,9 @@ io.on('connection', (socket) => {
         let output = game.card(game, 'tapped', name, card, affectedObjects);
         if (output===null||typeof output === 'string')return//card.js checks if valid input
         if(output.startCondition) {
+            //======if open multiple popups========
             for(let card of output.startCondition){
-                io.emit('play', name, card, /*location*/)//test============
+                if(card) play(name, card, /*location*/)
             }
         }
 
