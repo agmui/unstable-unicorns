@@ -101,13 +101,13 @@ io.on('connection', (socket) => {
     //auto fill card functions
     socket.on('play', (name, card, location) => {play(name, card, location)})
     //needs to be seprate function to be used in Socket.on('filledForm')
-    function play(name, card, location){//optimise
+    function play(name, card, location, bypass = false){//optimise
+        //game.getState('host', true)//ts
         //check if card is in right location
         card = game.findCard(card, location)//to use the servers version of the card
         if(card === null) {console.log(card); return}
-
-        console.log('help'.bgGreen, card)
-        let output = game.card(game, 'play', name, card, location);
+        
+        let output = game.card(game, 'play', name, card, location, bypass);
         if(output === null) return//if card.js throws an error
 
         //game.card might move card so location needs to be updated
@@ -129,6 +129,7 @@ io.on('connection', (socket) => {
                 io.emit('recivedTapped', name, card, output, location)
             } else if(output.startCondition){
                 //maybe del startCOndition?
+                //why does output have card?==================
                 io.emit('recivedTapped', name, card, output, location)
             }
         } else if (tap===true){
@@ -143,12 +144,6 @@ io.on('connection', (socket) => {
         console.log('/ts',affectedObjects)
         let output = game.card(game, 'tapped', name, card, affectedObjects);
         if (output===null||typeof output === 'string')return//card.js checks if valid input
-        if(output.startCondition) {
-            //======if open multiple popups========
-            for(let card of output.startCondition){
-                if(card) play(name, card, /*location*/)
-            }
-        }
 
         for (let i of output.move){
             io.emit('move', i.name, i.card, i.from, i.to);
@@ -156,6 +151,13 @@ io.on('connection', (socket) => {
 
         if(output.phase) io.emit('phase', output.phase, game.getTurn());
         boardUpdate()
+
+        if(output.startCondition) {
+            //======if open multiple popups========
+            for(let i of output.startCondition){
+                if(i) play(name, i.card, i.from, true)
+            }
+        }
     })
 
     //move functions

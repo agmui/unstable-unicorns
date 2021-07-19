@@ -187,7 +187,7 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
         //check if clicked on card location is correct
         //affectedCard means soemthing else when it is a get request
         let location = affectedObjects
-        if(location === name || location[0] === name|| location ==='bypass') {//fix
+        if(location === name || location[0] === name|| bypass) {//fix
 
         } else {
             console.log('card.js: not users hand')
@@ -197,11 +197,13 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
         let output
         //when Uni card enters stable
         if(card.effect === 'enter'){//optimize
-                output = game.move(name, card, location, 'Stable')
-                if (output === false) return null//if class.js throws and error
+            //have a check to not move the card if already in stable
+            output = game.move(name, card, location, 'Stable')
+            if (output === false) return null//if class.js throws and error
 
-                //tells client something moved
-                move.push({name:name, card:card, from:[name,'Hand'], to:[name,'Stable']})
+            //tells client something moved
+            //============name and location need to be filled correctly cuz card could be played from player or taken from others
+            move.push({name:name, card:card, from: location, to:[name,'Stable']})
         }else if (location[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
             if(card.type !== 'Magic'){
                 output = game.move(name, card, 'Hand', 'Stable')//when initaly playing something

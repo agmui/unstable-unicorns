@@ -118,8 +118,9 @@ socket.on("move", function (name, card, from, to, winner) {
   // when Unicorn card enters somones stable
   if(name === username && card.effect === 'enter' && to[1] === 'Stable' ){//optimize
     let img
-    for(let i of document.getElementById(from[0]+from[1]).childNodes){
-      if(i.id === card.name) {img = i; break}
+    //something wroing with to[0]+to[1] with the diffrent situwations
+    for(let i of document.getElementById(to[0]+to[1]).childNodes){
+      if(i.id === card.name) {img = i;break}
     }
     document.getElementById('text').innerHTML = card.text
     const modal = document.querySelector(img.dataset.modalTarget)//took code form line177 needs tweeking =================

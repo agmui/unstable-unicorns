@@ -153,7 +153,7 @@ class Board {
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             card = this.findCard('Charming Bardicorn', 'deck')
-            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
@@ -162,7 +162,7 @@ class Board {
             //*/
             //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
             card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
         })
         console.log('=========setup over=========')
     }
@@ -247,7 +247,7 @@ class Board {
                 break
             case "Stable":
                 //when Unicorn cards enter the stable
-                output = card
+                output = {from:from, card:card[0]}//fix
             case "Hand":
                 this.getPlayer(name).addCard(card, to)
                 break
@@ -255,7 +255,7 @@ class Board {
                 this.getPlayer(to[0]).addCard(card, to[1])
                     
                 //when Unicorn cards enter the stable
-                if(to[1] === 'Stable')output = card
+                if(to[1] === 'Stable')output = {from: from, card:card[0]}//fix
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
