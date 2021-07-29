@@ -100,12 +100,12 @@ function discard(game, moveList, name, card){//hand > discard
 }
 //unicorn trap
 function steal(game, moveList, name, username, card){//opponate Stable > Stable
-    moveList.push({name:name, card:card, from:[name,'Stable'], to:[username, 'Stable']})
-    return game.move(name, card, [name, 'Stable'], 'Stable', false, true);
+    moveList.push({name:name, card:card, from:[username,'Stable'], to:[name, 'Stable']})
+    return game.move(name, card, [username, 'Stable'], 'Stable', false, true);
 }
 //wishing well
 function draw(game, moveList, name, username, card){//deck > Hand
-    moveList.push({name:name, card:card, from:[name,'deck'], to:[username, 'Hand']})
+    moveList.push({name:name, card:card, from:[username,'Stable'], to:[name, 'Stable']})
     return game.move(name, card, 'deck', 'Hand', false, true);
 }
 //back kick
@@ -156,12 +156,12 @@ function action(game, moveList, username, mainCard, affectedObj){
             case 'steal':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name, 'Stable'])
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                output = output.concat(steal(game, moveList, affectedObj[i].name, username, affectedObj[i].card))
+                output = output.concat(steal(game, moveList, username, affectedObj[i].name, affectedObj[i].card))
                 break
             case 'draw':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, 'deck')
                 if (checkType(affectedObj[i].card, mainCard[i]) === null) return null
-                output = output.concat(draw(game, moveList, affectedObj[i].name, username, affectedObj[i].card))
+                output = output.concat(draw(game, moveList, username, affectedObj[i].name, affectedObj[i].card))
                 break
             case 'bringBack':
                 affectedObj[i].card = game.findCard(affectedObj[i].card, [affectedObj[i].name,'Stable'])
@@ -271,7 +271,7 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
                     console.log('card.js: error did not fill form completely')
                     return null
                 }
-                
+
                 output = action(game, move, name, card.action, affectedObjects)
                 if(card.type === 'Magic') {//fix
                     affectedObjects = [{name:name, card:card.name}]

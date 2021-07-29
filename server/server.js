@@ -141,7 +141,6 @@ io.on('connection', (socket) => {
     socket.on('filledForm', function(name, card, affectedObjects, location){
         if(affectedObjects === {}) return
         card = game.findCard(card, location)//to use the servers version of the card
-        console.log('/ts',affectedObjects)
         let output = game.card(game, 'tapped', name, card, affectedObjects);
         if (output===null||typeof output === 'string')return//card.js checks if valid input
 
@@ -152,7 +151,7 @@ io.on('connection', (socket) => {
         if(output.phase) io.emit('phase', output.phase, game.getTurn());
         boardUpdate()
 
-        if(output.startCondition) {
+        if(output.startCondition[0]) {
             //======if open multiple popups========
             for(let i of output.startCondition){
                 if(i) play(name, i.card, i.from, true)

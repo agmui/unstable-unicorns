@@ -116,10 +116,11 @@ socket.on("move", function (name, card, from, to, winner) {
   console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
 
   // when Unicorn card enters somones stable
+  console.log('/ts', card.effect, to)
   if(name === username && card.effect === 'enter' && to[1] === 'Stable' ){//optimize
     let img
-    //something wroing with to[0]+to[1] with the diffrent situwations
-    for(let i of document.getElementById(to[0]+to[1]).childNodes){
+    console.log('to:', to, 'from:', from)//ts
+    for(let i of document.getElementById(from[0]+from[1]).childNodes){
       if(i.id === card.name) {img = i;break}
     }
     document.getElementById('text').innerHTML = card.text
@@ -177,7 +178,7 @@ socket.on("image", function (info, where, cardObject) {
 
       //====popup stuff===
       //checks if btn is in hand and if its player's turn
-      let turn = document.getElementById('whosTurn').innerHTML.slice(6)//remove all slice
+      let turn = document.getElementById('whosTurn').innerHTML.slice(6)//remove all html
       if( !(turn === username && location === 'Hand' &&  who === username) || cardObject.type === 'Magic' ){//optimize
         document.getElementById('text').innerHTML = cardObject.text
         const modal = document.querySelector(img.dataset.modalTarget)

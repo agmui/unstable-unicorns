@@ -66,13 +66,13 @@ class Player {
             for (let i of this.getHand()){
                 if (i.name === card) return (index) ? [i, this.hand.indexOf(i)] : i
             }
-            console.log('Class.js: card not in hand')
+            console.log('Class.js:', card ,'card not in',this.name,'hand')
             return null
         } else if (location === 'Stable'){
             for (let i of this.getStable()){
                 if (i.name === card) return (index) ? [i, this.stable.indexOf(i)] : i
             }
-            console.log('Class.js: card not in Stable')
+            console.log('Class.js:', card ,'card not in',this.name,'Stable'.bgRed)
             return null
         }
         else {//needs to be tested
@@ -141,6 +141,7 @@ class Board {
         return [this.discard[getRandomInt(this.discard.length)]]
     }
     setup() {
+
         this.players.forEach(p => {
             //this.move(p.getName(), this.drawFromDeck(7), "deck", [p.getName(), "Hand"], false, true);
             //debug
@@ -149,22 +150,22 @@ class Board {
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             card = this.findCard('Unicorn Trap', 'deck')
-            //card = this.findCard('Charming Bardicorn', 'deck')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             card = this.findCard('Charming Bardicorn', 'deck')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             /*card = this.findCard('Unicorn Poison', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //*/
-            //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);//ts
+            //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);
             card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
         })
-        console.log('=========setup over=========')
+        console.log('=========setup over========='.bold)
     }
     //parm card should be a list
     addCard(card, where) {//adds a card to deck or discard
@@ -238,7 +239,7 @@ class Board {
                 break
             default://if opponate is returned
                 //checks if card is in domain
-                if(this.getPlayer(name).removeCard(card, from[1])===null) return false
+                if(this.getPlayer(from[0]).removeCard(card, from[1])===null) return false
         }
         switch (to) {
             case "deck":
@@ -247,7 +248,7 @@ class Board {
                 break
             case "Stable":
                 //when Unicorn cards enter the stable
-                output = {from:from, card:card[0]}//fix
+                if(card.effect==='enter')output = {from:from, card:card[0]}
             case "Hand":
                 this.getPlayer(name).addCard(card, to)
                 break
@@ -255,7 +256,7 @@ class Board {
                 this.getPlayer(to[0]).addCard(card, to[1])
                     
                 //when Unicorn cards enter the stable
-                if(to[1] === 'Stable')output = {from: from, card:card[0]}//fix
+                if(to[1] === 'Stable' && card.effect ==='enter')output = {from: from, card:card[0]}//fix
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
@@ -263,7 +264,7 @@ class Board {
                 return i;
             }
         }
-        if (output)return output
+        return output
         //if (undo == false) this.log.push([name, card, from, to, this.getPhase()]);
     }
     //returns card object
@@ -351,7 +352,6 @@ class Board {
             console.log('class.js:', this.getTurn(), 'has to many cards')
             return { numOfCards: this.getTurn(true).getHand().length - 7 }
         }
-        //ts
         switch (this.phase) {
             //beginning of turn phase check
             case 1:
@@ -360,7 +360,7 @@ class Board {
             //draw phase
             case 2:
                 console.log('game draws card for player')
-                this.rotatePhase()//ts idk help
+                this.rotatePhase()
                 break
             //ask for action
             case 3:
@@ -449,30 +449,23 @@ function getRandomInt(max) { // merge with the drawFromDeck function
 module.exports = { Board }
 
 if (require.main === module) {
-    /*let list = {'longString1':'host','longString2':'a'};
+    let list = {'longString1':'host','longString2':'player1'};
     let game = new Board(list);
 
-    let cardName = 'Unicorn Trap'
-
     game.setup()
-    let card = game.findCard(cardName, 'deck')
-    game.move('host', card, "deck", ['host',"Hand"], false, true);
-
-    card = game.findCard('Charming Bardicorn', 'deck')
-    let output = game.move('host', card, "deck", ['a',"Stable"], false, true);
-    //console.log('help------', output)
-
     game.getState('host', true)
-    let affectedObjects =[{
-        name: 'a',
-        card: 'Charming Bardicorn' 
+
+    card = game.findCard('Unicorn Trap', ['host', 'Hand'])
+
+
+    let affectedObjects = [{
+        name: 'player1',
+        card: 'Charming Bardicorn'
     }]
-    card = game.findCard(cardName, ['host', 'hand'])
     game.card(game, 'tapped', 'host', card, affectedObjects)
-
-    game.getState('host', true)*/
-
-    cardTest()
+    game.getState('host', true)
+    //*/
+    //cardTest()
 }
 
 
@@ -483,18 +476,47 @@ if (require.main === module) {
 
 
 function cardTest(){
-    let list = {'longString1':'host','longString2':'a'};
+    let list = {'longString1':'host','longString2':'player1'};
     let game = new Board(list);
-    game.setup()
+
+
+    let card = game.findCard('Unicorn Poison', 'deck')
+    game.move('player1', card, "deck", ['host',"Hand"], false, true);
+    card = game.findCard('The Great Narwhal', 'deck')
+    game.move('player1', card, "deck", ['player1',"Stable"], false, true);
 
     game.getState('host',true)
 
-    game.rotatePhase()
-    console.log('======\n')
-    let card = game.findCard('Charming Bardicorn', ['host', 'hand'])
-    let help=game.card(game, 'play', 'host', card, 'bypass')
-    console.log(help.startCondition)
+    card = game.findCard('Unicorn Poison', ['host', 'Hand'])
+    let affectedObjects = [{
+        name: 'player1',
+        card: 'The Great Narwhal'
+    }]
+    game.card(game, 'tapped', 'host', card, affectedObjects)
 
     game.getState('host',true)
 
 }
+//========exsample (destroy)========
+/*function exsample(){
+    let list = {'longString1':'host','longString2':'player1'};
+    let game = new Board(list);
+
+
+    let card = game.findCard('Unicorn Poison', 'deck')
+    game.move('player1', card, "deck", ['host',"Hand"], false, true);
+    card = game.findCard('The Great Narwhal', 'deck')
+    game.move('player1', card, "deck", ['player1',"Stable"], false, true);
+
+    game.getState('host',true)
+
+    card = game.findCard('Unicorn Poison', ['host', 'Hand'])
+    let affectedObjects = [{
+        name: 'player1',
+        card: 'The Great Narwhal'
+    }]
+    game.card(game, 'tapped', 'host', card, affectedObjects)
+
+    game.getState('host',true)
+
+}*/
