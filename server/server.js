@@ -102,12 +102,11 @@ io.on('connection', (socket) => {
     socket.on('play', (name, card, location) => {play(name, card, location)})
     //needs to be seprate function to be used in Socket.on('filledForm')
     function play(name, card, location, bypass = false){//optimise
-        //game.getState('host', true)//ts
         //check if card is in right location
         card = game.findCard(card, location)//to use the servers version of the card
-        if(card === null) {console.log(card); return}
-        
-        let output = game.card(game, 'play', name, card, location, bypass);
+        if(card === null) {console.log('Error'.bgRed); return}
+
+        let output = game.card(game, 'play', name, card, location.slice(), bypass);
         if(output === null) return//if card.js throws an error
 
         //game.card might move card so location needs to be updated
@@ -118,6 +117,7 @@ io.on('connection', (socket) => {
 
         if (tap === false){
             for (let i of output.move){//needs to be fixed depending on if tapped or not
+                //console.log('/ts from:', i.from)
                 io.emit('move', i.name, i.card, i.from, i.to);
             }
 
@@ -128,8 +128,7 @@ io.on('connection', (socket) => {
                 //ping back to player options
                 io.emit('recivedTapped', name, card, output, location)
             } else if(output.startCondition){
-                //maybe del startCOndition?
-                //why does output have card?==================
+                //maybe del startCondition?
                 io.emit('recivedTapped', name, card, output, location)
             }
         } else if (tap===true){
@@ -154,7 +153,8 @@ io.on('connection', (socket) => {
         if(output.startCondition[0]) {
             //======if open multiple popups========
             for(let i of output.startCondition){
-                if(i) play(name, i.card, i.from, true)
+                console.log('to:',i.to)
+                if(i) play(name, i.card, i.to, true)
             }
         }
     })
