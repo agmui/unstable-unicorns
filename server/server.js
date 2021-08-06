@@ -108,6 +108,7 @@ io.on('connection', (socket) => {
 
         let output = game.card(game, 'play', name, card, location.slice(), bypass);
         if(output === null) return//if card.js throws an error
+        game.getState('host',true)//ts
 
         //game.card might move card so location needs to be updated
         if (output.move[0]) location[1] = output.move[0].to[1]//could have prob cuz of list
@@ -117,7 +118,6 @@ io.on('connection', (socket) => {
 
         if (tap === false){
             for (let i of output.move){//needs to be fixed depending on if tapped or not
-                //console.log('/ts from:', i.from)
                 io.emit('move', i.name, i.card, i.from, i.to);
             }
 
@@ -129,6 +129,8 @@ io.on('connection', (socket) => {
                 io.emit('recivedTapped', name, card, output, location)
             } else if(output.startCondition){
                 //maybe del startCondition?
+                //ping back to player options
+                card.tap = true//true means already used, false means not used yet
                 io.emit('recivedTapped', name, card, output, location)
             }
         } else if (tap===true){
@@ -153,8 +155,10 @@ io.on('connection', (socket) => {
         if(output.startCondition[0]) {
             //======if open multiple popups========
             for(let i of output.startCondition){
-                console.log('to:',i.to)
-                if(i) play(name, i.card, i.to, true)
+                if(i) {
+                    console.log('tap',i.card.tap)//ts
+                    play(name, i.card, i.to, true)
+                }
             }
         }
     })
@@ -162,7 +166,6 @@ io.on('connection', (socket) => {
     //move functions
     /*socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
         console.log("server.js: recived move function", username, card.name, from, to)
-        console.log('wtf======')//ts
         let state = game.move(username, card, from, to, undo)
         if (state == false) return//checking if move is alowed with class.js
         if (state) console.log('server.js: game over')

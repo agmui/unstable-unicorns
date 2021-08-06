@@ -196,14 +196,15 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
         //all checks below could have vonabilaty if user were to change request on client side
         let output
         //when Uni card enters stable
-        if(card.effect === 'enter'){//optimize
+        if(card.effect === 'enter'&&card.tap===false){//optimize
             //have a check to not move the card if already in stable
-            output = game.move(name, card, location, 'Stable')
-            if (output === false) return null//if class.js throws and error
-
-            //tells client something moved
-            //============name and location need to be filled correctly cuz card could be played from player or taken from others
-            move.push({name:name, card:card, from: location, to:[name,'Stable']})
+            if(location !== [name, location[1]]){
+                console.log('enter function')//ts
+                output = game.move(name, card, location, 'Stable')
+                if (output === false) return null//if class.js throws and error
+                //tells client something moved
+                move.push({name:name, card:card, from: location, to:[name,'Stable']})
+            }
         }else if (location[1] !== 'Stable'){//checks are ment for upgrade and downgrade cards
             if(card.type !== 'Magic'){
                 output = game.move(name, card, 'Hand', 'Stable')//when initaly playing something
@@ -238,7 +239,7 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
                 }
                 break;
             default:
-                phase = game.rotatePhase()
+                //phase = game.rotatePhase()
                 if(card.action.length){
                     send = {
                         text: card.text,
@@ -277,7 +278,8 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
                     affectedObjects = [{name:name, card:card.name}]
                     action(game, move, name, [{type:"discard", cardType:[]}], affectedObjects)
                 }
-                card.tap = null
+                card.tap = null//fix
+                if(card.effect==='enter') card.tap = true
         }
         return {move: move, phase:phase, startCondition: output}
     }

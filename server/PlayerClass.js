@@ -16,6 +16,7 @@ const { copyFileSync } = require('fs');
 let deck = require('./data.json');
 const cardAuto = require('./card.js');
 const { count } = require('console');
+const { tap } = require('lodash');
 
 class Card {
     constructor(name, text, type, img, effect, action) {
@@ -61,23 +62,24 @@ class Player {
         return this.stable.length >= 7;
     }
     findCardInPlayer(card, location=false, index=false){
+        let tap = card.tap
         if(card.name) card = card.name
         if (location === 'Hand'){
             for (let i of this.getHand()){
-                if (i.name === card) return (index) ? [i, this.hand.indexOf(i)] : i
+                if (i.name === card && i.tap === tap) return (index) ? [i, this.hand.indexOf(i)] : i
             }
             console.log('Class.js:', card ,'card not in',this.name,'hand')
             return null
         } else if (location === 'Stable'){
             for (let i of this.getStable()){
-                if (i.name === card) return (index) ? [i, this.stable.indexOf(i)] : i
+                if (i.name === card && i.tap === tap) return (index) ? [i, this.stable.indexOf(i)] : i
             }
             console.log('Class.js:', card ,'card not in',this.name,'Stable'.bgRed)
             return null
         }
         else {//needs to be tested
-            let output = this.findCardInPlayer(card, 'Hand')
-            return (output === null) ? this.findCardInPlayer(card, 'Stable') : output
+            let output = this.findCardInPlayer({name:card,tap:tap}, 'Hand')
+            return (output === null) ? this.findCardInPlayer({name:card,tap:tap}, 'Stable') : output
         }
     }
     getName() {
@@ -153,7 +155,8 @@ class Board {
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             card = this.findCard('Charming Bardicorn', 'deck')
-            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
 
             /*card = this.findCard('Controlled Destruction', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
@@ -291,7 +294,12 @@ class Board {
                 console.log('Class.js: error card not found in discard')
                 return null;
             default://if array is returned
-                return this.getPlayer(location[0]).findCardInPlayer(card, location[1], false)
+                let tap = false
+                if(card.tap)tap = card.tap
+                let output = this.getPlayer(location[0]).findCardInPlayer({name:card,tap:tap}, location[1], false)
+                if(output) return output
+                console.log('second try')//ts
+                return this.getPlayer(location[0]).findCardInPlayer({name:card,tap:!tap}, location[1], false)
         }
         
     }
@@ -325,7 +333,7 @@ class Board {
     checkTapped(card, location){//maybe not used
         //name (str), card (Card obj), location [name, location]
         if(card.type === 'Magic') return false
-        let c = this.findCard(card, location)//this.getPlayer(name).findCardInPlayer(card, location[1])
+        let c = this.findCard(card, location)
         if(c === null) return null
         return c.tap
     }
