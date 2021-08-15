@@ -199,7 +199,6 @@ function main(game, request, name, card, affectedObjects, bypass=false) {
         if(card.effect === 'enter'&&card.tap===false){//optimize
             //have a check to not move the card if already in stable
             if(location !== [name, location[1]]){
-                console.log('enter function')//ts
                 output = game.move(name, card, location, 'Stable')
                 if (output === false) return null//if class.js throws and error
                 //tells client something moved

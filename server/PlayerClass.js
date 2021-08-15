@@ -298,7 +298,6 @@ class Board {
                 if(card.tap)tap = card.tap
                 let output = this.getPlayer(location[0]).findCardInPlayer({name:card,tap:tap}, location[1], false)
                 if(output) return output
-                console.log('second try')//ts
                 return this.getPlayer(location[0]).findCardInPlayer({name:card,tap:!tap}, location[1], false)
         }
         

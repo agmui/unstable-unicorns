@@ -101,7 +101,7 @@ socket.on("phase", function (phase, name) {
       text = "Press End Turn to continue"
       if (name == username) {
         document.getElementById('endPhase').style.display = "none";
-        document.getElementById('end turn').style.display = "block";
+        document.getElementById('endTurn').style.display = "block";
       }
       break
     default://if player has >7 cards in hand
@@ -406,7 +406,7 @@ function endTurn() {
   socket.emit('endTurn', username);
   console.log(username + " ends turn")
   document.getElementById('endPhase').style.display = "block";
-  document.getElementById('end turn').style.display = "none";
+  document.getElementById('endTurn').style.display = "none";
 }
 
 //=======================popup==========================================
@@ -489,8 +489,9 @@ function updateBoard(card, from, to) {//fix array thing with to
     }
   }
 }
-
 //==========Debug code============
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 socket.on("DEBUG_autofill", function (name) {
   if (username == '') {
     document.getElementById("username_input").value = name
@@ -499,4 +500,54 @@ socket.on("DEBUG_autofill", function (name) {
       document.getElementById("ready").click()
     }
   }
+
+
+
+
+  //host====================================================
+  if(name === 'host' && username === name){
+    console.log("DEBUG")
+    const yourFunction = async () => {
+      await delay(500);
+      findNode("hostHand", "Charming Bardicorn").click()
+
+      await delay(100);
+      findNode("steal", "The Great Narwhal").click()
+
+      document.getElementById("confirm").click()
+
+      document.getElementById("endPhase").click()
+      document.getElementById("endPhase").click()
+      await delay(50);
+      document.getElementById("endTurn").click()
+    };
+    yourFunction()
+
+
+
+    //player1====================================================
+  } else if(name === 'player1' && username === name){
+    console.log("DEBUG")
+    const yourFunction = async () => {
+      await delay(500+100+50+500);
+      findNode("player1Hand", "Charming Bardicorn").click()
+
+      await delay(100);
+      findNode("steal", "Charming Bardicorn").click()
+      document.getElementById("confirm").click()
+    };
+    yourFunction()
+  }
+
+
+
+
 });//*/
+
+function findNode(elementId, idName) {
+  for(let i of document.getElementById(elementId).childNodes){
+    if(i.id === idName){
+      return i
+    }
+  }
+}

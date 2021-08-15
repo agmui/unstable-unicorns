@@ -108,7 +108,6 @@ io.on('connection', (socket) => {
 
         let output = game.card(game, 'play', name, card, location.slice(), bypass);
         if(output === null) return//if card.js throws an error
-        game.getState('host',true)//ts
 
         //game.card might move card so location needs to be updated
         if (output.move[0]) location[1] = output.move[0].to[1]//could have prob cuz of list
@@ -156,7 +155,6 @@ io.on('connection', (socket) => {
             //======if open multiple popups========
             for(let i of output.startCondition){
                 if(i) {
-                    console.log('tap',i.card.tap)//ts
                     play(name, i.card, i.to, true)
                 }
             }
