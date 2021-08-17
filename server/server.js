@@ -32,6 +32,9 @@ io.on('connection', (socket) => {
         io.emit("DEBUG_autofill", "player1");
         name++
     }
+    socket.on('debugPassOver', function (name) {
+        io.emit('debugPassOver', name)
+    })
     //========================
 
     console.log('user ' + socket.id + ' joined');
@@ -141,6 +144,7 @@ io.on('connection', (socket) => {
     socket.on('filledForm', function(name, card, affectedObjects, location){
         if(affectedObjects === {}) return
         card = game.findCard(card, location)//to use the servers version of the card
+        //tap warrning error is fine here
         let output = game.card(game, 'tapped', name, card, affectedObjects);
         if (output===null||typeof output === 'string')return//card.js checks if valid input
 

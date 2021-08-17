@@ -74,7 +74,7 @@ class Player {
             for (let i of this.getStable()){
                 if (i.name === card && i.tap === tap) return (index) ? [i, this.stable.indexOf(i)] : i
             }
-            console.log('Class.js:', card ,'card not in',this.name,'Stable'.bgRed)
+            console.log('Class.js:', card ,'card not in',this.name,'Stable')
             return null
         }
         else {//needs to be tested
@@ -152,9 +152,10 @@ class Board {
 
             let card = this.findCard('Glitter Bomb', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
             card = this.findCard('Unicorn Trap', 'deck')
-            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
+            //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
 
             card = this.findCard('Charming Bardicorn', 'deck')
+            this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
             //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
@@ -166,9 +167,14 @@ class Board {
             //*/
             //this.move(p.getName(), this.drawFromDeck(1), "deck", [p.getName(),"Stable"], false, true);
             card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
-            this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
+            //this.move(p.getName(), card, "deck", [p.getName(),"Stable"], false, true);
             //this.move(p.getName(), card, "deck", [p.getName(),"Hand"], false, true);
         })
+        let card = this.findCard('The Great Narwhal', 'deck')//new Card('Glitter Bomb', 'test', 'Upgrade', 'Glitter_Bomb.png')
+        this.move("host", card, "deck", ["host","Stable"], false, true);
+        this.move("host", card, "deck", ["host","Stable"], false, true);
+        this.move("host", card, "deck", ["host","Stable"], false, true);
         console.log('=========setup over========='.bold)
     }
     //parm card should be a list
@@ -221,7 +227,7 @@ class Board {
             }
         }
         let output = null
-        console.log('class.js: ' + name + " moved " + card[0].name + " from " + from + " to " + to, to[0].name, to[1])
+        console.log('class.js: ' + name + " moved " + card[0].name + " from " + from + " to " + to,)
         switch (from) {
             case "deck":
             case "discard":
@@ -252,7 +258,10 @@ class Board {
                 break
             case "Stable":
                 //when Unicorn cards enter the stable
-                if(card[0].effect==='enter')output = {to:[name,to], card:card[0]}
+                if(card[0].effect==='enter'){
+                    card[0].tap = false//needs to be tested (used for case of recursive cards)
+                    output = {to:[name,to], card:card[0]}
+                }
             case "Hand":
                 this.getPlayer(name).addCard(card, to)
                 break
@@ -273,15 +282,16 @@ class Board {
     }
     //returns card object
     //card should be a Card obj or string
-    findCard(card,location, index=false) {
-        if(card.name) card = card.name
+    findCard(card,location, index=false, tap = false) {
+        let cardName = card
+        if(card.name) cardName = card.name
         switch(location) {
             case undefined://if location param is not filled
                 console.log("class.js: fill in location param")
                 return null
             case "deck":
                 for(let i =0; i < deck.length; i ++){
-                    if (deck[i].name === card) {
+                    if (deck[i].name === cardName) {
                         return (index) ? [deck[i], i] : deck[i];
                     }
                 }
@@ -289,16 +299,16 @@ class Board {
                 return null;
             case "discard":
                 for(let i of this.discard){
-                    if (i.name === card) return (index) ? [i, this.discard.indexOf(i)] : i;
+                    if (i.name === cardName) return (index) ? [i, this.discard.indexOf(i)] : i;
                 }
                 console.log('Class.js: error card not found in discard')
                 return null;
             default://if array is returned
-                let tap = false
                 if(card.tap)tap = card.tap
-                let output = this.getPlayer(location[0]).findCardInPlayer({name:card,tap:tap}, location[1], false)
+                let output = this.getPlayer(location[0]).findCardInPlayer({name:cardName,tap:tap}, location[1], false)
                 if(output) return output
-                return this.getPlayer(location[0]).findCardInPlayer({name:card,tap:!tap}, location[1], false)
+                console.log('WARNING'.black.bold.bgYellow,'could be error, trying diffrent tap')
+                return this.getPlayer(location[0]).findCardInPlayer({name:cardName,tap:!tap}, location[1], false)
         }
         
     }

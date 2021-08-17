@@ -477,6 +477,7 @@ function updateBoard(card, from, to) {//fix array thing with to
     for(let i of x.childNodes) {
       if (i.id===card.name){
         document.getElementById(from[0] + from[1]).removeChild(i)
+        break//fix
       }
     }
   } else { 
@@ -485,12 +486,61 @@ function updateBoard(card, from, to) {//fix array thing with to
     for(let i of x.childNodes) {
       if (i.id===card.name){
         document.getElementById(to[0] + to[1]).appendChild(i)
+        break//fix
       }
     }
   }
 }
 //==========Debug code============
 const delay = ms => new Promise(res => setTimeout(res, ms));
+
+socket.on('debugPassOver', function (name) {
+  if(name === username) debug(false)
+})
+
+function debug(sendBack=true) {
+  let str = document.getElementById('whosTurn').innerHTML.substr(6)
+  if(str !== username && sendBack===true){ 
+    console.log('wrong btn')
+    return
+  }
+  if('host' === username ){
+    console.log("DEBUG")
+    hostDebug()
+
+    if(sendBack===true) socket.emit('debugPassOver', 'player1')
+  } else if('player1' === username){
+    console.log("DEBUG")
+    player1Debug()
+    if(sendBack===true) socket.emit('debugPassOver', 'host')
+  }
+}
+
+//host====================================================
+const hostDebug = async () => {
+  await delay(500+100+50+100)
+  findNode("hostHand", "Charming Bardicorn").click()
+
+  await delay(100);
+  findNode("steal", "Charming Bardicorn").click()
+  document.getElementById("confirm").click()
+};
+
+//player1====================================================
+async function player1Debug() {
+  await delay(500);
+  findNode("player1Hand", "Charming Bardicorn").click()
+
+  await delay(100);
+  findNode("steal", "The Great Narwhal").click()
+
+  document.getElementById("confirm").click()
+
+  document.getElementById("endPhase").click()
+  document.getElementById("endPhase").click()
+  await delay(50);
+  document.getElementById("endTurn").click()
+}
 
 socket.on("DEBUG_autofill", function (name) {
   if (username == '') {
@@ -500,50 +550,15 @@ socket.on("DEBUG_autofill", function (name) {
       document.getElementById("ready").click()
     }
   }
-
-
-
-
-  //host====================================================
-  if(name === 'host' && username === name){
-    console.log("DEBUG")
-    const yourFunction = async () => {
-      await delay(500);
-      findNode("hostHand", "Charming Bardicorn").click()
-
-      await delay(100);
-      findNode("steal", "The Great Narwhal").click()
-
-      document.getElementById("confirm").click()
-
-      document.getElementById("endPhase").click()
-      document.getElementById("endPhase").click()
-      await delay(50);
-      document.getElementById("endTurn").click()
-    };
-    yourFunction()
-
-
-
-    //player1====================================================
-  } else if(name === 'player1' && username === name){
-    console.log("DEBUG")
-    const yourFunction = async () => {
-      await delay(500+100+50+500);
-      findNode("player1Hand", "Charming Bardicorn").click()
-
-      await delay(100);
-      findNode("steal", "Charming Bardicorn").click()
-      document.getElementById("confirm").click()
-    };
-    yourFunction()
-  }
-
-
-
-
 });//*/
-
+/*
+* finds an child element in a parent element
+* params: 
+* elementId, parent element's id
+* idName, child element's id
+*
+* returns an element
+*/
 function findNode(elementId, idName) {
   for(let i of document.getElementById(elementId).childNodes){
     if(i.id === idName){
