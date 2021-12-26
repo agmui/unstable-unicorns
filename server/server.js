@@ -2,9 +2,10 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
-const PlayerClass = require('./PlayerClass');
+const rules = require('./game/Rules');
 let playerList = {};
 var fs = require('fs');
+let game
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname , '..', 'client','index.html'));
@@ -61,129 +62,135 @@ io.on('connection', (socket) => {
             io.emit("That username is taken!");
         }
     });
+
+    //================================Btns=============================================
     socket.on('ready', function (name) { // make it so when everyone clicks ready then start
         if (name == 'host') { // make the host the first person who joins and can be switchable
             io.emit('num of players', playerList)
-            game = new PlayerClass.Board(playerList);
+            console.log('=======================')
+            game = new rules.rules(playerList);
             game.setup();
-            io.emit('phase', game.rotatePhase(), game.getTurn())
             io.emit('turn start', game.getTurn());
-            //io.emit('board update', update(name));
+            io.emit('phase', game.rotatePhase(), game.getTurn())
             boardUpdate()
         }
     });
-    socket.on('getDeckOrDis', function (username, where, random = false) {//client askes for deck/discard img
-        //random code not used
-        if (random) {// can spesify if blind or visble deck/discard
-            let card = (where === 'deck' ? game.drawFromDeck(1) : game.drawFromDiscard())
-            io.emit('random card', card)//sends cards in either a list 
-            return
-        }
-        let cards = game.getDeckOrDiscard(where)
-        if (cards.length != 0) {//check if deck/discard runs out of cards
-            sendPic(cards, [username, 'display'])
-            return
-        } io.emit('no cards', username);// if deck/discard runs out of cards
+
+    //TODO add checks to all btn
+    socket.on('deckBtn', function(){
+        //draws from deck
     });
-    socket.on('pass', function (username) {
-        console.log(username, 'passed')
-    });
-    socket.on('endPhase', function (username) {
-        console.log('end phase')
+
+    socket.on('passBtn', function(){
+        //passes action or beginning of turn phase
+        console.log('clicked on pass')
         io.emit('phase', game.rotatePhase(), game.getTurn())
     });
-    socket.on('endTurn', function (username) {
-        if (game.getPhase() == 5) {
-            console.log('switched turns')
-            io.emit('turn start', game.rotateTurn());
-        }
-        io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
-        boardUpdate()
+
+    socket.on('endPhaseBtn', function(){
+        //ends phase *should not be needed
+        console.log('clicked on end Phase')
+        io.emit('phase', game.rotatePhase(), game.getTurn())
     });
 
-    //auto fill card functions
-    socket.on('play', (name, card, location) => {play(name, card, location)})
-    //needs to be seprate function to be used in Socket.on('filledForm')
-    function play(name, card, location, bypass = false){//optimise
-        //check if card is in right location
-        card = game.findCard(card, location)//to use the servers version of the card
-        if(card === null) {console.log('Error'.bgRed); return}
+    socket.on('endTurnBtn', function(){
+        //ends turn
+        console.log('clicked on end turn')
+        if(game.rotateTurn()){
+            io.emit('turn start', game.getTurn());
+            io.emit('phase', game.rotatePhase(), game.getTurn())
+        }
+        //TODO send errer msg
+    });
 
-        let output = game.card(game, 'play', name, card, location.slice(), bypass);
-        if(output === null) return//if card.js throws an error
-
-        //game.card might move card so location needs to be updated
-        if (output.move[0]) location[1] = output.move[0].to[1]//could have prob cuz of list
-
-        let tap = game.checkTapped(card, location)//check if card is in location
-        if(tap === null) return//card has error or is already used
-
-        if (tap === false){
-            for (let i of output.move){//needs to be fixed depending on if tapped or not
-                io.emit('move', i.name, i.card, i.from, i.to);
+    //=======================popup==========================================
+    //when client clicks on a card
+    let selectedCard = {num:0}//to pass what card was selected to CardEffects function
+    socket.on('clickCard', function(name, cardName, location){
+        console.log('player:',name, 'clicked on:', cardName, 'at', location)
+        sendPlay(name, cardName, location)
+    });//fix the function is separated 
+    function sendPlay(name, cardName, location){
+        selectedCard = {
+            name: name,
+            cardName: cardName,
+            location: location,
+            num:selectedCard.num
+        }
+        if(location[0] === name) {//if it is player's own cards
+            let [form, move] = game.play(name, cardName, location[1], selectedCard.num)
+            if(form !== false){
+                switch(form.type){
+                    case 'discard':
+                        //TODO
+                        break
+                    case 'sacrifice':
+                        //display stable
+                        form = {display: [{name:name, location:'Stable'}], type: form.type}
+                        break
+                    case 'destroy':
+                        //display opp stable
+                        let oppStable = []
+                        for(let i of game.players){
+                            if(i.name !== name) oppStable.push({name:i.name,location:'Stable'}) 
+                        }
+                        form = {display : oppStable, type: form.type}
+                        break
+                    case 'draw':
+                        //TODO
+                        break
+                    case 'steal':
+                        //TODO
+                        break
+                    case 'bringBack':
+                        //TODO
+                        break
+                    case 'trade':
+                        //TODO
+                        break
+                }
+                io.emit('fill', form, name)
+                console.log('sent form:', form)
+                if(move) io.emit('move', name, card, 'Hand', 'Stable', false)
             }
-
-            if(output.phase) io.emit('phase', output.phase, game.getTurn());
-            boardUpdate()
-            
-            if(card.type === 'Magic'){//test
-                //ping back to player options
-                io.emit('recivedTapped', name, card, output, location)
-            } else if(output.startCondition){
-                //maybe del startCondition?
-                //ping back to player options
-                card.tap = true//true means already used, false means not used yet
-                io.emit('recivedTapped', name, card, output, location)
-            }
-        } else if (tap===true){
-            //ping back to player options
-            io.emit('recivedTapped', name, card, output, location)
+        } else {//may not be needed
+            console.log('not in players hand')
         }
     }
 
-    socket.on('filledForm', function(name, card, affectedObjects, location){
-        if(affectedObjects === {}) return
-        card = game.findCard(card, location)//to use the servers version of the card
-        //tap warrning error is fine here
-        let output = game.card(game, 'tapped', name, card, affectedObjects);
-        if (output===null||typeof output === 'string')return//card.js checks if valid input
-
-        for (let i of output.move){
-            io.emit('move', i.name, i.card, i.from, i.to);
-        }
-
-        if(output.phase) io.emit('phase', output.phase, game.getTurn());
-        boardUpdate()
-
-        if(output.startCondition[0]) {
-            //======if open multiple popups========
-            for(let i of output.startCondition){
-                if(i) {
-                    play(name, i.card, i.to, true)
+    socket.on('filledForm', function(form){
+        if(form) {
+            console.log('recived form', form)//'ts
+            let [validInput, moreAction, move] = game.CardEffect(selectedCard.name, selectedCard.cardName, selectedCard.location[1], form)
+            //if valid output send back changes to client
+            if(validInput){
+                //update client
+                if(move) {
+                    for(let i of move){
+                        io.emit('move', i.name, i.cardName, i.from, i.to, false)
+                    }
                 }
+
+                //check if there are anymore actions
+                if(moreAction){
+                    console.log('more actions')
+                    selectedCard.num++;
+                    io.emit('accepted input', 'more actions')//tells client to keep popup
+                    sendPlay(selectedCard.name, selectedCard.cardName, selectedCard.location)
+                } else{
+                    io.emit('accepted input', 'accepted')//tells client to close popup
+                    //rotate phase if it is action phase
+                    if(game.getPhase() === 3) io.emit('phase', game.rotatePhase(), game.getTurn())
+                }
+            } else {
+                //send back error to client
+                console.log('not valid input')
+                io.emit('accepted input', false)
             }
         }
     })
-
-    //move functions
-    /*socket.on('move', function (username, card, from, to, undo) {// move funciton only alows one card to be moved at a time plz fix
-        console.log("server.js: recived move function", username, card.name, from, to)
-        let state = game.move(username, card, from, to, undo)
-        if (state == false) return//checking if move is alowed with class.js
-        if (state) console.log('server.js: game over')
-        io.emit("move", username, card, from, to, state);
-        boardUpdate()
-    });
-    socket.on('undo', function (username) {//fix anyone can call for undo
-        console.log('server.js:', username, 'undid a move')
-        io.emit('undo', game.undo(username));// broadcast to all of the undid move, up to them how to change gui
-        io.emit('phase', game.getPhase(), game.getTurn()) //idk maybe not need if statment
-        boardUpdate()//checks to see if any new card img needs to be sent
-    });
-    socket.on('interupt', function (toWho) {
-        console.log('server.js: interupt recived');
-        game.interupt(toWho);
-    });*/
+    
+    // =====================send imgs=================
     //sending pic over given card class in a list and where it is suppose to go
     function sendPic(picDir, where) {
         let imgFile;
@@ -201,7 +208,7 @@ io.on('connection', (socket) => {
     }
     // sends pics of the updated board
     function boardUpdate() {// make it so it does not have to loop though all players and just do one emit
-        if (game.sendPic != []) {
+        if (game.sendPic !== []) {
             for (let i of game.sendPic) {
                 sendPic(i.card, i.to)
             }

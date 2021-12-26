@@ -6,8 +6,9 @@ var form = document.getElementById('form');
 var input = document.getElementById('input');
 var usernameInputValue = document.getElementById('username_input')
 var username = '';
-let allCards = {};//not used
+let allCards = {};//todo
 gameOver = false;
+//let formObject = {}//used for sending back to server inputed form
 
 
 form.addEventListener('submit', function (e) {
@@ -73,60 +74,52 @@ socket.on("num of players", function (playerList) {
 //shows all action btn
 socket.on("turn start", function (name) {
   document.getElementById('whosTurn').innerHTML = 'Turn: ' + name
-  if (username == name) {
-    elem = document.getElementById('btn');
-    elem.style.display = "block";
-  } else {
-    elem = document.getElementById('btn');
-    elem.style.display = "none";
-  }
+  let btn = document.getElementById('btn');
+  btn.style.display = (username === name)? 'block' : 'none';
 })
 
-socket.on("phase", function (phase, name) {
-  let text;
-  switch (phase) {
-    case 1:
-      text = "Beginning Of Turn Phase"
-      break
-    case 2:
-      text = "Draw Phase"
-      break
-    case 3:
-      text = "Action Phase"
-      break
-    case 4:
-      text = "End of Turn Phase"
-      break
-    case 5:
-      text = "Press End Turn to continue"
-      if (name == username) {
-        document.getElementById('endPhase').style.display = "none";
-        document.getElementById('endTurn').style.display = "block";
-      }
-      break
-    default://if player has >7 cards in hand
-      text = "End of Turn Phase"
-      console.log('to many cards remove', phase.numOfCards, 'num of cards')
+socket.on("phase", function (text, name) {
+  if (name === username && text === 'Press End Turn to continue') {
+    //probs not necessary
+    document.getElementById('endPhase').style.display = "none";
+    document.getElementById('endTurn').style.display = "block";
+  } else if (text === false) {
+    //when player has do many cards
+    text = "End of Turn Phase"
+    console.log(name, 'has to many cards')
   }
   console.log('phase: ' + text)
   document.getElementById('phaseUI').innerHTML = text;
 });
 // when another player moves a card recives action here
-socket.on("move", function (name, card, from, to, winner) {
-  console.log("reciving from server:" + name + ' moved ' + card.name + ' from ' + from + ' to ' + to)
+socket.on("move", function (name, cardName, from, to, winner) {
+  console.log("reciving move: " + name + ' moved ' + cardName+ ' from ' + from + ' to ' + to)
 
-  // when Unicorn card enters somones stable
-  if(name === username && card.effect === 'enter' && to[1] === 'Stable' ){//optimize
-    let img
-    for(let i of document.getElementById(from[0]+from[1]).childNodes){
-      if(i.id === card.name) {img = i;break}
+  //update client screen 
+  //have a checks if it is player's turn
+  if (from == "deck" || from == "discard") {
+    return
+  }
+  let player = document.getElementById(name+from)
+  //TODO: insure it grabs the card if multiple people have the same card
+  if (to == "deck" || to == "discard") {
+    //moving card to deck/discard
+    for(let i of player.childNodes) {
+      if (i.id===cardName){
+        document.getElementById(name+from).removeChild(i)
+        break
+      }
     }
-    document.getElementById('text').innerHTML = card.text
-    const modal = document.querySelector(img.dataset.modalTarget)//took code form line177 needs tweeking =================
-    openModal(modal)
+  } else { 
+    //moving card from player to player
+    for(let i of player.childNodes) {
+      if (i.id===cardName){
+        document.getElementById(to).appendChild(i)//fix
+        break
+      }
+    }
   }
 
-  updateBoard(card, from, to)
   if (winner) {//game over sequence
     console.log('winner:', winner);
     document.getElementById('btn').style.display = 'none'
@@ -135,32 +128,57 @@ socket.on("move", function (name, card, from, to, winner) {
   }
 });
 
-// recives ping form server when someone udoes a move
-/*socket.on('undo', function (action) {
-  if (action == false) {
-    return;
-  }
-  if (action == 'end') {
-    console.log('out of undo')
-    return
-  }
-  //check's whos turn it is and makes them do the move fuction
-  if (document.getElementById('whosTurn').innerHTML == 'Turn: ' + username) {// fix way of getting who's turn
-    //move(username, action.card, action.to, action.from, true);
-  }
-})*/
+socket.on('fill', function(form, name){
+  if(name !== username) return //check for correct player
+  console.log('play request approved')
 
-//reciving random card from deck or discard
-socket.on('random card', function (card) {
-  console.log(card)
+  let img, sendForm = [];
+  //display action
+  document.getElementById('displayCards').innerHTML = form.type+'\n'
+  console.log('recived form:', form)//ts
+  for(let i of form.display){
+    //display the players name in popup
+    document.getElementById('displayCards').insertAdjacentHTML('beforeend', i.name)
+
+    //display cards in popup
+    img = document.getElementById(i.name+i.location).cloneNode(true)
+    for(let j of img.childNodes){
+      //TODO: remove activated card form popup
+
+      //TODO make clicking a card toggle and set up higlight
+      j.onclick = () => {
+        sendForm.push({
+          //input card details
+          name: i.name,
+          location: i.location,
+          cardName: j.id,
+          type: form.type
+        })
+      }
+    }
+    document.getElementById('displayCards').appendChild(img)
+  }
+  //display confirm btn
+  confirmBtnElement = document.getElementById('confirm')
+  confirmBtnElement.style.display = 'block'
+  confirmBtnElement.onclick = () => {confirmBtn(sendForm)}
+
 });
 
-//reciving out of cards msg
-socket.on('no cards', function (name) {
-  if (name === username) {
-    document.getElementById('display').style.display = 'none'
-    document.getElementsByClassName('modal-body').innerHTML = 'no cards'//not working
-    console.log('no cards')
+//after pressing the confirm and server replys with no errors
+socket.on('accepted input', function(output){
+  if(output){
+    if(output === 'accepted'){
+      //normal case
+      const modal = document.getElementById('modal')
+      closeModal(modal)
+    } else if('more actions'){
+      //more actions case
+      document.getElementById('displayCards').textContent = ''
+    }
+  } else {
+    //if input is not accepted
+    window.alert('invalid input')
   }
 });
 
@@ -170,21 +188,16 @@ socket.on("image", function (info, where, cardObject) {
     let img = document.createElement("IMG")
 
     img.onclick = function() {
-      let who =  img.parentElement.parentElement.id
-      let location = img.parentElement.id.slice(who.length)
+      let playerGettingLookedAt =  img.parentElement.parentElement.id
+      let location = img.parentElement.id.slice(playerGettingLookedAt.length)
       console.log('sending play request')
-      socket.emit('play', username, cardObject, [who,location]);
+      socket.emit('clickCard', username, cardObject.name, [playerGettingLookedAt, location]);
 
-      //====popup stuff===
-      //checks if btn is in hand and if its player's turn
-      let turn = document.getElementById('whosTurn').innerHTML.slice(6)//remove all html
-      //checks are when a card is played form hand dont popup
-      if( !(turn === username && location === 'Hand' &&  who === username) || cardObject.type === 'Magic' ){//optimize
-        document.getElementById('text').innerHTML = cardObject.text
-        const modal = document.querySelector(img.dataset.modalTarget)
-        openModal(modal)
-      } 
-      //=================
+      //====opens popup===
+      //TODO: checks are when a card is played form hand dont popup
+      document.getElementById('text').innerHTML = cardObject.text
+      const modal = document.querySelector(img.dataset.modalTarget)
+      openModal(modal)
     }
 
     img.src = 'data:image/jpeg;base64,' + info.buffer;
@@ -204,206 +217,32 @@ socket.on("image", function (info, where, cardObject) {
   }
 });
 
-//fix problem when option above chooses a card the bottem option cant choose the same card
-let formObject = {}
-socket.on('recivedTapped', function(name, card, output, location) {
-  if (username !== name ) return
-  //open gui and fill form ========
-  let affectedObjects = []//optimize
-  let removeIndex, opponates, actionElement, img, playerNames
-
-  document.getElementById('text').innerHTML = output.send.text
-  document.getElementById('confirm').style.display = 'block'
-
-  //formats the cards that show up on the popup
-  const cardAction = (action, img, player, actionElement) => {//optimize
-    //remove activated card from popup
-    removeIndex = Array.from(img).findIndex((img) => img.name === card.name && player === name)
-    for (let i = 1; i < img.length; i++) {//starts on 1 cause node list has text as first elemt
-      if(i === removeIndex)continue
-      if(action.cardType.length === 0 || action.cardType.includes(allCards[img[i].name].type)){//check if card type is specified
-        let cloneImg = img[i].cloneNode(true)
-        cloneImg.className = 'unselect'
-        cloneImg.onclick = () => {//optimize
-          if(cloneImg.className === 'highlight') {
-            cloneImg.className = 'unselect'
-            affectedObjects.splice(affectedObjects.indexOf(cloneImg.name), 1)
-            formObject.affectedObjects = affectedObjects
-            return
-          }
-          let imgInPopup = actionElement.getElementsByClassName('highlight')
-          if(action.amount === imgInPopup.length) {
-            imgInPopup[imgInPopup.length-1].className = 'unselect'
-            affectedObjects.splice(affectedObjects.length-1, 1)
-            formObject.affectedObjects = affectedObjects
-          }
-          if(action.type === 'trade'){//fix for multiple people
-            if(player === username){
-              affectedObjects[affectedObjects.length-1].player = {name:player, card:cloneImg.name}
-            }else {
-              affectedObjects[affectedObjects.length-1].opp = {name:player, card:cloneImg.name}
-            }
-            console.log('help', affectedObjects)
-          }else{
-            affectedObjects = affectedObjects.concat(
-              //if statment is for showing all players case
-              {name:(player instanceof Array)? player[i] : player, 
-              card:cloneImg.name
-            })
-          }
-          formObject.affectedObjects = affectedObjects
-
-          cloneImg.className = 'highlight'
-
-        }
-        if(player instanceof Array){//for show multiple players case
-          let nameText  = document.createElement(player[i]).innerHTML = player[i]
-          actionElement.append(nameText)
-        }
-        actionElement.appendChild(cloneImg)
-      }
-    }
-  }
-
-  for(let action of output.send.action){
-    switch(action.type){
-      case 'sacrifice':
-        //show player stable
-      case 'discard':{
-        //show player hand
-        actionElement = document.createElement(action.type)
-        actionElement.id = action.type
-        actionElement.innerHTML = action.type
-        document.getElementById('displayCards').appendChild(actionElement)
-        let location = (action.type==='discard')? 'Hand':'Stable'
-
-        img = document.getElementById(username+location).childNodes
-        cardAction(action, img, username, actionElement)
-        break
-      }
-      case 'destroy':
-      case 'steal':
-        //still needs to implment test function
-
-        //show opponate's stable
-        opponates = document.getElementById('score board').childNodes
-        for(let j=1; j < opponates.length; j++ ){
-          actionElement = document.createElement(action.type)
-          actionElement.id = action.type
-          actionElement.innerHTML = action.type
-          document.getElementById('displayCards').appendChild(actionElement)
-          let opponateName = opponates[j].innerHTML
-          actionElement.innerHTML += opponateName
-
-          img = document.getElementById(opponateName+'Stable').childNodes
-          cardAction(action, img, opponateName, actionElement)
-        }
-        break
-      case 'draw'://test
-        //show deck
-        document.getElementById('displayCards').innerHTML += 'draw from deck?'
-        affectedObjects = affectedObjects.concat({card: 'random'})
-        break
-      case 'bringBack':
-        //shows everyones stable
-        img = ['_']//needs '_' for cardAction function
-        playerNames = ['_']
-        actionElement = document.createElement(action.type)
-        actionElement.id = action.type
-        actionElement.innerHTML = action.type
-        document.getElementById('displayCards').appendChild(actionElement)
-
-        for(let i of document.getElementById('board').childNodes){
-          if(i instanceof Element){//don't use html
-            document.getElementById(i.id+'Stable').childNodes.forEach(
-              function (currentValue) {
-                if(currentValue instanceof Element) img = img.concat(currentValue) 
-            })
-            playerNames = playerNames.concat(i.id)
-          }
-        }
-        cardAction(action, img, playerNames, actionElement)
-        break
-      case 'trade':
-        //could show everyones hand or stable
-
-        affectedObjects = affectedObjects.concat({player:'', opp:''})//to preset format for trade
-        for(let i of document.getElementById('board').childNodes){
-          if(i instanceof Element){//don't use html
-            img = ['_']//needs '_' for cardAction function
-            playerNames = ['_']
-            actionElement = document.createElement(action.type)
-            actionElement.id = action.type
-            actionElement.innerHTML = action.type+' '+i.id//fix
-            document.getElementById('displayCards').appendChild(actionElement)
-            document.getElementById(i.id+action.location).childNodes.forEach(
-              function (currentValue) {
-                if(currentValue instanceof Element) img = img.concat(currentValue) 
-            })
-            cardAction(action, img, i.id, actionElement)
-          }
-        }
-        break
-    }
-  }
-  formObject = {card: card, location: location}
-})
-
-
-//to disable cards for next action that have already been selected above
-//ex: actions should be done one by one so if a card is selected in an action above the cards below cant use same card
-function test(action, cardName) {
-  let test = document.getElementById('displayCards').childNodes
-  for(let i of test){
-    if (test.innerHTML !== action) console.log('/ts')
-  }
-}
-
 //================================Btns=============================================
 
-function confirm(){
-  if (formObject.affectedObjects === undefined) return
-  socket.emit('filledForm', username, formObject.card, formObject.affectedObjects, formObject.location)
-  formObject = {}
+function confirmBtn(formObject){
+  if (formObject === undefined) return
+  console.log('send this from back', formObject)
+  socket.emit('filledForm', formObject)
+  document.getElementById('confirm').style.display = 'none';
 }
 
 function ready() {
   socket.emit('ready', username)
 }
 function deck() {
-  document.getElementById('from').style.display = 'block'
-  document.getElementById('to').style.display = 'block'
-  document.getElementById("show").innerHTML += ' deck'
-  document.getElementById("display").style.display = "block"
-}
-function discard() {
-  document.getElementById('from').style.display = 'block'
-  document.getElementById('to').style.display = 'block'
-  document.getElementById("show").innerHTML += ' discard'
-  document.getElementById("display").style.display = "block"
+  socket.emit('deckBtn')
+  console.log(username + " drew from deck")
 }
 function pass() {
-  socket.emit('pass', username);
+  socket.emit('passBtn', username);
   console.log(username + " passed phase")
 }
-//have the undo button be able to undo phases if nessisary
-/*function undo() { // try to make it so they cant undo when no moves have been done
-  socket.emit('undo', username);
-  console.log(username + " undo action")
-}
-function interupt(toWho) {
-  document.getElementById('interupt').style.display = 'block'
-  document.getElementById('from').style.display = 'none'
-  document.getElementById('to').style.display = 'none'
-  if (toWho) socket.emit('interupt', toWho);
-  console.log(username, 'interupted', toWho)
-}*/
 function endPhase() {
-  socket.emit('endPhase', username);
+  socket.emit('endPhaseBtn', username);
   console.log(username + " ends phase")
 }
 function endTurn() {
-  socket.emit('endTurn', username);
+  socket.emit('endTurnBtn', username);
   console.log(username + " ends turn")
   document.getElementById('endPhase').style.display = "block";
   document.getElementById('endTurn').style.display = "none";
@@ -461,36 +300,13 @@ function closeModal(modal) {
   document.getElementById('displayCards').innerHTML = ''
   //hide confrim btn
   document.getElementById('confirm').style.display = 'none'
+  socket.emit('closedPopup')
 }
 //moves cards in gui without the need a ping from server
 //cuently card param can not take list
 //could have multiplay card moves
-function updateBoard(card, from, to) {//fix array thing with to
-  if (card instanceof Array) card = card[0];//fix
-  //have a checks if it is player's turn
-  if (from == "deck" || from == "discard") {
-    return
-  }
-  if (to == "deck" || to == "discard") {
-    //fix
-    let x =document.getElementById(from[0]+from[1])//to insure it grabs the card from the right domain if multiple people have the same card
-    for(let i of x.childNodes) {
-      if (i.id===card.name){
-        document.getElementById(from[0] + from[1]).removeChild(i)
-        break//fix
-      }
-    }
-  } else { 
-    //fix
-    let x = document.getElementById(from[0]+from[1])//to insure it grabs the card from the right domain if multiple people have the same card
-    for(let i of x.childNodes) {
-      if (i.id===card.name){
-        document.getElementById(to[0] + to[1]).appendChild(i)
-        break//fix
-      }
-    }
-  }
-}
+
+//plz fix ========================================================================================
 //==========Debug code============
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -518,28 +334,28 @@ function debug(sendBack=true) {
 
 //host====================================================
 const hostDebug = async () => {
-  await delay(500+100+50+100)
+  /*await delay(500+100+50+100)
   findNode("hostHand", "Charming Bardicorn").click()
 
   await delay(100);
   findNode("steal", "Charming Bardicorn").click()
-  document.getElementById("confirm").click()
+  document.getElementById("confirm").click()*/
 };
 
 //player1====================================================
 async function player1Debug() {
   await delay(500);
-  findNode("player1Hand", "Charming Bardicorn").click()
+  findNode("player1Hand", "Controled Destruction").click()
 
   await delay(100);
-  findNode("steal", "The Great Narwhal").click()
+  /*findNode("steal", "The Great Narwhal").click()
 
   document.getElementById("confirm").click()
 
   document.getElementById("endPhase").click()
   document.getElementById("endPhase").click()
   await delay(50);
-  document.getElementById("endTurn").click()
+  document.getElementById("endTurn").click()*/
 }
 
 socket.on("DEBUG_autofill", function (name) {

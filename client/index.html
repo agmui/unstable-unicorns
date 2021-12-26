@@ -26,10 +26,8 @@
         </div>
         <p id="score board">Players: </p>
         <action id="btn">
-            <button id="drawDeck" data-modal-target="#modal" onclick="deck()">Deck</button>
-            <button id="drawDeck" data-modal-target="#modal" onclick="discard()">Discard</button>
+            <button id="drawDeck" onclick="deck()">Deck</button>
             <button id="pass" onclick="pass()">Pass</button>
-            <button id="interuptBtn" data-modal-target="#modal" onclick="interupt()">Interupt</button>
             <button id="endPhase" onclick="endPhase()">End Phase</button>
         </action>
         <button id="endTurn" onclick="endTurn()">End Turn</button>
@@ -47,7 +45,7 @@
               </div>
               <div id="displayCards"></div>
 
-              <button id="confirm" data-close-button class="close-button" onclick="confirm()">Confirm</button>
+              <button id="confirm">Confirm</button>
             </div>
         </div>
         <div id="overlay"></div>
