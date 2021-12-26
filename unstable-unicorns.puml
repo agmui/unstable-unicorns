@@ -1,0 +1,110 @@
+@startuml
+class Card{
+    -name:String
+    -text:String
+    -type:String
+    -img:png
+    -tap:boolian
+    -effect:String
+    -action:String
+}
+class Rules{
+    -log:array
+    -turn:int
+    -phase:int
+    -sendPic:array
+    -bypass:array
+    +setup()
+    +move(name:String,card:mixed,from:mixed,to:mixed,undo:boolian,bypass:boolian):object
+    +rotatePhase()
+    +getTurn(playerObject:boolian):mixed
+    +getPhase()
+    +getPlayer(name:String):PlayerClass
+    +findCard(card:Card,location:mixed,name:boolian):Card
+    +play(name:String,cardName:String,location:mixed,num:int)
+    +CardEffect(name:String,cardName:String,location:mixed,form:mixed)
+    +sacrifice(name:String,card:Card)
+    +destroy(name:String,card:Card)
+    +steal(name:String,oppName:String,card:Card)
+    +bringBack(name:String,card:Card)
+    +trade(name:String,card:Card)
+    +choose(name:String,card:Card)
+    +ban(name:String,card:Card)
+    +printBoard()
+}
+class PlayerClass{
+    -name:String
+    -hand:array
+    -stable:array
+    +addCard(card:Card, where:mixed)
+    +removeCard(card:Card, where:mixed)
+    +checkHandNum():boolian
+    +winCondition():boolian
+    +findCardInPlayer(card:Card, location:mixed, index:int)
+    +getName():String
+    +getHand():array
+    +getHandStr():String
+    +getStable():array
+    getStableStr():String
+}
+class BoardClass{
+    -deck:array
+    -discard:array
+    -nursery:array
+    +drawFromDeck(num:int):array
+    +drawsFromDiscard():array
+    +addCard(card:Card, where:mixed)
+    +removeCard(card:Card, where:mixed)
+    +findCard(card:Card, location:mixed, index:int, tap:boolian):Card
+    +getDeck():array
+    +getDiscard():array
+}
+class server{
+    -playerList:object
+    -game
+    +disconnect()
+    +user input()
+    +ready(name)
+    +deckBtn()
+    +passBtn()
+    +endPhaseBtn()
+    +endTurnBtn()
+    +clickCard()
+    +filledForm()
+    +sendPic()
+    +boardUpdate()
+}
+class client{
+    -messages
+    -form
+    -input
+    -usernameInputvalue
+    -username:String
+    -allCards:object
+    -gameOver:boolian
+    +submit(e)
+    +chat message(msg)
+    +num of players(playerList)
+    +turn start(name)
+    +phase(text:String, name:String)
+    +move(name:String,cardName:String,from:String,to:String,winner)
+    +fill(form:object,name:String)
+    +accepted input(output)
+    +image(info:object,where:array,cardObject,Card)
+    +confirmBtn(formObject)
+    +ready()
+    +deck()
+    +pass()
+    +endPhase()
+    +endTurn()
+    +visabile()
+    +openModal(modal)
+    +close(modal)
+}
+PlayerClass-->"*"Card
+BoardClass-->"*"Card
+Rules-->"*"PlayerClass
+Rules-->BoardClass
+server-->"*"client
+server..>Rules
+@enduml
