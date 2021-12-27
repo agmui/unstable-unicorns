@@ -1,3 +1,6 @@
+multi action cards
+recursive cards
+nursery implementation
 @startuml
 class Card{
     -name:String
