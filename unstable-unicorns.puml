@@ -1,6 +1,8 @@
 multi action cards
 recursive cards
 nursery implementation
+card cant affect itself
+multi of the same action card
 @startuml
 class Card{
     -name:String

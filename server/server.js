@@ -118,11 +118,11 @@ io.on('connection', (socket) => {
             num:selectedCard.num
         }
         if(location[0] === name) {//if it is player's own cards
-            let [form, move] = game.play(name, cardName, location[1], selectedCard.num)
+            let form = game.play(name, cardName, location[1], selectedCard.num)
             if(form !== false){
                 switch(form.type){
                     case 'discard':
-                        //TODO
+                        form = {display: [{name:name, location:'Hand'}], type: form.type}
                         break
                     case 'sacrifice':
                         //display stable
@@ -137,21 +137,26 @@ io.on('connection', (socket) => {
                         form = {display : oppStable, type: form.type}
                         break
                     case 'draw':
-                        //TODO
+                        form = {confirm : 'justConfirm', type: form.type}
                         break
                     case 'steal':
                         //TODO
                         break
                     case 'bringBack':
+                        io.emit('move', name, cardName, 'Hand', 'Stable', false)
                         //TODO
                         break
                     case 'trade':
+                        io.emit('move', name, cardName, 'Hand', 'Stable', false)
                         //TODO
+                        break
+                    case 'use':
+                        //for playing basic unicorns
+                        form = {confirm:'justConfirm',type:form.type, location:'Hand', cardName:cardName}
                         break
                 }
                 io.emit('fill', form, name)
                 console.log('sent form:', form)
-                if(move) io.emit('move', name, card, 'Hand', 'Stable', false)
             }
         } else {//may not be needed
             console.log('not in players hand')

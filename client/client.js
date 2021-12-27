@@ -136,27 +136,53 @@ socket.on('fill', function(form, name){
   //display action
   document.getElementById('displayCards').innerHTML = form.type+'\n'
   console.log('recived form:', form)//ts
-  for(let i of form.display){
-    //display the players name in popup
-    document.getElementById('displayCards').insertAdjacentHTML('beforeend', i.name)
-
-    //display cards in popup
-    img = document.getElementById(i.name+i.location).cloneNode(true)
-    for(let j of img.childNodes){
-      //TODO: remove activated card form popup
-
-      //TODO make clicking a card toggle and set up higlight
-      j.onclick = () => {
-        sendForm.push({
-          //input card details
-          name: i.name,
-          location: i.location,
-          cardName: j.id,
-          type: form.type
-        })
-      }
+  if(form.confirm==='justConfirm'){
+    if(form.type === 'use'){ //basic unicorn case
+      sendForm.push({
+        name: name,
+        location: form.location,
+        cardName: form.cardName,
+        type: form.type
+      })
+    } else if(form.type === 'draw'){//draw case
+      //make it so it can take multiple cards
+      sendForm.push({
+        name: name,
+        location:  'deck',
+        cardName: 'random',
+        type: form.type
+      })
     }
-    document.getElementById('displayCards').appendChild(img)
+
+
+  } else {
+    for(let i of form.display){
+      //display the players name in popup
+      document.getElementById('displayCards').insertAdjacentHTML('beforeend', i.name)
+
+      //display cards in popup
+      img = document.getElementById(i.name+i.location).cloneNode(true)
+      for(let j of img.childNodes){
+        if(j.innerHTML && j.getAttribute("inUse")){ //to prevent a card from selecting itself
+          console.log('ts pass')
+          j.setAttribute("inUsed", true)
+          j.remove()
+        }
+        //TODO: remove activated card form popup
+
+        //TODO make clicking a card toggle and set up higlight
+        j.onclick = () => {
+          sendForm.push({
+            //input card details
+            name: i.name,
+            location: i.location,
+            cardName: j.id,
+            type: form.type
+          })
+        }
+      }
+      document.getElementById('displayCards').appendChild(img)
+    }
   }
   //display confirm btn
   confirmBtnElement = document.getElementById('confirm')
@@ -192,6 +218,7 @@ socket.on("image", function (info, where, cardObject) {
       let location = img.parentElement.id.slice(playerGettingLookedAt.length)
       console.log('sending play request')
       socket.emit('clickCard', username, cardObject.name, [playerGettingLookedAt, location]);
+      img.setAttribute('inUse', true)
 
       //====opens popup===
       //TODO: checks are when a card is played form hand dont popup
@@ -204,6 +231,7 @@ socket.on("image", function (info, where, cardObject) {
     allCards[cardObject.name] = cardObject;
     img.id = cardObject.name
     img.name = cardObject.name 
+    img.setAttribute("inUse", false)
     img.setAttribute("data-modal-target", "#modal")
     img.setAttribute("width", 150)
     img.setAttribute("height", 200)

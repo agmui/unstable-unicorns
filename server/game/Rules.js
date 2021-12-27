@@ -24,8 +24,11 @@ class rules {
         this.bypass = []
     }
     setup() {
-        let c = this.findCard('Glitter Bomb', 'Deck')
-        //let c = this.findCard('Unicorn Poison', 'Deck')
+        // let c = this.findCard('Glitter Bomb', 'Deck')
+        // let c = this.findCard('Unicorn Poison', 'Deck')
+        let c = this.findCard('Wishing Well', 'Deck')
+        this.move('player1', c, 'Deck', 'Hand', false, true)
+        c = this.findCard('Baby Unicorn (Green)', 'Deck')
         this.move('player1', c, 'Deck', 'Hand', false, true)
         c = this.findCard('Baby Unicorn (Pink)', 'Deck')
         this.move('player1', c, 'Deck', 'Stable', false, true)
@@ -213,32 +216,12 @@ class rules {
         }
         //checks if there is anything at the location
 
-        let move = false
-        switch(card.type|location){
-            case 'Magic'|'Hand':
-                break
-            case 'Upgrade'|'Hand':
-            case 'Downgrade'|'Hand':
-                //if(this.move(name, card, "Hand", "Stable") === false) return false
-                //move = true
-                //break
-            case 'Unicorn'|'Hand': //TODO make a way to reopen popup
-                if(this.move(name, card, "Hand", "Stable") === false) return false
-                move = true
-                break
-            case 'Magic'|'Stable':
-                return false//should not be posible
-            case 'Upgrade'|'Stable':
-            case 'Downgrade'|'Stable':
-                break
-            case 'Unicorn'|'Stable':
-                break
-            default:
-                //ban
-        }
+        //random checks
+        if(card.type === 'Magic' && location === 'Stable') return false//should not be poisble
+        if(card.type === 'Baby Unicorn' && location === 'Stable') return false
 
         console.log('PLAYED',cardName)
-        return [card.action[num], move]
+        return (card.action[num])? card.action[num] : {type:'use'}
     }
 
     CardEffect(name, cardName, location, form){
@@ -257,7 +240,7 @@ class rules {
                 break
             }
         }
-        if(validInput === false) return [false, false, false]
+        if(validInput === false && form[0].type !== 'use') return [false, false, false]//fix
 
         //TODO check if number of actions in form matches
 
@@ -268,7 +251,7 @@ class rules {
                     /*D: Discard (Hand > discard)
                     params: (board) (name) (card)
                     [Glitter Bomb]*/
-                    this.discard()//TODO
+                    this.discard(affectedPlayer.name, affectCard)
                     break
                 case 'sacrifice':
                     /*
@@ -289,6 +272,7 @@ class rules {
                     params:(# of cards) (card type)
                     [controlled destruction]
                     [unicorn poison]*/
+                    console.log('ts==')
                     this.destroy(affectedPlayer.name, affectCard)
                     move.push({
                         name: affectedPlayer.name,
@@ -302,7 +286,7 @@ class rules {
                     Draw: (deck > Hand)
                     params: (board) (# of cards) (each player/ who)
                     [Wishing Well]*/
-                    this.draw()//TODO
+                    this.draw(affectedPlayer.name, affectCard)//TODO
                     break
                 case 'steal':
                     /*
@@ -325,6 +309,16 @@ class rules {
                     [Unfair Bargain]*/
                     this.trade()//TODO
                     break
+                case 'use':
+                    this.move(name,card,"Hand", "Stable", false, true)
+                    validInput = true
+                    move.push({
+                        name: affectedPlayer.name,
+                        cardName: affectCard.name,
+                        from:'Hand',
+                        to:name+'Stable'
+                    })
+                    break
                 /*
                 Chos: choose a card
                 params: (board)  (where) (card type)
@@ -342,11 +336,23 @@ class rules {
                 */
             }
         }
+        //for magic types or maybe unicorn types
+        if(card.type==='Magic'){
+            this.discard(name, card)
+            move.push({
+                name: name,
+                cardName: card.name,
+                from:'Hand',
+                to:'discard'
+            })
+        }
         return [validInput, moreAction, move]
     }
 
     
-
+    discard(name, card){
+        this.move(name, card, "Hand", "discard", false, true)
+    }
     sacrifice(name, card){
         this.move(name, card, "Stable", "discard", false, true)
     }
