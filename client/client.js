@@ -97,12 +97,12 @@ socket.on("move", function (name, cardName, from, to, winner) {
 
   //update client screen 
   //have a checks if it is player's turn
-  if (from == "deck" || from == "discard") {
-    return
-  }
+  if (from === "Deck" || from === "Discard") return//TODO
+
   let player = document.getElementById(name+from)
   //TODO: insure it grabs the card if multiple people have the same card
-  if (to == "deck" || to == "discard") {
+  console.log('ts from:', from, 'to:',to)
+  if (to === "Deck" || to === "Discard") {
     //moving card to deck/discard
     for(let i of player.childNodes) {
       if (i.id===cardName){
@@ -372,10 +372,15 @@ const hostDebug = async () => {
 
 //player1====================================================
 async function player1Debug() {
-  await delay(500);
-  findNode("player1Hand", "Controled Destruction").click()
+  // await delay(500);
+  findNode("player1Hand", "Wishing Well").click()
 
   await delay(100);
+  document.getElementById("displayCards").childNodes[2].childNodes[1].click()
+  await delay(200);
+  document.getElementById("confirm").click()
+  await delay(100);
+  document.getElementById("confirm").click()
   /*findNode("steal", "The Great Narwhal").click()
 
   document.getElementById("confirm").click()

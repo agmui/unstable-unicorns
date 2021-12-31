@@ -46,8 +46,8 @@ class rules {
             return false
         }
         else if (this.bypass.length > 0) return false// ensures that once inturupt is pressed noone else can go
-        if (card == 'random') {
-            card = (from == 'deck') ? this.drawFromDeck(1) : this.drawFromDiscard();
+        if (card === 'random') {
+            card = (from === 'Deck') ? this.board.drawFromDeck(1) : this.board.drawFromDiscard();
         }
         if (card instanceof Array == false) {// check if card param is a list
             card = [card]
@@ -58,7 +58,7 @@ class rules {
             case "Deck":
                 //checks if card is in domain
                 if(this.board.removeCard(card, from)===null) return false
-                if (to != "discard" || to != "deck") {
+                if (to != "Discard" || to != "Deck") {
                     if (to == 'Hand' || to == 'Stable') {
                         to = [name, to]
                     }
@@ -71,7 +71,7 @@ class rules {
             case "Discard":
                 //checks if card is in domain
                 if(this.board.removeCard(card, from)===null) return false
-                if (to != "discard" || to != "deck") {
+                if (to != "Discard" || to != "Deck") {
                     if (to == 'Hand' || to == 'Stable') {
                         to = [name, to]
                     }
@@ -90,24 +90,27 @@ class rules {
                 if(this.getPlayer(from[0]).removeCard(card, from[1])===null) return false
         }
         switch (to) {
-            case "deck":
-            case "discard":
+            case "Deck":
+            case "Discard":
                 this.board.addCard(card, to)
                 break
             case "Stable":
                 //when Unicorn cards enter the stable
                 if(card[0].effect==='enter'){
                     card[0].tap = false//needs to be tested (used for case of recursive cards)
-                    output = {to:[name,to], card:card[0]}
+                    // output = {to:[name,to], card:card[0]}
+                    output = card
                 }
             case "Hand":
                 this.getPlayer(name).addCard(card, to)
+                output = card
                 break
-            default://if opponate is returned
+            default://if opponate is returned or is drawing form discard or deck
                 this.getPlayer(to[0]).addCard(card, to[1])
                     
                 //when Unicorn cards enter the stable
-                if(to[1] === 'Stable' && card[0].effect ==='enter')output = {to: to, card:card[0]}//fix
+                // if(to[1] === 'Stable' && card[0].effect ==='enter')output = {to: to, card:card[0]}//fix
+                output = card
         }
         for (let i of this.players) {// checks every move if someone wins, if true return username
             if (i.winCondition()) {
@@ -227,13 +230,15 @@ class rules {
     CardEffect(name, cardName, location, form){
         let card = this.findCard(cardName, location, name)
         let move = []
+        let numberOfTimes = 1;//used for multi of one action EX: draw 3
         if(card === false) return 
 
         //check if the form actions match the orignal card's actions
         let moreAction = false, validInput = false//signify if there are more acitons for a card
         for(let i=0; i < card.action.length; i++){
-            if(card.action[i].type === form[0].type && card.action[i].amount === form.length){
+            if(card.action[i].type === form[0].type){
                 validInput = true
+                numberOfTimes = card.action[i].amount
                 if(card.action[i+1]){
                     moreAction = true;
                 }
@@ -245,105 +250,124 @@ class rules {
         //TODO check if number of actions in form matches
 
         for(let affectedPlayer of form){
-            let affectCard = this.findCard(affectedPlayer.cardName, affectedPlayer.location, affectedPlayer.name)
-            switch(affectedPlayer.type){
-                case 'discard':
-                    /*D: Discard (Hand > discard)
-                    params: (board) (name) (card)
-                    [Glitter Bomb]*/
-                    this.discard(affectedPlayer.name, affectCard)
-                    break
-                case 'sacrifice':
+            let affectCard;
+            if(affectedPlayer.cardName === 'random'){
+                affectCard = 'random'
+            } else {
+                affectCard = this.findCard(affectedPlayer.cardName, affectedPlayer.location, affectedPlayer.name)
+            }
+            for (let i = 0; i < numberOfTimes; i++) {
+                switch(affectedPlayer.type){
+                    case 'discard':
+                        /*D: Discard (Hand > discard)
+                        params: (board) (name) (card)
+                        [Glitter Bomb]*/
+                        this.discard(affectedPlayer.name, affectCard)
+                        move.push({
+                            name: name,
+                            cardName: affectCard.name,
+                            from:'Hand',
+                            to:'Discard'
+                        })
+                        break
+                    case 'sacrifice':
+                        /*
+                        S: sacrifice (Stable > discard)
+                        params: (board) (# of cards) (card type)
+                        [Glitter Bomb]*/
+                        this.sacrifice(affectedPlayer.name, affectCard)
+                        move.push({
+                            name: name,
+                            cardName: affectCard.name,
+                            from:'Stable',
+                            to:'Discard'
+                        })
+                        break
+                    case 'destroy':
+                        /*
+                        Destroy: Destroy (opp Stable > discard)
+                        params:(# of cards) (card type)
+                        [controlled destruction]
+                        [unicorn poison]*/
+                        console.log('ts==')
+                        this.destroy(affectedPlayer.name, affectCard)
+                        move.push({
+                            name: affectedPlayer.name,
+                            cardName: affectCard.name,
+                            from:'Stable',
+                            to:'Discard'
+                        })
+                        break
+                    case 'draw':
+                        /*
+                        Draw: (deck > Hand)
+                        params: (board) (# of cards) (each player/ who)
+                        [Wishing Well]*/
+                        let cardName = this.draw(affectedPlayer.name, affectCard, numberOfTimes)
+                        move.push({
+                            name: affectedPlayer.name,
+                            cardName: cardName,
+                            from:'Deck',
+                            to:'Hand'
+                        })
+                        break
+                    case 'steal':
+                        /*
+                        Steal: (opponent Stable > Hand)
+                        params: (board) (# of cards) (type) (where)
+                        [Unicorn Trap]*/
+                        this.steal()//TODO
+                        break
+                    case 'bringBack':
+                        /*
+                        R: bringBack (Stable > Hand)
+                        params: (board) (# of cards) (each player)
+                        [Back Kick]*/
+                        this.bringBack()//TODO
+                        break
+                    case 'trade':
+                        /*
+                        T: trade (hand > opponent Hand OR Stable)
+                        params: (board) (# of cards)  (where) (type) (each player) (all hand)
+                        [Unfair Bargain]*/
+                        this.trade()//TODO
+                        break
+                    case 'use':
+                        this.move(name,card,"Hand", "Stable", false, true)
+                        validInput = true
+                        move.push({
+                            name: affectedPlayer.name,
+                            cardName: affectCard.name,
+                            from:'Hand',
+                            to:name+'Stable'
+                        })
+                        break
                     /*
-                    S: sacrifice (Stable > discard)
-                    params: (board) (# of cards) (card type)
-                    [Glitter Bomb]*/
-                    this.sacrifice(affectedPlayer.name, affectCard)
-                    move.push({
-                        name: name,
-                        cardName: affectCard.name,
-                        from:'Stable',
-                        to:'discard'
-                    })
-                    break
-                case 'destroy':
-                    /*
-                    Destroy: Destroy (opp Stable > discard)
-                    params:(# of cards) (card type)
-                    [controlled destruction]
-                    [unicorn poison]*/
-                    console.log('ts==')
-                    this.destroy(affectedPlayer.name, affectCard)
-                    move.push({
-                        name: affectedPlayer.name,
-                        cardName: affectCard.name,
-                        from:'Stable',
-                        to:'discard'
-                    })
-                    break
-                case 'draw':
-                    /*
-                    Draw: (deck > Hand)
-                    params: (board) (# of cards) (each player/ who)
-                    [Wishing Well]*/
-                    this.draw(affectedPlayer.name, affectCard)//TODO
-                    break
-                case 'steal':
-                    /*
-                    Steal: (opponent Stable > Hand)
-                    params: (board) (# of cards) (type) (where)
-                    [Unicorn Trap]*/
-                    this.steal()//TODO
-                    break
-                case 'bringBack':
-                    /*
-                    R: bringBack (Stable > Hand)
-                    params: (board) (# of cards) (each player)
-                    [Back Kick]*/
-                    this.bringBack()//TODO
-                    break
-                case 'trade':
-                    /*
-                    T: trade (hand > opponent Hand OR Stable)
-                    params: (board) (# of cards)  (where) (type) (each player) (all hand)
-                    [Unfair Bargain]*/
-                    this.trade()//TODO
-                    break
-                case 'use':
-                    this.move(name,card,"Hand", "Stable", false, true)
-                    validInput = true
-                    move.push({
-                        name: affectedPlayer.name,
-                        cardName: affectCard.name,
-                        from:'Hand',
-                        to:name+'Stable'
-                    })
-                    break
-                /*
-                Chos: choose a card
-                params: (board)  (where) (card type)
-                [Nightmare's Conjuring]
+                    Chos: choose a card
+                    params: (board)  (where) (card type)
+                    [Nightmare's Conjuring]
 
-                Ban:
-                prams: (board) (card type) (action)
-                [Broken Stable]
+                    Ban:
+                    prams: (board) (card type) (action)
+                    [Broken Stable]
 
-                Phase:
-                Skip or adds some turn
-                [Double Dutch]
+                    Phase:
+                    Skip or adds some turn
+                    [Double Dutch]
 
-                Look at player hand
-                */
+                    Look at player hand
+                    */
+                }
             }
         }
         //for magic types or maybe unicorn types
-        if(card.type==='Magic'){
+        if(card.type==='Magic' && !moreAction){
             this.discard(name, card)
             move.push({
                 name: name,
                 cardName: card.name,
                 from:'Hand',
-                to:'discard'
+                to:'Discard'
             })
         }
         return [validInput, moreAction, move]
@@ -351,18 +375,19 @@ class rules {
 
     
     discard(name, card){
-        this.move(name, card, "Hand", "discard", false, true)
+        this.move(name, card, "Hand", "Discard", false, true)
     }
     sacrifice(name, card){
-        this.move(name, card, "Stable", "discard", false, true)
+        this.move(name, card, "Stable", "Discard", false, true)
     }
 
     destroy(name, card){
-        this.move(name, card, "Stable", "discard", false, true)
+        this.move(name, card, "Stable", "Discard", false, true)
     }
 
     draw(name, card){
-        this.move(name, card, "Deck", "Hand", false, true)
+        let output = this.move(name, card, "Deck", "Hand", false, true)
+        return output[0].name
     }
 
     steal(name, oppName, card){
@@ -379,7 +404,7 @@ class rules {
     }
 
     choose(name, card){
-        this.move(name, card, "Hand", "discard", false, true)
+        this.move(name, card, "Hand", "Discard", false, true)
     }
 
     ban(){

@@ -174,6 +174,7 @@ io.on('connection', (socket) => {
                     for(let i of move){
                         io.emit('move', i.name, i.cardName, i.from, i.to, false)
                     }
+                    boardUpdate()
                 }
 
                 //check if there are anymore actions

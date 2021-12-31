@@ -27,10 +27,10 @@ class Board {
         let final = []
         for (let index = 0; index < num; index++) {
             do {
-                var x = getRandomInt(deck.length);
+                var x = getRandomInt(this.deck.length);
             } while (this.deck[x] == 0);
             //this.deckValue[x]--//will be subtracted in move function
-            final.push(new Card(deck[x].name, deck[x].text, deck[x].type, deck[x].img, deck[x].effect, deck[x].action))
+            final.push(new Card(this.deck[x].name, this.deck[x].text, this.deck[x].type, this.deck[x].img, this.deck[x].effect, this.deck[x].action))
         }
         return final
     }

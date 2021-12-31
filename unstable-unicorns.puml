@@ -3,6 +3,7 @@ recursive cards
 nursery implementation
 card cant affect itself
 multi of the same action card
+hopfuly implement that each card has a spesific id, so 2 alike cards dont get mixed up, and have it not be affected my hacks
 @startuml
 class Card{
     -name:String
