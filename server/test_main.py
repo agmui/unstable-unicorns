@@ -72,6 +72,9 @@ class TestPlayer(TestCase):
         self.p1.stable_remove(self.card1.name)
         self.assertEqual(0, len(self.p1.stable))
 
+    def test_tap_card(self):
+        self.fail()
+
     def test_play(self):
         self.p1.hand_add(self.card1)
         self.assertEqual(self.card1, self.p1.hand[self.card1.name])
@@ -238,8 +241,8 @@ class TestGame(TestCase):
 
 
 class TestGamePlay(TestCase):
-    def game1(self):
+    def test_game1(self):
         self.fail()
 
-    def game2(self):
+    def test_game2(self):
         self.fail()

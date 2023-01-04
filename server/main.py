@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import overload, Any
+from typing import Any
 import json
 import random
 import enum
@@ -126,7 +126,7 @@ class Card:
     # hand > discard
     def discard(self, name: Player):
         print("discarding", name, self.name)
-        name.hand_remove(self)
+        name.hand_remove(self.name)
         self.game.discard_pile.insert(0, self)
 
     # stable > discard
@@ -197,7 +197,7 @@ class Player:
 
     def tap_card(self, card_str: str) -> bool:
         card: Card = self.stable_find(card_str)
-        if card:
+        if card: # TODO make sure same card cant be tapped twice
             card.activate_card(self, Action.ACTIVATE)
             return True
         return False
@@ -306,19 +306,19 @@ class Game:
     def read_json(self):
         f = open('data.json')
         data = json.load(f)
-        for i in data:
-            for j in range(int(i['quantity'])):
+        for d in data:
+            for j in range(int(d['quantity'])):
                 # convert json action to Action enum
                 act = dict()
-                act[Action.START_OF_TURN] = i['action']["start_of_turn"]
-                act[Action.END_OF_TURN] = i['action']["end_of_turn"]
-                act[Action.ACTIVATE] = i['action']["activate"]
-                act[Action.ENTER_STABLE] = i['action']["enter_stable"]
-                act[Action.LEAVE_STABLE] = i['action']["leave_stable"]
+                act[Action.START_OF_TURN] = d['action']["start_of_turn"]
+                act[Action.END_OF_TURN] = d['action']["end_of_turn"]
+                act[Action.ACTIVATE] = d['action']["activate"]
+                act[Action.ENTER_STABLE] = d['action']["enter_stable"]
+                act[Action.LEAVE_STABLE] = d['action']["leave_stable"]
 
                 #                   same cards are indexed here
                 #                               v
-                card: Card = Card(i['name'] + str(j), i['type'], act, i['text'], self)
+                card: Card = Card(d['name'] + str(j), d['type'], act, d['text'], self)
                 self.deck.append(card)
                 self.all_cards[card.name] = card
         f.close()
@@ -406,6 +406,7 @@ if __name__ == '__main__':
     game.add_player(p2)
     game.add_player(p3)
     # TODO everyone chooses a bb unicorn
+    game.read_json()
     game.setup()
     while 1:  # main game loop
         player_turn: Player = game.get_turn()
@@ -415,8 +416,9 @@ if __name__ == '__main__':
         # ========================= start of turn======================================================================
         print("==start of turn phase==")
         game.run_start_of_turn()
-        if input("active any cards?[y/n]") == "y":
+        if input("active any cards?[y/n]\n") == "y": # TODO make system to check if any cards can be tapped
             while 1:
+                print(player_turn.stable.keys())
                 player_turn.tap_card(input("active any cards?[1...n]"))
                 if input("done?[y/n]") == "y":
                     break
@@ -427,7 +429,8 @@ if __name__ == '__main__':
 
         # ========================= draw or phase======================================================================
         print("==draw or play phase==")
-        if input("draw or play[p/d]") == "p":
+        if input("draw or play[p/d]\n") == "p":
+            print(player_turn.hand.keys())
             player_turn.play(input("play what?[1...n]"))
             # activate any other cards
             if input("active any other cards?[y/n]") == "y":
